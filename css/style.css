@@ -106,33 +106,34 @@
   --font-mono:'Orbitron',sans-serif;
 }
 
-/* --- pixel : 레트로 8비트 터미널 --- */
+/* --- pixel : 포근한 파스텔 도트 (2D 픽셀아트) --- */
 :root[data-skin="pixel"]{
-  --bg:#0C0F0A;
-  --bg-2:#0C0F0A;
-  --page-bg:#0C0F0A;
+  --bg:#F3EAD6;                    /* 따뜻한 크림(파치먼트) */
+  --bg-2:#F3EAD6;
+  --page-bg:#F3EAD6;
   --vignette:transparent;
 
-  --ink:#C7FFB0;
-  --ink-dim:#4E8C5A;
+  --ink:#4A4036;                   /* 따뜻한 다크 브라운 텍스트 */
+  --ink-dim:#8E7F6B;
 
-  --cyan:#33FF66;
-  --violet:#FFB000;
-  --pink:#FF5C7A;
-  --green:#58E36B;
+  --cyan:#3E8E8E;                  /* 왜   · 뮤트 틸 */
+  --violet:#7A6BB0;                /* 도구 · 더스티 라벤더 */
+  --pink:#CE6D7C;                  /* 적용 · 더스티 로즈 */
+  --green:#79996A;                 /* 지속 · 세이지 */
   --accent:var(--cyan);
 
-  --glass:#111710;
-  --glass-brd:#2A5E33;
-  --card-bg:#111710;
-  --overlay-bg:rgba(12,15,10,.94);
-  --track:rgba(199,255,176,.14);
-  --tint:rgba(51,255,102,.08);
+  --glass:#FBF5E7;                 /* 카드 = 밝은 크림 (평면) */
+  --glass-brd:#D8C6A4;             /* 부드러운 베이지 라인 */
+  --card-bg:#FBF5E7;
+  --overlay-bg:rgba(243,234,214,.93);
+  --track:rgba(74,64,54,.12);
+  --tint:rgba(62,142,142,.08);
 
-  --shadow:none;
-  --shadow-hover:none;
-  --btn-shadow:none;
-  --btn-hover-shadow:none;
+  /* 픽셀 느낌: 블러 없는 하드 오프셋 그림자(스티커처럼) */
+  --shadow:0 3px 0 rgba(74,64,54,.14);
+  --shadow-hover:0 5px 0 rgba(74,64,54,.18);
+  --btn-shadow:0 3px 0 rgba(74,64,54,.16);
+  --btn-hover-shadow:0 5px 0 rgba(74,64,54,.20);
 
   --radius:0;
   --radius-pill:0;
@@ -140,10 +141,10 @@
   --blur:none;
   --spin:0;
 
-  /* 입장 워프 색 — pixel: 형광 그린 코어 + 그린/앰버 링 */
-  --warp-a:#C7FFB0; --warp-b:#33FF66; --warp-c:#FFB000;
+  /* 입장 워프 색 — pixel: 크림 코어 + 로즈/라벤더 링 (부드럽게) */
+  --warp-a:#FBF5E7; --warp-b:#CE6D7C; --warp-c:#7A6BB0;
 
-  --glow-accent-text:0 0 2px currentColor;
+  --glow-accent-text:none;
   --glow-title:none;
   --glow-box-accent:none;
   --glow-card-accent:none;
@@ -325,7 +326,9 @@ body{
 /* 고정 미리보기 스와치 (활성 스킨과 무관하게 각 테마 느낌을 보여준다) */
 .skin-sw--paper{background:linear-gradient(135deg,#FFFFFF 58%,#6D28D9 58%)}
 .skin-sw--neon{background:radial-gradient(circle at 32% 30%,#22d3ee 0%,#a855f7 42%,#0a0a0f 78%)}
-.skin-sw--pixel{background:repeating-linear-gradient(#0C0F0A 0 3px,#33FF66 3px 4px)}
+.skin-sw--pixel{background-color:#F3EAD6;
+  background-image:conic-gradient(#CE6D7C 25%,#0000 0 50%,#7A6BB0 0 75%,#0000 0);
+  background-size:15px 15px}
 .skin-sw--blueprint{background:#0A1A2F}
 .skin-sw--blueprint::after{content:'';position:absolute;inset:0;background:
   repeating-linear-gradient(0deg,rgba(125,211,252,.65) 0 1px,transparent 1px 6px),
@@ -522,20 +525,24 @@ body{
   background:linear-gradient(120deg,#fff,#7ad7ff 45%,#c39bff);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 
-/* pixel — CRT 스캔라인 + phosphor 텍스트 + 프롬프트 느낌 버튼 */
+/* pixel — 은은한 도트 그리드 오버레이 + 프롬프트 느낌 버튼 (형광 발광 제거) */
 :root[data-skin="pixel"] body::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
-  background:repeating-linear-gradient(rgba(0,0,0,.28) 0 1px, transparent 1px 3px)}
-:root[data-skin="pixel"] .start-title,
-:root[data-skin="pixel"] .s-big,
-:root[data-skin="pixel"] .s-cover-title,
-:root[data-skin="pixel"] .s-closing-title,
-:root[data-skin="pixel"] .box__name,
-:root[data-skin="pixel"] .s-quote{text-shadow:0 0 2px currentColor}
+  background:radial-gradient(rgba(74,64,54,.05) 1px, transparent 1.5px);
+  background-size:4px 4px}
 :root[data-skin="pixel"] .enter-btn__label::before{content:"> "}
 :root[data-skin="pixel"] .slide-btn,
 :root[data-skin="pixel"] .enter-btn,
 :root[data-skin="pixel"] .box{image-rendering:pixelated}
+/* pixel — 상자 4색을 뮤트 파스텔로 (역할 ①왜 ②도구 ③적용 ④지속 유지) */
+:root[data-skin="pixel"] .box:nth-child(1){--box-accent:#3E8E8E!important}
+:root[data-skin="pixel"] .box:nth-child(2){--box-accent:#7A6BB0!important}
+:root[data-skin="pixel"] .box:nth-child(3){--box-accent:#CE6D7C!important}
+:root[data-skin="pixel"] .box:nth-child(4){--box-accent:#79996A!important}
+:root[data-skin="pixel"] .card[data-box="0"]{--card-accent:#3E8E8E!important}
+:root[data-skin="pixel"] .card[data-box="1"]{--card-accent:#7A6BB0!important}
+:root[data-skin="pixel"] .card[data-box="2"]{--card-accent:#CE6D7C!important}
+:root[data-skin="pixel"] .card[data-box="3"]{--card-accent:#79996A!important}
 
 /* blueprint — 제도 그리드 배경 */
 :root[data-skin="blueprint"] body::before{

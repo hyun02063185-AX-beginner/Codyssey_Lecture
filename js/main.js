@@ -169,12 +169,16 @@
           ctx.fill();
         });
       } else if (bgSkin === "pixel") {
-        // 성운 끄고, 도트 별 몇 개만 (형광 그린 사각 픽셀)
-        stars.forEach(s => {
-          s.a += s.tw; const alpha = 0.25 + Math.abs(Math.sin(s.a)) * 0.4;
-          s.y += s.dy; if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
-          ctx.fillStyle = `rgba(88,227,107,${alpha})`;
-          const px = 2 * DPR;
+        // 포근한 파스텔 픽셀이 성기게·느리게 떠다닌다 (밝은 크림 배경에 은은히)
+        const cols = ["206,109,124", "122,107,176", "62,142,142", "121,153,106"]; // 로즈·라벤더·틸·세이지
+        stars.forEach((s, i) => {
+          if (i % 2 !== 0) return;                              // 성기게
+          s.a += s.tw * 0.5;
+          const alpha = 0.05 + Math.abs(Math.sin(s.a)) * 0.10;  // 아주 옅게
+          s.y += s.dy * 0.4;                                    // 느리게
+          if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
+          ctx.fillStyle = `rgba(${cols[i % cols.length]},${alpha})`;
+          const px = 3 * DPR;
           ctx.fillRect(Math.round(s.x / px) * px, Math.round(s.y / px) * px, px, px);
         });
       } else if (bgSkin === "sayu") {
