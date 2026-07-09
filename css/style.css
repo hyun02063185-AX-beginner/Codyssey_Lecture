@@ -335,11 +335,15 @@ body{
   repeating-linear-gradient(90deg,rgba(125,211,252,.65) 0 1px,transparent 1px 6px)}
 .skin-sw--sayu{background:radial-gradient(circle at 50% 28%,#E8C98A 0%,#B4664A 46%,#0F0B09 84%)}
 
-/* 입장 워프 — 색은 스킨별 주제색(--warp-a 코어 · --warp-b/-c 링) */
-.warp{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;
-  background:radial-gradient(circle at 50% 50%,var(--warp-a) 0%,var(--warp-b) 6%,var(--warp-c) 16%,transparent 42%);
-  transform:scale(.2)}
-.warp.go{animation:warp 1.25s cubic-bezier(.5,0,.2,1) forwards}
+/* 입장 워프 — 화면 중앙의 작은 정원(正圓)이 전체 화면으로 차분히 퍼진다.
+   흰빛(빛)으로 빨려드는 느낌이 주가 되도록 코어(--warp-a)를 넓게,
+   테마 주제색(--warp-b/-c)은 바깥에서 은은하게만 감돈다.
+   요소 자체를 원(border-radius:50%)으로 두어 네모로 퍼지지 않게 한다. */
+.warp{position:fixed;top:50%;left:50%;width:220vmax;height:220vmax;margin:-110vmax 0 0 -110vmax;
+  border-radius:50%;z-index:60;pointer-events:none;opacity:0;transform-origin:50% 50%;
+  background:radial-gradient(circle,var(--warp-a) 0%,var(--warp-a) 40%,var(--warp-b) 66%,var(--warp-c) 84%,transparent 100%);
+  transform:scale(0)}
+.warp.go{animation:warp 1.6s cubic-bezier(.45,0,.2,1) forwards}
 
 /* ============================ SCENE 2 : 사유의 방 ====================== */
 .hud{position:absolute;top:0;left:0;right:0;z-index:20;
@@ -369,7 +373,7 @@ body{
 
 .boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;max-width:1080px;width:100%}
 .box{
-  position:relative;cursor:pointer;border-radius:var(--radius);padding:30px 22px 26px;min-height:230px;
+  position:relative;cursor:pointer;border-radius:var(--radius);padding:30px 22px 26px;min-height:250px;
   background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:var(--border-w) solid var(--glass-brd);box-shadow:var(--shadow);overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-between;
@@ -385,16 +389,16 @@ body{
 .box:hover{transform:translateY(-10px) scale(1.02);border-color:var(--box-accent);
   box-shadow:var(--shadow-hover),0 0 0 var(--border-w) var(--box-accent)}
 .box:hover::before{opacity:.34}
-.box__num{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.3em;color:var(--box-accent);opacity:.9}
-.box__name{font-family:var(--font-display);font-size:2rem;font-weight:700;margin-top:10px;letter-spacing:.1em;
+.box__num{font-family:var(--font-mono);font-size:.86rem;letter-spacing:.22em;color:var(--box-accent);opacity:1}
+.box__name{font-family:var(--font-display);font-size:2.2rem;font-weight:700;margin-top:10px;letter-spacing:.1em;
   color:var(--ink);text-shadow:var(--glow-box-accent)}
-.box__theme{font-size:.86rem;color:var(--ink-dim);margin-top:8px;line-height:1.5;font-weight:300}
+.box__theme{font-size:1.05rem;color:var(--ink-dim);margin-top:10px;line-height:1.5;font-weight:400}
 .box__footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
-.box__count{font-size:.72rem;color:var(--ink-dim);letter-spacing:.1em}
-.box__open{font-size:.72rem;color:var(--box-accent);letter-spacing:.12em;opacity:0;transform:translateX(-6px);transition:.35s}
+.box__count{font-size:.9rem;color:var(--ink-dim);letter-spacing:.06em}
+.box__open{font-size:.9rem;color:var(--box-accent);letter-spacing:.1em;opacity:0;transform:translateX(-6px);transition:.35s}
 .box:hover .box__open{opacity:1;transform:translateX(0)}
-.box__dots{display:flex;gap:5px;margin-top:14px}
-.box__dots i{width:8px;height:8px;border-radius:50%;background:var(--track);transition:.3s}
+.box__dots{display:flex;gap:6px;margin-top:16px}
+.box__dots i{width:11px;height:11px;border-radius:50%;background:var(--track);transition:.3s}
 .box__dots i.done{background:var(--box-accent);box-shadow:var(--glow-box-accent)}
 
 /* 카드 부채꼴 오버레이 */
@@ -433,8 +437,11 @@ body{
 .card__tag{font-size:.7rem;color:var(--ink-dim);line-height:1.4}
 .card__badge{position:absolute;top:12px;right:12px;font-size:.6rem;letter-spacing:.1em;
   padding:3px 8px;border-radius:var(--radius-pill);border:1px solid var(--card-accent);color:var(--card-accent)}
-.card__seen{position:absolute;bottom:14px;right:14px;font-size:.62rem;color:var(--green);opacity:0}
+.card__seen{position:absolute;bottom:14px;right:14px;font-size:.68rem;color:var(--green);opacity:0}
 .card.seen .card__seen{opacity:1}
+/* 완료(열람) 카드 — 상자색 헤일로로 성취를 시각화 */
+.card.seen{border-color:var(--card-accent);
+  box-shadow:var(--shadow),0 0 0 var(--border-w) var(--card-accent),var(--glow-card-accent)}
 
 /* ============================ SCENE 3 : 슬라이드 ======================= */
 .slide-topbar{position:absolute;top:0;left:0;right:0;z-index:20;
@@ -448,9 +455,16 @@ body{
 .slide-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));
   box-shadow:var(--glow-bar);transition:width .5s cubic-bezier(.2,.8,.2,1)}
 
-.slide-stage{width:min(960px,92vw);height:min(560px,74vh);position:relative}
+/* 슬라이드 강조색 = 현재 강의가 속한 상자색. 색값은 스킨 팔레트 변수를 쓰므로
+   스킨을 바꿔도 방의 상자색과 슬라이드 강조색이 자동으로 일치한다(①왜 ②도구 ③적용 ④지속). */
+:root[data-slide-box="0"]{--accent:var(--cyan)}
+:root[data-slide-box="1"]{--accent:var(--violet)}
+:root[data-slide-box="2"]{--accent:var(--pink)}
+:root[data-slide-box="3"]{--accent:var(--green)}
+
+.slide-stage{width:min(1040px,93vw);height:min(600px,78vh);position:relative}
 .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
-  padding:56px 60px;border-radius:var(--radius);
+  padding:44px 56px;border-radius:var(--radius);overflow:hidden;
   background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:var(--border-w) solid var(--glass-brd);box-shadow:var(--shadow);
   opacity:0;transform:translateY(30px) scale(.98);pointer-events:none;
@@ -459,47 +473,52 @@ body{
 .slide::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;
   background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);opacity:.65}
 
-.s-kicker{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.32em;color:var(--cyan);
-  text-shadow:var(--glow-accent-text);margin-bottom:20px}
-.s-cover-title{font-family:var(--font-display);font-weight:700;font-size:clamp(2.2rem,5.4vw,3.6rem);
-  line-height:1.18;letter-spacing:.04em;white-space:pre-line;color:var(--ink)}
-.s-cover-sub{margin-top:22px;color:var(--ink-dim);font-size:clamp(1rem,2.4vw,1.25rem);letter-spacing:.06em;font-weight:300}
+.s-kicker{font-family:var(--font-mono);font-size:.84rem;letter-spacing:.28em;color:var(--cyan);
+  text-shadow:var(--glow-accent-text);margin-bottom:20px;font-weight:600}
+.s-cover-title{font-family:var(--font-display);font-weight:700;font-size:clamp(2.6rem,5vw,3.7rem);
+  line-height:1.2;letter-spacing:.04em;white-space:pre-line;color:var(--ink)}
+.s-cover-sub{margin-top:22px;color:var(--ink-dim);font-size:clamp(1.2rem,2.4vw,1.5rem);letter-spacing:.04em;font-weight:400;line-height:1.5}
+/* 커버 배경 워터마크 강의번호 — 전시 도록 느낌, 텍스트 뒤에 은은하게 */
+.s-cover-wm{position:absolute;right:4%;top:50%;transform:translateY(-50%);z-index:-1;
+  font-family:var(--font-mono);font-weight:700;font-size:clamp(9rem,24vw,19rem);line-height:.8;
+  letter-spacing:-.03em;color:var(--accent);opacity:.09;pointer-events:none;filter:var(--glow-title)}
 
-.s-big{font-family:var(--font-display);font-weight:700;font-size:clamp(3rem,8vw,5.6rem);line-height:1.05;
+.s-big{font-family:var(--font-display);font-weight:700;font-size:clamp(2.8rem,6.2vw,4.6rem);line-height:1.12;
   white-space:pre-line;letter-spacing:.02em;color:var(--ink);
   filter:var(--glow-title)}
-.s-big-sub{margin-top:26px;color:var(--ink-dim);font-size:clamp(1rem,2.3vw,1.2rem);line-height:1.6;max-width:34ch;font-weight:300}
+.s-big-sub{margin-top:24px;color:var(--ink-dim);font-size:clamp(1.25rem,2.3vw,1.55rem);line-height:1.6;max-width:32ch;font-weight:400}
 
-.s-title{font-family:var(--font-display);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.4rem);color:var(--ink)}
-.s-sub{margin-top:8px;color:var(--cyan);font-size:.92rem;letter-spacing:.14em;font-weight:600}
-.s-list{margin-top:30px;display:flex;flex-direction:column;gap:16px;list-style:none}
-.s-list li{position:relative;padding-left:34px;font-size:clamp(1.02rem,2.2vw,1.28rem);line-height:1.5;color:var(--ink);
+.s-title{font-family:var(--font-display);font-weight:700;font-size:clamp(1.95rem,3.4vw,2.5rem);line-height:1.25;color:var(--ink)}
+.s-sub{margin-top:10px;color:var(--cyan);font-size:clamp(1.02rem,1.8vw,1.18rem);letter-spacing:.06em;font-weight:700}
+.s-list{margin-top:26px;display:flex;flex-direction:column;gap:14px;list-style:none}
+.s-list li{position:relative;padding-left:32px;font-size:clamp(1.15rem,2vw,1.4rem);line-height:1.55;color:var(--ink);
   opacity:0;transform:translateX(-14px);animation:itemIn .5s forwards}
-.s-list li::before{content:"";position:absolute;left:0;top:.55em;width:14px;height:14px;border-radius:calc(var(--radius) / 3.5);
+.s-list li::before{content:"";position:absolute;left:0;top:.5em;width:13px;height:13px;border-radius:calc(var(--radius) / 3.5);
   background:linear-gradient(135deg,var(--cyan),var(--violet));box-shadow:var(--glow-bar);transform:rotate(45deg)}
 
-.s-quote{font-family:var(--font-display);font-size:clamp(1.6rem,4vw,2.6rem);line-height:1.5;color:var(--ink);
-  text-align:center;font-weight:400}
-.s-quote-by{margin-top:26px;text-align:center;color:var(--cyan);letter-spacing:.2em;font-size:.82rem;font-family:var(--font-mono)}
+.s-quote{font-family:var(--font-display);font-size:clamp(1.75rem,3.6vw,2.5rem);line-height:1.5;color:var(--ink);
+  text-align:center;font-weight:400;white-space:pre-line}
+.s-quote-by{margin-top:24px;text-align:center;color:var(--cyan);letter-spacing:.2em;font-size:.92rem;font-weight:600;font-family:var(--font-mono)}
 
-.s-split{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:32px}
-.s-col{border-radius:var(--radius);padding:24px;border:var(--border-w) solid var(--glass-brd);background:var(--tint)}
-.s-col:first-child{border-top:2px solid var(--violet)}
-.s-col:last-child{border-top:2px solid var(--cyan)}
-.s-col h4{font-family:var(--font-display);font-size:1.3rem;margin-bottom:14px;color:var(--ink)}
-.s-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
-.s-col li{font-size:1rem;color:var(--ink);padding-left:18px;position:relative;line-height:1.4}
+.s-split{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:26px}
+.s-col{border-radius:var(--radius);padding:22px;border:var(--border-w) solid var(--glass-brd);background:var(--tint)}
+/* 좌/우 상단 라인 = 현재 강의가 속한 상자색(--accent) 기반 2톤 → 스킨·상자 색과 일관 */
+.s-col:first-child{border-top:2px solid var(--accent)}
+.s-col:last-child{border-top:2px solid color-mix(in srgb,var(--accent) 45%,transparent)}
+.s-col h4{font-family:var(--font-display);font-size:clamp(1.3rem,2vw,1.55rem);margin-bottom:14px;color:var(--ink)}
+.s-col ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.s-col li{font-size:clamp(1.05rem,1.7vw,1.28rem);color:var(--ink);padding-left:18px;position:relative;line-height:1.5}
 .s-col li::before{content:"·";position:absolute;left:4px;color:var(--cyan);font-weight:700}
 
 .s-img{max-width:100%;max-height:52vh;border-radius:var(--radius);border:var(--border-w) solid var(--glass-brd);box-shadow:var(--shadow);object-fit:contain}
 .s-img-cap{margin-top:14px;color:var(--ink-dim);font-size:.86rem;text-align:center}
 .s-img-fallback{margin-top:16px;color:var(--ink-dim);font-size:.9rem;padding:40px;border:1px dashed var(--glass-brd);border-radius:var(--radius);text-align:center}
 
-.s-closing-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);color:var(--ink)}
-.s-teaser{margin-top:28px;padding:18px 24px;border-radius:var(--radius);border:var(--border-w) solid var(--glass-brd);
-  background:var(--tint);color:var(--ink);font-size:1.02rem;line-height:1.6;letter-spacing:.02em;
-  display:inline-flex;align-items:center;gap:12px}
-.s-teaser::before{content:"→";color:var(--cyan);font-weight:700}
+.s-closing-title{font-family:var(--font-display);font-size:clamp(2.2rem,4.4vw,3.2rem);line-height:1.2;white-space:pre-line;color:var(--ink)}
+.s-teaser{margin-top:26px;padding:18px 24px;border-radius:var(--radius);border:var(--border-w) solid var(--glass-brd);
+  background:var(--tint);color:var(--ink);font-size:clamp(1.12rem,1.9vw,1.35rem);line-height:1.65;letter-spacing:.02em;
+  white-space:pre-line;display:inline-flex;align-items:flex-start;gap:12px}
+.s-teaser::before{content:"→";color:var(--cyan);font-weight:700;flex:none}
 
 .slide-nav{position:absolute;bottom:28px;left:0;right:0;z-index:20;
   display:flex;align-items:center;justify-content:center;gap:24px}
@@ -573,7 +592,7 @@ body{
 :root[data-skin="sayu"] .enter-btn{transition:transform .7s cubic-bezier(.2,.8,.2,1),box-shadow .7s,letter-spacing .7s}
 :root[data-skin="sayu"] .enter-btn__glow{animation-duration:10s}
 :root[data-skin="sayu"] .skin-opt{transition:transform .5s,border-color .5s,color .5s,box-shadow .5s}
-:root[data-skin="sayu"] .warp.go{animation-duration:2.5s}
+:root[data-skin="sayu"] .warp.go{animation-duration:3.2s}
 :root[data-skin="sayu"] .box{transition:transform 1s cubic-bezier(.2,.8,.2,1),box-shadow 1s,border-color 1s}
 :root[data-skin="sayu"] .box::before{transition:opacity 1s}
 :root[data-skin="sayu"] .box__open{transition:.7s}
@@ -595,10 +614,10 @@ body{
 @keyframes floatIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes warp{
-  0%{opacity:0;transform:scale(.2)}
-  35%{opacity:.9}
-  70%{opacity:1;transform:scale(2.6)}
-  100%{opacity:0;transform:scale(6)}
+  0%{opacity:0;transform:scale(0)}          /* 중앙의 아주 작은 원 */
+  28%{opacity:1;transform:scale(1)}         /* 원이 전체 화면을 가득 채운다(흰빛 정점) */
+  55%{opacity:1;transform:scale(1.03)}      /* 잠시 머문다 — 차분하게 */
+  100%{opacity:0;transform:scale(1.12)}     /* 은은히 걷히며 강의실로 */
 }
 @keyframes pulseGuide{0%,100%{opacity:.55}50%{opacity:1}}
 @keyframes itemIn{to{opacity:1;transform:none}}
@@ -622,4 +641,57 @@ body{
   .boxes{grid-template-columns:1fr;max-width:340px}
   .hud__xp{width:100px}
   .slide{padding:40px 28px}
+
+  /* 세로모드: 상자 4개가 세로로 길어져 화면을 넘으므로 방을 세로 스크롤 가능하게 */
+  #scene-room{align-items:flex-start;overflow-y:auto;overflow-x:hidden}
+  .room-inner{padding:88px 20px 36px;gap:22px}
+  .box{min-height:150px}
+  .fan-overlay{position:fixed}   /* 스크롤과 무관하게 뷰포트에 고정 */
+
+  /* 세로모드 split(1컬럼으로 쌓임)은 조금 더 컴팩트하게 → 밀집 슬라이드 잘림 방지 */
+  .s-split{gap:14px;margin-top:18px}
+  .s-col{padding:16px}
+}
+
+/* ===== 모바일 가로모드(낮은 높이) — 강의 슬라이드 시청 최적화 =====
+   화면이 세로로 짧으므로: 상단바·네비를 얇게, 스테이지를 그 사이에 맞추고,
+   폰트·여백을 컴팩트하게. split은 폭이 넉넉하니 2컬럼 유지(세로로 쌓지 않음).
+   그래도 넘치면 슬라이드 안에서 스크롤되게 한다. */
+@media (orientation:landscape) and (max-height:500px){
+  .slide-topbar{padding:7px 16px}
+  .slide-lecture-name{font-size:.82rem}
+  .slide-counter{font-size:.72rem}
+  .slide-exit{padding:6px 12px;font-size:.74rem}
+  .slide-nav{bottom:7px;gap:14px}
+  .slide-btn{padding:6px 14px;font-size:.76rem}
+  .slide-dots i{width:7px;height:7px}
+
+  .slide-stage{width:min(94vw,940px);height:calc(100vh - 96px)}
+  .slide{padding:14px 26px;justify-content:flex-start;overflow-y:auto}
+
+  .s-split{grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}   /* 가로모드는 2컬럼 유지 */
+  .s-col{padding:12px 14px}
+  .s-col h4{font-size:clamp(1.05rem,3vw,1.25rem);margin-bottom:8px}
+  .s-col ul{gap:6px}
+  .s-col li{font-size:clamp(.9rem,2.3vw,1.05rem);line-height:1.4}
+
+  .s-kicker{font-size:.74rem;margin-bottom:10px}
+  .s-cover-title{font-size:clamp(1.5rem,5vw,2.1rem);line-height:1.15}
+  .s-cover-sub{font-size:clamp(.95rem,2.6vw,1.1rem);margin-top:10px}
+  .s-cover-wm{font-size:8rem;right:2%}
+
+  .s-big{font-size:clamp(1.9rem,6.5vw,3rem);line-height:1.12}
+  .s-big-sub{font-size:clamp(1rem,2.6vw,1.15rem);margin-top:12px;max-width:40ch}
+
+  .s-title{font-size:clamp(1.35rem,4vw,1.75rem);line-height:1.2}
+  .s-sub{font-size:clamp(.9rem,2.2vw,1rem);margin-top:6px}
+  .s-list{margin-top:12px;gap:8px}
+  .s-list li{font-size:clamp(.95rem,2.4vw,1.12rem);line-height:1.42;padding-left:26px}
+  .s-list li::before{width:10px;height:10px;top:.42em}
+
+  .s-quote{font-size:clamp(1.3rem,4vw,1.9rem);line-height:1.42}
+  .s-quote-by{margin-top:14px;font-size:.82rem}
+
+  .s-closing-title{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.18}
+  .s-teaser{font-size:clamp(.95rem,2.4vw,1.12rem);margin-top:12px;padding:12px 16px;line-height:1.5}
 }

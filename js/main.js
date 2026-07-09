@@ -33,14 +33,14 @@
   const SKIN_KEY = "axRoomSkin";
   const SKINS = ["paper", "neon", "pixel", "blueprint", "sayu"];
   const Skin = {
-    current: "paper",
+    current: "sayu",
     load() {
       let s = null;
       try { s = localStorage.getItem(SKIN_KEY); } catch (e) { /* localStorage 불가 */ }
-      this.set(SKINS.includes(s) ? s : "paper", false);   // 저장값 없으면 기본 paper
+      this.set(SKINS.includes(s) ? s : "sayu", false);   // 저장값 없으면 기본 사유의 방
     },
     set(name, persist) {
-      if (!SKINS.includes(name)) name = "paper";
+      if (!SKINS.includes(name)) name = "sayu";
       this.current = name;
       document.documentElement.dataset.skin = name;
       if (persist !== false) { try { localStorage.setItem(SKIN_KEY, name); } catch (e) {} }
@@ -101,9 +101,9 @@
       void warp.offsetWidth;        // reflow로 애니메이션 리셋
       warp.classList.add("go");
       btn.disabled = true;
-      setTimeout(() => goScene("room"), 620 * k);   // 화면이 하얗게 뜬 순간 전환
-      setTimeout(() => { window.revealBoxes && window.revealBoxes(); }, 780 * k);
-      setTimeout(() => { btn.disabled = false; }, 1300 * k);
+      setTimeout(() => goScene("room"), 820 * k);   // 원이 화면을 가득 덮은 뒤 전환
+      setTimeout(() => { window.revealBoxes && window.revealBoxes(); }, 1000 * k);
+      setTimeout(() => { btn.disabled = false; }, 1800 * k);
     });
   }
 
@@ -182,17 +182,14 @@
           ctx.fillRect(Math.round(s.x / px) * px, Math.round(s.y / px) * px, px, px);
         });
       } else if (bgSkin === "sayu") {
-        // 사유의 방 — 차가운 성운 끄고, 별이 내리는 천장:
-        // 따뜻한 골드 별빛을 성기게(약 1/3), 아주 느리고 은은하게(번쩍임 없음)
-        stars.forEach((s, i) => {
-          if (i % 3 !== 0) return;                              // 밀도 낮게
-          s.a += s.tw * 0.4;                                    // 아주 느린 반짝임
-          const alpha = 0.12 + Math.abs(Math.sin(s.a)) * 0.32;  // 낮은 투명도
-          s.y += s.dy * 0.35;                                   // 아주 느리게 내려온다
-          if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
+        // 사유의 방 — 차가운 성운은 끄되, 별빛은 네온만큼 밝게:
+        // 밝기·밀도·반짝임은 네온과 동일, 색만 따뜻한 골드 / 낙하만 차분하게
+        stars.forEach(s => {
+          s.a += s.tw; const alpha = 0.35 + Math.abs(Math.sin(s.a)) * 0.65;
+          s.y += s.dy * 0.6; if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
           ctx.beginPath();
           ctx.fillStyle = `rgba(224,197,138,${alpha})`;         // #E0C58A 별빛 골드
-          ctx.arc(s.x, s.y, s.r * 0.9, 0, Math.PI * 2);
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
           ctx.fill();
         });
       }

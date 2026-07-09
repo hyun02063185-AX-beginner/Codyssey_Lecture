@@ -18,10 +18,11 @@
   let activeLecture = null;
 
   /* ---------- 슬라이드 HTML 렌더 ---------- */
-  function renderSlide(s) {
+  function renderSlide(s, lecture) {
     switch (s.type) {
       case "cover":
         return `<div class="slide">
+          ${lecture ? `<span class="s-cover-wm">${String(lecture.id).padStart(2, "0")}</span>` : ""}
           <div class="s-kicker">${s.kicker || ""}</div>
           <h2 class="s-cover-title">${esc(s.title)}</h2>
           ${s.subtitle ? `<p class="s-cover-sub">${esc(s.subtitle)}</p>` : ""}
@@ -83,18 +84,19 @@
     current = 0;
 
     nameEl.textContent = `${String(lecture.id).padStart(2, "0")}강 · ${lecture.title}`;
-    if (box) document.documentElement.style.setProperty("--accent", box.accent);
+    // 강조색(--accent)은 상자 인덱스만 넘기고, 실제 색은 CSS에서 스킨 팔레트로 매핑한다
+    // → 방의 상자색과 슬라이드 강조색이 스킨에 상관없이 항상 일치한다
+    if (box) document.documentElement.dataset.slideBox = String(CURRICULUM.boxes.indexOf(box));
 
     // 렌더
-    stage.innerHTML = slides.map(renderSlide).join("");
+    stage.innerHTML = slides.map(s => renderSlide(s, lecture)).join("");
     dotsEl.innerHTML = slides.map((_, i) =>
       `<i data-i="${i}" class="${i === 0 ? "active" : ""}"></i>`).join("");
     dotsEl.querySelectorAll("i").forEach(d =>
       d.addEventListener("click", () => show(Number(d.dataset.i))));
 
     App.goScene("slides");
-    show(0);
-    Progress.mark(lecture.id);   // 열람 → 게이미피케이션 반영
+    show(0);   // 완료 표시는 마지막 슬라이드까지 봐야 켜진다(show에서 처리)
   }
 
   /* ---------- 슬라이드 전환 ---------- */
@@ -109,6 +111,9 @@
     dotsEl.querySelectorAll("i").forEach((d, idx) => d.classList.toggle("active", idx === i));
     prevBtn.disabled = i === 0;
     nextBtn.disabled = i === slides.length - 1;
+
+    // 마지막 슬라이드까지 도달하면 그때 '완료'로 표시 (끝까지 들어야 점이 켜진다)
+    if (activeLecture && i === slides.length - 1) Progress.mark(activeLecture.id);
   }
   const next = () => show(current + 1);
   const prev = () => show(current - 1);
