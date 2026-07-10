@@ -10,9 +10,10 @@
 /* ===================== 스킨 팔레트 (변수) ============================== */
 /* --- 기본값 = paper (미니멀 라이트) --- */
 :root{
-  --bg:#F6F5F1;
-  --bg-2:#FFFFFF;
-  --page-bg:radial-gradient(120% 120% at 50% -10%,#FFFFFF 0%,#F8F7F3 45%,#F1EFE9 100%);
+  --bg:#D8D7D1;
+  --bg-2:#E5E4DE;
+  /* 종이색 — 크림기 빼고 명도 낮춘 회색 종이(뉴스프린트 느낌) */
+  --page-bg:radial-gradient(125% 120% at 50% -12%,#DAD9D3 0%,#CFCEC7 55%,#C3C2BA 100%);
   --vignette:transparent;
 
   --ink:#1B1B1A;          /* text        */
@@ -24,10 +25,10 @@
   --green:#047857;        /* accent-4 · 지속 */
   --accent:var(--cyan);
 
-  --glass:#FFFFFF;                 /* surface        */
-  --glass-brd:#E4E1D9;             /* surface-border */
-  --card-bg:#FFFFFF;
-  --overlay-bg:radial-gradient(120% 100% at 50% 50%,rgba(255,255,255,.86),rgba(238,236,230,.96));
+  --glass:#E8E7E1;                 /* surface (카드=흰색 대신 연회색) */
+  --glass-brd:#C6C4BA;             /* surface-border */
+  --card-bg:#E8E7E1;
+  --overlay-bg:radial-gradient(120% 100% at 50% 50%,rgba(208,207,200,.85),rgba(194,193,186,.95));
   --track:rgba(0,0,0,.08);
   --tint:rgba(14,116,144,.06);
 
@@ -55,6 +56,16 @@
   --font-display:'Pretendard',system-ui,-apple-system,sans-serif;
   --font-body:'Pretendard',system-ui,-apple-system,'Malgun Gothic',sans-serif;
   --font-mono:'Pretendard',system-ui,sans-serif;
+}
+
+/* paper 전용 손글씨 — 개구(Gaegu). 종이+손글씨 감성(가독성 균형).
+   제목=700, 본문=400. 작은 기술 라벨(mono)은 가독 위해 그대로 둔다.
+   ★손글씨는 같은 px에서도 글자가 작게 렌더 → rem 기반 크기를 13% 키워 가독성 보정
+     (슬라이드·부채꼴 카드 오버플로우 없음 검증 완료. 다른 스킨엔 영향 없음). */
+:root[data-skin="paper"]{
+  --font-display:'Gaegu','Pretendard',system-ui,sans-serif;
+  --font-body:'Gaegu','Pretendard',system-ui,'Malgun Gothic',sans-serif;
+  font-size:113%;
 }
 
 /* --- neon : 다크 네온 / 글래스 (현재 모습 보존) --- */
@@ -269,6 +280,16 @@ body{
 /* 배경 캔버스 & 비네트 */
 #bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;background:transparent}
 .vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:var(--vignette)}
+/* paper 전용 — 미세한 종이 결(그레인) + 아주 옅은 가장자리 음영으로 눈부심 완화 */
+:root[data-skin="paper"] .vignette{
+  background-image:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='200'%3E%3Cfilter%20id='p'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='200'%20height='200'%20filter='url(%23p)'/%3E%3C/svg%3E"),
+    radial-gradient(135% 105% at 50% 20%,transparent 56%,rgba(120,108,84,.12) 100%);
+  background-size:200px 200px,cover;
+  background-repeat:repeat,no-repeat;
+  opacity:.16;
+  mix-blend-mode:multiply;
+}
 
 /* 씬 공통 */
 .scene{
@@ -280,17 +301,67 @@ body{
 }
 .scene.is-active{opacity:1;visibility:visible;pointer-events:auto;transform:scale(1)}
 
-/* ============================ SCENE 0 : 인트로(별똥별) ================= */
-/* 스킨과 무관하게 인트로는 밤하늘 — 어두운 배경 + 별/별똥별 캔버스가 주인공 */
-:root[data-route="intro"] body{
-  background:radial-gradient(circle at 50% 32%,#150f0b 0%,#0a0a12 62%,#000 100%)}
-:root[data-route="intro"] .vignette{
-  background:radial-gradient(circle at 50% 45%,transparent 40%,rgba(0,0,0,.55) 100%)}
-#scene-intro{cursor:pointer}
-.intro-inner{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
-.intro-hint{font-family:var(--font-display);letter-spacing:.34em;font-size:.9rem;padding-left:.34em;
-  color:rgba(224,197,138,.72);opacity:0;animation:introHint 3.6s ease-in-out 1.4s infinite}
-@keyframes introHint{0%,100%{opacity:0}50%{opacity:.9}}
+/* ============================ SCENE 0 : 인트로(4테마 화면보호기) ========= */
+/* 스킨과 무관 — 인트로 전용 캔버스(intro.js)가 4테마를 그린다. 공용 배경은 비움. */
+:root[data-route="intro"] body{ background:#07070d; }
+:root[data-route="intro"] .vignette{ background:transparent; }
+#scene-intro{ padding:0; }
+
+/* 4분할 랜딩 */
+.intro-grid{
+  position:absolute; inset:0;
+  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
+  gap:2px; background:#07070d; transition:opacity .45s ease;
+}
+.intro-grid.is-hiding{ opacity:0; pointer-events:none; }
+.intro-cell{
+  position:relative; overflow:hidden; cursor:pointer;
+  border:0; margin:0; padding:0; background:#0a0a14; outline:none;
+}
+.intro-cell__cv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.intro-cell__lb{
+  position:absolute; left:18px; bottom:15px; z-index:2;
+  font-family:var(--font-display); font-size:.92rem; letter-spacing:.24em;
+  color:rgba(255,255,255,.72); text-shadow:0 1px 8px rgba(0,0,0,.6);
+  transition:color .25s, transform .25s; transform-origin:left;
+}
+.intro-cell::after{
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  box-shadow:inset 0 0 0 0 rgba(255,255,255,0);
+  background:radial-gradient(120% 80% at 50% 120%, rgba(255,255,255,.06), transparent 60%);
+  opacity:0; transition:opacity .25s, box-shadow .25s;
+}
+.intro-cell:hover::after, .intro-cell:focus-visible::after{
+  opacity:1; box-shadow:inset 0 0 0 2px rgba(255,255,255,.5);
+}
+.intro-cell:hover .intro-cell__lb, .intro-cell:focus-visible .intro-cell__lb{
+  color:#fff; transform:scale(1.06);
+}
+
+/* 선택 후 전체화면(화면보호기) */
+.intro-full{ position:absolute; inset:0; z-index:5; cursor:pointer; will-change:transform; }
+.intro-full[hidden]{ display:none; }
+.intro-full__cv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.intro-back{
+  position:absolute; top:20px; left:22px; z-index:3;
+  background:rgba(0,0,0,.32); border:1px solid rgba(255,255,255,.22);
+  color:rgba(255,255,255,.82); padding:8px 14px; border-radius:var(--radius-pill);
+  cursor:pointer; font-size:.8rem; letter-spacing:.06em; font-family:var(--font-body);
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); transition:.2s;
+}
+.intro-back:hover{ color:#fff; border-color:rgba(255,255,255,.5); }
+.intro-enter{
+  position:absolute; left:0; right:0; bottom:8%; z-index:3; text-align:center;
+  font-family:var(--font-display); font-size:1rem; letter-spacing:.3em; padding-left:.3em;
+  color:rgba(255,255,255,.85); text-shadow:0 2px 12px rgba(0,0,0,.6);
+  opacity:0; transition:opacity 1.2s ease; pointer-events:none;
+}
+.intro-enter.show{ opacity:1; animation:introEnterPulse 3s ease-in-out .6s infinite; }
+@keyframes introEnterPulse{ 0%,100%{opacity:.55} 50%{opacity:1} }
+@media (prefers-reduced-motion: reduce){
+  .intro-grid, .intro-full{ transition:none; }
+  .intro-enter.show{ animation:none; opacity:1; }
+}
 
 /* ============================ SCENE 1 : 시작 ============================ */
 .start-inner{text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;
@@ -532,6 +603,8 @@ body{
 .s-col li::before{content:"·";position:absolute;left:4px;color:var(--cyan);font-weight:700}
 
 .s-img{max-width:100%;max-height:52vh;border-radius:var(--radius);border:var(--border-w) solid var(--glass-brd);box-shadow:var(--shadow);object-fit:contain}
+/* 도표(구조도) 슬라이드 — 글자가 들어간 다이어그램은 최대한 크게 보여준다 */
+.s-img--diagram{max-height:64vh;width:min(100%,1180px)}
 .s-img-cap{margin-top:14px;color:var(--ink-dim);font-size:.86rem;text-align:center}
 .s-img-fallback{margin-top:16px;color:var(--ink-dim);font-size:.9rem;padding:40px;border:1px dashed var(--glass-brd);border-radius:var(--radius);text-align:center}
 

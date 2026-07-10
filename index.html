@@ -18,6 +18,8 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600&family=Space+Grotesk:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
   <!-- 사유의 방: 명조(Nanum Myeongjo) -->
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- 페이퍼: 손글씨(개구/Gaegu) -->
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -25,10 +27,28 @@
   <canvas id="bg-canvas"></canvas>
   <div class="vignette"></div>
 
-  <!-- ================= SCENE 0 : 인트로(별똥별) ================= -->
-  <section id="scene-intro" class="scene is-active" aria-label="인트로 — 클릭하여 시작">
-    <div class="intro-inner">
-      <p class="intro-hint">화면을 클릭하세요</p>
+  <!-- ================= SCENE 0 : 인트로(4테마 화면보호기) ================= -->
+  <section id="scene-intro" class="scene is-active" aria-label="인트로 — 화면보호기 테마를 고르세요">
+    <!-- 4분할 랜딩 -->
+    <div id="intro-grid" class="intro-grid" role="group" aria-label="화면보호기 테마 4종">
+      <button class="intro-cell" type="button" data-theme="star" aria-label="별똥별 테마 선택">
+        <canvas class="intro-cell__cv"></canvas><span class="intro-cell__lb">별똥별</span>
+      </button>
+      <button class="intro-cell" type="button" data-theme="sakura" aria-label="벚꽃 테마 선택">
+        <canvas class="intro-cell__cv"></canvas><span class="intro-cell__lb">벚꽃</span>
+      </button>
+      <button class="intro-cell" type="button" data-theme="fireworks" aria-label="불꽃놀이 테마 선택">
+        <canvas class="intro-cell__cv"></canvas><span class="intro-cell__lb">불꽃놀이</span>
+      </button>
+      <button class="intro-cell" type="button" data-theme="snow" aria-label="함박눈 테마 선택">
+        <canvas class="intro-cell__cv"></canvas><span class="intro-cell__lb">함박눈</span>
+      </button>
+    </div>
+    <!-- 선택 후 전체화면(화면보호기) -->
+    <div id="intro-full" class="intro-full" tabindex="-1" aria-label="화면을 클릭하면 입장" hidden>
+      <canvas id="intro-full-cv" class="intro-full__cv"></canvas>
+      <button id="intro-back" class="intro-back" type="button">← 테마 다시 고르기</button>
+      <p id="intro-enter" class="intro-enter">화면을 클릭하면 입장</p>
     </div>
   </section>
 
@@ -126,5 +146,6 @@
   <script src="js/room.js"></script>
   <script src="js/slides.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/intro.js"></script>
 </body>
 </html>

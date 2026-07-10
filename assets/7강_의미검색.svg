@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">단어가 아니라 뜻으로 찾는다</title>
+  <desc id="d">"출산 규정 있어?"라고 물으면, 옛날 검색은 '출산' 글자가 든 문장만 찾지만, 지식검색(RAG)은 육아휴직·모성보호처럼 뜻이 가까운 자료까지 함께 찾아온다.</desc>
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#E0C58A"/></marker>
+    <marker id="ax" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#7C6B54"/></marker>
+    <style><![CDATA[
+      :root{ --bg:#171009; --grp:#1F1710; --card:#271C12; --edge:#4A3B2A;
+             --ink:#EDE4D6; --dim:#B5A48D; --go:#E0C58A; --gold:#D98E6B; --mut:#7C6B54; }
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:var(--ink);font-weight:700;} .ts{fill:var(--dim);}
+      .lbl{fill:var(--ink);font-weight:600;} .sub{fill:var(--dim);}
+      .card{fill:var(--card);stroke:var(--edge);stroke-width:1.5;}
+      .q{fill:#2E2013;stroke:var(--go);stroke-width:2.4;}
+      .go{stroke:var(--go);stroke-width:2;} .chip{fill:var(--grp);stroke:var(--edge);stroke-width:1;}
+      .chipgo{fill:#2E2013;stroke:var(--go);stroke-width:1.6;}
+      .egold{fill:none;stroke:#E0C58A;stroke-width:2.5;} .emut{fill:none;stroke:#7C6B54;stroke-width:2;}
+    ]]></style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="720" fill="var(--bg)"/>
+  <text x="48" y="62" font-size="31" class="tt">단어가 아니라, 뜻으로 찾는다</text>
+  <text x="50" y="96" font-size="16" class="ts">지식검색(RAG)의 핵심 — <tspan fill="#EDE4D6" font-weight="600">글자가 아니라 ‘의미’로</tspan> 검색한다</text>
+
+  <!-- 질문 -->
+  <rect x="48" y="300" width="250" height="96" rx="14" class="q"/>
+  <text x="173" y="342" font-size="17" text-anchor="middle" class="lbl">내 질문</text>
+  <text x="173" y="370" font-size="16" text-anchor="middle" class="tt">“출산 규정 있어?”</text>
+
+  <!-- 위: 옛날 단어검색 (흐리게) -->
+  <path d="M298 330 C 340 330, 350 220, 392 220" class="emut" marker-end="url(#ax)"/>
+  <text x="360" y="250" font-size="12.5" text-anchor="middle" class="sub">옛날 검색 · 단어 일치</text>
+  <rect x="396" y="182" width="300" height="76" rx="12" class="card" opacity="0.72"/>
+  <text x="546" y="212" font-size="15.5" text-anchor="middle" class="lbl">‘출산’ 글자가 든 문장만</text>
+  <text x="546" y="236" font-size="12.5" text-anchor="middle" class="sub">글자 그대로 일치하는 것만</text>
+  <path d="M696 220 L742 220" class="emut" marker-end="url(#ax)"/>
+  <rect x="746" y="182" width="460" height="76" rx="12" class="card" opacity="0.72"/>
+  <text x="770" y="214" font-size="15" class="sub">✕ 육아휴직 · 모성보호 · 일가정양립은 <tspan fill="#C9B79A" font-weight="600">놓친다</tspan></text>
+  <text x="770" y="238" font-size="12.5" class="sub">글자가 다르면 못 찾음</text>
+
+  <!-- 아래: 지식검색 의미 일치 (강조) -->
+  <path d="M298 366 C 340 366, 350 470, 392 470" class="egold" marker-end="url(#ah)"/>
+  <text x="360" y="450" font-size="12.5" text-anchor="middle" class="lbl" style="fill:#E0C58A">지식검색 · 의미 일치</text>
+  <rect x="396" y="432" width="300" height="76" rx="12" class="q"/>
+  <text x="546" y="462" font-size="15.5" text-anchor="middle" class="lbl">뜻이 가까운 조각까지</text>
+  <text x="546" y="486" font-size="12.5" text-anchor="middle" class="sub">의미의 거리로 찾는다</text>
+  <path d="M696 470 L742 470" class="egold" marker-end="url(#ah)"/>
+
+  <!-- 찾아온 것들 chips -->
+  <rect x="746" y="418" width="490" height="104" rx="14" class="grp"/>
+  <text x="770" y="446" font-size="13.5" class="lbl" style="fill:#E0C58A">✓ 함께 찾아온다</text>
+  <rect x="768" y="458" width="86" height="34" rx="17" class="chipgo"/><text x="811" y="480" font-size="13" text-anchor="middle" class="lbl">출산</text>
+  <rect x="862" y="458" width="104" height="34" rx="17" class="chipgo"/><text x="914" y="480" font-size="13" text-anchor="middle" class="lbl">육아휴직</text>
+  <rect x="974" y="458" width="104" height="34" rx="17" class="chipgo"/><text x="1026" y="480" font-size="13" text-anchor="middle" class="lbl">모성보호</text>
+  <rect x="1086" y="458" width="126" height="34" rx="17" class="chipgo"/><text x="1149" y="480" font-size="13" text-anchor="middle" class="lbl">일가정양립</text>
+  <text x="770" y="512" font-size="11.5" class="sub">실제 인사규정엔 ‘출산’ 단어만 있는 게 아니라 여러 용어로 흩어져 있다</text>
+
+  <!-- 하단 핵심 -->
+  <rect x="48" y="600" width="1188" height="72" rx="14" style="fill:#1F1710;stroke:#4A3B2A;"/>
+  <text x="72" y="634" font-size="16" class="lbl">핵심 · <tspan fill="#E0C58A">글자는 달라도 뜻이 가까우면 함께 찾아온다.</tspan> 그래서 물어보는 말투가 달라도 통한다.</text>
+  <text x="72" y="658" font-size="13.5" class="sub">단어 매칭(옛날 검색)과 의미 매칭(지식검색)의 차이 — 이게 RAG가 유용한 이유.</text>
+</svg>

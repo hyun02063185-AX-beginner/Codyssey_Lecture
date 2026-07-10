@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">도구 층위 지도</title>
+  <desc id="d">에이전트 도구는 층으로 나뉜다. 두뇌(게이트웨이·런타임) → 자동화(n8n류)와 LLM앱·빌더(Dify류) → 표준 소켓 MCP → 엔드포인트(메일·DB·문서·캘린더).</desc>
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#E0C58A"/></marker>
+    <style><![CDATA[
+      :root{ --bg:#171009; --grp:#1F1710; --card:#271C12; --edge:#4A3B2A;
+             --ink:#EDE4D6; --dim:#B5A48D; --go:#E0C58A; --gold:#D98E6B; }
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:var(--ink);font-weight:700;} .ts{fill:var(--dim);}
+      .layer{fill:var(--go);font-weight:700;} .lbl{fill:var(--ink);font-weight:600;} .sub{fill:var(--dim);}
+      .band{fill:var(--grp);stroke:var(--edge);stroke-width:1;}
+      .card{fill:var(--card);stroke:var(--edge);stroke-width:1.4;}
+      .go{fill:#2E2013;stroke:var(--go);stroke-width:2;}
+      .chip{fill:var(--card);stroke:var(--edge);stroke-width:1;}
+      .e{fill:none;stroke:#E0C58A;stroke-width:2.5;}
+    ]]></style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="720" fill="var(--bg)"/>
+  <text x="48" y="58" font-size="30" class="tt">도구 층위 지도</text>
+  <text x="50" y="90" font-size="16" class="ts">두뇌 → 자동화·빌더 → 표준 소켓(MCP) → 엔드포인트</text>
+  <rect x="946" y="36" width="290" height="40" rx="20" class="chip"/>
+  <text x="1091" y="61" font-size="13.5" text-anchor="middle" class="sub">내 구성 = NanoClaw + n8n + Dify</text>
+
+  <!-- ① 두뇌 -->
+  <rect x="48" y="112" width="1188" height="86" rx="14" class="band"/>
+  <text x="72" y="142" font-size="16" class="layer">① 두뇌 · 게이트웨이 / 런타임</text>
+  <text x="72" y="164" font-size="12.5" class="sub">메시지를 받고 도구를 부린다 — 여기 두뇌가 판단할 때 ‘에이전트’</text>
+  <rect x="720" y="132" width="150" height="46" rx="10" class="go"/><text x="795" y="160" font-size="14" text-anchor="middle" class="lbl">NanoClaw</text>
+  <rect x="884" y="132" width="150" height="46" rx="10" class="chip"/><text x="959" y="160" font-size="14" text-anchor="middle" class="sub">OpenClaw</text>
+  <rect x="1048" y="132" width="150" height="46" rx="10" class="chip"/><text x="1123" y="160" font-size="14" text-anchor="middle" class="sub">Hermes</text>
+
+  <path d="M643 198 L643 226" class="e" marker-end="url(#ah)"/>
+
+  <!-- ② 두 갈래 -->
+  <rect x="48" y="230" width="584" height="150" rx="14" class="band"/>
+  <text x="72" y="260" font-size="15.5" class="layer">②-a 범용 자동화 (n8n류)</text>
+  <text x="72" y="281" font-size="12.5" class="sub">앱·API·트리거를 이어 흐름 자동화</text>
+  <rect x="72" y="298" width="120" height="44" rx="10" class="go"/><text x="132" y="325" font-size="13.5" text-anchor="middle" class="lbl">n8n</text>
+  <rect x="204" y="298" width="120" height="44" rx="10" class="chip"/><text x="264" y="325" font-size="13.5" text-anchor="middle" class="sub">Make</text>
+  <rect x="336" y="298" width="120" height="44" rx="10" class="chip"/><text x="396" y="325" font-size="13.5" text-anchor="middle" class="sub">Zapier</text>
+  <rect x="468" y="298" width="144" height="44" rx="10" class="chip"/><text x="540" y="325" font-size="13" text-anchor="middle" class="sub">Node-RED 등</text>
+
+  <rect x="652" y="230" width="584" height="150" rx="14" class="band"/>
+  <text x="676" y="260" font-size="15.5" class="layer">②-b LLM 앱 · 에이전트 빌더 (Dify류)</text>
+  <text x="676" y="281" font-size="12.5" class="sub">프롬프트·지식검색·에이전트를 얹는 판</text>
+  <rect x="676" y="298" width="120" height="44" rx="10" class="go"/><text x="736" y="325" font-size="13.5" text-anchor="middle" class="lbl">Dify</text>
+  <rect x="808" y="298" width="120" height="44" rx="10" class="chip"/><text x="868" y="325" font-size="13.5" text-anchor="middle" class="sub">Flowise</text>
+  <rect x="940" y="298" width="130" height="44" rx="10" class="chip"/><text x="1005" y="325" font-size="13.5" text-anchor="middle" class="sub">Langflow</text>
+  <rect x="1082" y="298" width="130" height="44" rx="10" class="chip"/><text x="1147" y="325" font-size="13" text-anchor="middle" class="sub">Coze 등</text>
+
+  <path d="M643 380 L643 408" class="e" marker-end="url(#ah)"/>
+
+  <!-- MCP -->
+  <rect x="360" y="412" width="560" height="58" rx="14" class="go"/>
+  <text x="640" y="440" font-size="16" text-anchor="middle" class="lbl">MCP — 엔드포인트에 꽂는 표준 소켓</text>
+  <text x="640" y="459" font-size="12" text-anchor="middle" class="sub">USB-C 같은 표준 규격 (n8n은 자체 커넥터로도 연결)</text>
+
+  <path d="M643 470 L643 498" class="e" marker-end="url(#ah)"/>
+
+  <!-- ③ 엔드포인트 -->
+  <rect x="48" y="502" width="1188" height="96" rx="14" class="band"/>
+  <text x="72" y="532" font-size="15.5" class="layer">③ 엔드포인트 — 도구가 실제로 닿는 바깥</text>
+  <rect x="360" y="540" width="130" height="44" rx="10" class="chip"/><text x="425" y="567" font-size="13.5" text-anchor="middle" class="sub">메일</text>
+  <rect x="502" y="540" width="130" height="44" rx="10" class="chip"/><text x="567" y="567" font-size="13.5" text-anchor="middle" class="sub">메신저</text>
+  <rect x="644" y="540" width="120" height="44" rx="10" class="chip"/><text x="704" y="567" font-size="13.5" text-anchor="middle" class="sub">DB</text>
+  <rect x="776" y="540" width="120" height="44" rx="10" class="chip"/><text x="836" y="567" font-size="13.5" text-anchor="middle" class="sub">문서</text>
+  <rect x="908" y="540" width="130" height="44" rx="10" class="chip"/><text x="973" y="567" font-size="13.5" text-anchor="middle" class="sub">캘린더</text>
+
+  <text x="48" y="638" font-size="13.5" class="sub">두뇌가 판단하고(①) · 자동화·빌더가 흐름을 만들고(②) · MCP로 꽂아 · 엔드포인트에서 실제로 일한다(③).</text>
+  <text x="48" y="662" font-size="13.5" class="lbl"><tspan fill="#E0C58A">게이트웨이 자체가 에이전트가 아니라 — 그 안 두뇌가 ‘판단’할 때 에이전트다.</tspan></text>
+</svg>

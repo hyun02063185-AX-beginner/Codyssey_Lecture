@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">AI 에이전트 구조 — 스스로 도구를 골라 실행한다</title>
+  <desc id="d">에이전트는 요청을 받으면 무엇을 할지 판단해 도구를 고르고 실행한다. 되돌리기 힘든 일은 사람에게 확인받고, 결과를 회신한다. 실제 예시는 NanoClaw 개인비서.</desc>
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+      <path d="M0,0 L6.5,3 L0,6 Z" fill="#E0C58A"/>
+    </marker>
+    <style><![CDATA[
+      /* 사유의 방 팔레트 — 따뜻한 흑갈 + 별빛 골드 · 사람확인=구리빛 */
+      :root{ --bg:#171009; --grp:#1F1710; --card:#271C12; --nano:#2E2013; --edge:#4A3B2A;
+             --ink:#EDE4D6; --dim:#B5A48D; --go:#E0C58A; --gold:#D98E6B; }
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:var(--ink);font-weight:700;} .ts{fill:var(--dim);}
+      .lbl{fill:var(--ink);font-weight:600;} .sub{fill:var(--dim);}
+      .card{fill:var(--card);stroke:var(--edge);stroke-width:1.5;}
+      .nano{fill:var(--nano);stroke:var(--go);stroke-width:2.6;}
+      .warm{fill:var(--card);stroke:var(--gold);stroke-width:2.2;}
+      .edge{fill:none;stroke:#E0C58A;stroke-width:2.5;}
+      .pill{fill:var(--grp);stroke:var(--edge);stroke-width:1;}
+      .dash{fill:none;stroke:var(--dim);stroke-width:2;stroke-dasharray:6 5;}
+    ]]></style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="720" fill="var(--bg)"/>
+
+  <!-- header -->
+  <text x="48" y="62" font-size="31" class="tt">AI 에이전트 입문 — 상상에서 실행으로</text>
+  <text x="50" y="96" font-size="16" class="ts">에이전트 = <tspan fill="#EDE4D6" font-weight="600">스스로 도구를 골라 여러 단계를 실행</tspan>한다</text>
+  <rect x="960" y="40" width="276" height="40" rx="20" class="pill"/>
+  <text x="1098" y="65" font-size="14" text-anchor="middle" class="sub">실제 예시 · NanoClaw 개인비서</text>
+
+  <!-- ===== 에이전트 흐름 ===== -->
+  <rect x="48" y="182" width="186" height="96" rx="13" class="card"/>
+  <text x="141" y="224" font-size="17" text-anchor="middle" class="lbl">내 요청</text>
+  <text x="141" y="249" font-size="12.5" text-anchor="middle" class="sub">채팅으로 말 걸기</text>
+
+  <line x1="234" y1="230" x2="270" y2="230" class="edge" marker-end="url(#ah)"/>
+
+  <rect x="274" y="176" width="300" height="108" rx="14" class="nano"/>
+  <text x="424" y="216" font-size="19" text-anchor="middle" class="lbl">NanoClaw 에이전트</text>
+  <text x="424" y="242" font-size="13" text-anchor="middle" class="sub">무엇을 할지 판단 · 도구 선택</text>
+  <text x="424" y="262" font-size="11.5" text-anchor="middle" class="sub" style="fill:#E0C58A;">두뇌 · 오케스트레이터</text>
+
+  <line x1="574" y1="230" x2="610" y2="230" class="edge" marker-end="url(#ah)"/>
+
+  <rect x="614" y="182" width="190" height="96" rx="13" class="card"/>
+  <text x="709" y="224" font-size="17" text-anchor="middle" class="lbl">도구 실행</text>
+  <text x="709" y="249" font-size="12.5" text-anchor="middle" class="sub">필요한 도구를 호출</text>
+
+  <line x1="804" y1="230" x2="840" y2="230" class="edge" marker-end="url(#ah)"/>
+
+  <rect x="844" y="182" width="196" height="96" rx="13" class="warm"/>
+  <text x="942" y="220" font-size="17" text-anchor="middle" class="lbl">사람 확인</text>
+  <text x="942" y="245" font-size="12" text-anchor="middle" class="sub">되돌리기 힘든 일만</text>
+  <text x="942" y="262" font-size="11" text-anchor="middle" class="sub" style="fill:#D98E6B;">메일 삭제·발송 등</text>
+
+  <line x1="1040" y1="230" x2="1076" y2="230" class="edge" marker-end="url(#ah)"/>
+
+  <rect x="1080" y="182" width="156" height="96" rx="13" class="card"/>
+  <text x="1158" y="224" font-size="17" text-anchor="middle" class="lbl">결과 응답</text>
+  <text x="1158" y="249" font-size="12.5" text-anchor="middle" class="sub">채팅으로 회신</text>
+
+  <!-- 반복(멀티스텝) 표시 -->
+  <path d="M1158 182 C 1158 130, 424 130, 424 172" class="dash" marker-end="url(#ah)"/>
+  <text x="791" y="122" font-size="12.5" text-anchor="middle" class="sub">여러 단계 반복 (한 번에 끝나는 챗봇과 다른 점)</text>
+
+  <!-- 도구 → 고를 수 있는 도구들 -->
+  <path d="M709 278 L709 322" class="edge" marker-end="url(#ah)"/>
+  <text x="709" y="352" font-size="15" text-anchor="middle" class="lbl">고를 수 있는 도구</text>
+
+  <rect x="300" y="372" width="140" height="46" rx="10" class="pill"/>
+  <text x="370" y="400" font-size="13" text-anchor="middle" class="sub">웹검색</text>
+  <rect x="452" y="372" width="140" height="46" rx="10" class="pill"/>
+  <text x="522" y="400" font-size="13" text-anchor="middle" class="sub">메일 정리</text>
+  <rect x="604" y="372" width="180" height="46" rx="10" class="pill"/>
+  <text x="694" y="400" font-size="13" text-anchor="middle" class="sub">지식검색 (RAG)</text>
+  <rect x="796" y="372" width="120" height="46" rx="10" class="pill"/>
+  <text x="856" y="400" font-size="13" text-anchor="middle" class="sub">일정</text>
+  <rect x="928" y="372" width="180" height="46" rx="10" class="pill"/>
+  <text x="1018" y="400" font-size="13" text-anchor="middle" class="sub">리서치 (CrewAI)</text>
+
+  <!-- 안전 -->
+  <rect x="48" y="470" width="1188" height="60" rx="13" style="fill:#1F1710;stroke:#4A3B2A;"/>
+  <text x="72" y="506" font-size="15" class="lbl"><tspan fill="#D98E6B">안전</tspan> · 자격증명(키·비번)은 <tspan fill="#E0C58A">게이트웨이가 요청 순간에만 주입</tspan> — 에이전트는 키를 직접 갖지 않는다.</text>
+
+  <!-- takeaway -->
+  <rect x="48" y="558" width="1188" height="114" rx="14" style="fill:#1F1710;stroke:#4A3B2A;"/>
+  <text x="72" y="600" font-size="17" class="lbl">핵심 · 에이전트는 <tspan fill="#E0C58A">판단 → 도구 → 실행 → (확인) → 응답</tspan>을 스스로 반복한다.</text>
+  <text x="72" y="630" font-size="14" class="sub">챗봇은 한 번 대답하고 끝 · 에이전트는 도구를 써서 실제로 일을 처리한다.</text>
+  <text x="72" y="656" font-size="14" class="sub">되돌리기 힘든 일은 실행 전에 사람에게 확인받는다(사람이 최종 판단).</text>
+</svg>

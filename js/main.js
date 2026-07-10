@@ -80,8 +80,9 @@
     return null;
   }
 
-  /* ---------- 배경 모드 헬퍼 ---------- */
-  function bgIntro() { if (window.__bgSetSkin) window.__bgSetSkin("intro"); }
+  /* ---------- 배경 모드 헬퍼 ----------
+     인트로는 전용 캔버스(intro.js)가 4테마를 그리므로, 공용 배경 캔버스는 비운다("blank"). */
+  function bgIntro() { if (window.__bgSetSkin) window.__bgSetSkin("blank"); }
   function bgSkin()  { if (window.__bgSetSkin) window.__bgSetSkin(Skin.current); }
 
   /* ---------- 상자 등장(첫 진입만 스태거, 재방문은 즉시) ---------- */
@@ -158,16 +159,7 @@
   };
   window.Progress = Progress;
 
-  /* ---------- 인트로: 화면 클릭 → 입장 페이드인 ---------- */
-  function initIntro() {
-    const intro = document.getElementById("scene-intro");
-    if (!intro) return;
-    const enter = () => { if (Router.parse().name === "intro") Router.go("start"); };
-    intro.addEventListener("click", enter);
-    intro.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enter(); }
-    });
-  }
+  /* ---------- 인트로 상호작용은 intro.js(4테마 화면보호기)가 담당 ---------- */
 
   /* ---------- 입장 버튼 → 워프 → 방(라우터 push) ---------- */
   function initStart() {
@@ -316,7 +308,6 @@
     initBackground();               // __bgSetSkin 준비 후
     initSkinPicker();               // 선택기 버튼 이벤트
     Skin.load();                    // 저장된 스킨 반영(없으면 sayu) + 배경 통지
-    initIntro();
     initStart();
     initReset();
     initRoomNav();

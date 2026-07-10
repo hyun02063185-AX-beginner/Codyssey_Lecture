@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>페이퍼 스킨 · 손글씨 폰트 후보</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gaegu:wght@300;400;700&family=Dongle:wght@300;400;700&family=Hi+Melody&family=Gamja+Flower&family=Nanum+Brush+Script&family=Poor+Story&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#DAD9D3; --card:#E8E7E1; --brd:#C6C4BA; --ink:#26251F; --dim:#6A685F; --accent:#0E7490;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:'Pretendard',system-ui,sans-serif;
+    padding:28px 32px 60px;}
+  h1{font-size:22px;letter-spacing:.02em;}
+  .lead{color:var(--dim);font-size:14px;margin:6px 0 22px;line-height:1.6;}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:1500px;}
+  .card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:22px 26px;
+    box-shadow:0 2px 10px rgba(0,0,0,.05);}
+  .name{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;}
+  .name b{font-size:15px;letter-spacing:.02em;}
+  .name span{font-size:12px;color:var(--dim);}
+  .note{font-size:12.5px;color:var(--dim);margin-top:14px;line-height:1.5;
+    border-top:1px dashed var(--brd);padding-top:12px;}
+  /* 샘플 (손글씨 폰트 적용 영역) */
+  .s .title{font-size:46px;line-height:1.15;}
+  .s .sub{font-size:19px;color:#4a4840;margin-top:2px;}
+  .s .stitle{font-size:27px;margin-top:14px;}
+  .s .body{font-size:18px;line-height:1.7;margin-top:8px;color:#3a3830;}
+  .s .body b{color:var(--accent);}
+  /* 각 후보 폰트 */
+  .f-pen .s *{font-family:'Nanum Pen Script',cursive;}
+  .f-gaegu .s .title,.f-gaegu .s .stitle{font-family:'Gaegu',cursive;font-weight:700;}
+  .f-gaegu .s .sub,.f-gaegu .s .body{font-family:'Gaegu',cursive;font-weight:400;}
+  .f-dongle .s .title,.f-dongle .s .stitle{font-family:'Dongle',sans-serif;font-weight:700;}
+  .f-dongle .s .sub,.f-dongle .s .body{font-family:'Dongle',sans-serif;font-weight:400;}
+  .f-melody .s *{font-family:'Hi Melody',cursive;}
+  .f-gamja .s *{font-family:'Gamja Flower',cursive;}
+  .f-brush .s .title,.f-brush .s .stitle{font-family:'Nanum Brush Script',cursive;}
+  .f-brush .s .sub,.f-brush .s .body{font-family:'Poor Story',cursive;}
+  /* 현재(기준) */
+  .f-now .s *{font-family:'Pretendard',sans-serif;}
+  .f-now .s .title,.f-now .s .stitle{font-weight:700;}
+</style>
+</head>
+<body>
+  <h1>페이퍼 스킨 · 손글씨 폰트 후보 비교</h1>
+  <p class="lead">같은 문구를 후보 폰트로 렌더했습니다. 큰 제목(사유의 방)·부제·슬라이드 제목·본문 불릿으로 <b>가독성</b>까지 함께 보세요. 맨 아래는 현재(Pretendard) 기준.</p>
+  <div class="grid">
+
+    <div class="card f-pen">
+      <div class="name"><b>① 나눔손글씨 펜 (Nanum Pen Script)</b><span>펜글씨 · 정석적인 손글씨</span></div>
+      <div class="s">
+        <div class="title">사유의 방</div>
+        <div class="sub">생각의 순서를 바꾸는 20강의 여정</div>
+        <div class="stitle">AX란 무엇인가</div>
+        <div class="body">예전: 손으로 하던 걸 컴퓨터로 <b>(전산화)</b> · 지금: AI가 일부를 대신·보조</div>
+      </div>
+      <div class="note">가장 ‘공책에 쓴 펜글씨’ 느낌. 얇아서 제목엔 좋고, 본문은 조금 흐릴 수 있음.</div>
+    </div>
+
+    <div class="card f-gaegu">
+      <div class="name"><b>② 개구 (Gaegu)</b><span>연필 손글씨 · 3굵기 · 가독성 좋음</span></div>
+      <div class="s">
+        <div class="title">사유의 방</div>
+        <div class="sub">생각의 순서를 바꾸는 20강의 여정</div>
+        <div class="stitle">AX란 무엇인가</div>
+        <div class="body">예전: 손으로 하던 걸 컴퓨터로 <b>(전산화)</b> · 지금: AI가 일부를 대신·보조</div>
+      </div>
+      <div class="note">연필로 또박또박 쓴 느낌. 굵기(300/400/700)가 있어 <b>제목·본문 모두 무난</b> — 균형 추천.</div>
+    </div>
+
+    <div class="card f-dongle">
+      <div class="name"><b>③ 동글 (Dongle)</b><span>둥근 손글씨풍 · 3굵기 · 깔끔</span></div>
+      <div class="s">
+        <div class="title">사유의 방</div>
+        <div class="sub">생각의 순서를 바꾸는 20강의 여정</div>
+        <div class="stitle">AX란 무엇인가</div>
+        <div class="body">예전: 손으로 하던 걸 컴퓨터로 <b>(전산화)</b> · 지금: AI가 일부를 대신·보조</div>
+      </div>
+      <div class="note">동글동글 부드러운 손글씨풍이면서 <b>가장 정돈·가독성 높음</b>. 손글씨 티는 은은.</div>
+    </div>
+
+    <div class="card f-melody">
+      <div class="name"><b>④ 하이멜로디 (Hi Melody)</b><span>동글동글 귀여운 펜</span></div>
+      <div class="s">
+        <div class="title">사유의 방</div>
+        <div class="sub">생각의 순서를 바꾸는 20강의 여정</div>
+        <div class="stitle">AX란 무엇인가</div>
+        <div class="body">예전: 손으로 하던 걸 컴퓨터로 <b>(전산화)</b> · 지금: AI가 일부를 대신·보조</div>
+      </div>
+      <div class="note">귀엽고 말랑한 느낌. 캐주얼·친근. 학습 콘텐츠엔 다소 가벼울 수 있음.</div>
+    </div>
+
+    <div class="card f-gamja">
+      <div class="name"><b>⑤ 감자꽃 (Gamja Flower)</b><span>아이 손글씨 · 동화풍</span></div>
+      <div class="s">
+        <div class="title">사유의 방</div>
+        <div class="sub">생각의 순서를 바꾸는 20강의 여정</div>
+        <div class="stitle">AX란 무엇인가</div>
+        <div class="body">예전: 손으로 하던 걸 컴퓨터로 <b>(전산화)</b> · 지금: AI가 일부를 대신·보조</div>
+      </div>
+      <div class="note">삐뚤빼뚤 아이 손글씨. 개성 강함 — 포인트용엔 좋지만 전체 적용은 호불호.</div>
+    </div>
+
+    <div class="card f-brush">
+      <div class="name"><b>⑥ 나눔손글씨 붓 (제목) + 푸어스토리 (본문)</b><span>붓글씨 · 감성 강함</span></div>
+      <div class="s">
+        <div class="title">사유의 방</div>
+        <div class="sub">생각의 순서를 바꾸는 20강의 여정</div>
+        <div class="stitle">AX란 무엇인가</div>
+        <div class="body">예전: 손으로 하던 걸 컴퓨터로 <b>(전산화)</b> · 지금: AI가 일부를 대신·보조</div>
+      </div>
+      <div class="note">붓글씨는 제목에서 강렬. 본문까지 붓은 무거워 본문은 다른 손글씨로 분리하는 게 안전.</div>
+    </div>
+
+    <div class="card f-now">
+      <div class="name"><b>◇ 현재 기준 (Pretendard)</b><span>지금 폰트</span></div>
+      <div class="s">
+        <div class="title">사유의 방</div>
+        <div class="sub">생각의 순서를 바꾸는 20강의 여정</div>
+        <div class="stitle">AX란 무엇인가</div>
+        <div class="body">예전: 손으로 하던 걸 컴퓨터로 <b>(전산화)</b> · 지금: AI가 일부를 대신·보조</div>
+      </div>
+      <div class="note">비교 기준. 가독성 최고, 손글씨 감성은 없음.</div>
+    </div>
+
+  </div>
+</body>
+</html>

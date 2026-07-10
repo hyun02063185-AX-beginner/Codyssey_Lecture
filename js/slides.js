@@ -57,7 +57,7 @@
       case "image":
         return `<div class="slide" style="align-items:center;text-align:center">
           ${s.title ? `<h3 class="s-title" style="margin-bottom:20px">${esc(s.title)}</h3>` : ""}
-          <img class="s-img" src="${s.src}" alt="${esc(s.title || "")}"
+          <img class="s-img${s.diagram ? " s-img--diagram" : ""}" src="${s.src}" alt="${esc(s.title || s.caption || "")}"
                onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
           <div class="s-img-fallback" style="display:none">이미지를 <code>assets/</code>에 넣고 경로를 지정하세요<br>(${esc(s.src || "")})</div>
           ${s.caption ? `<p class="s-img-cap">${esc(s.caption)}</p>` : ""}
