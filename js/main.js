@@ -4,6 +4,10 @@
 (function () {
   "use strict";
 
+  // ★[테스트/시연] true면 아무 강의나 끝까지 보면 20강 완주로 처리(완주 연출 빠른 확인용).
+  //   실제 배포 전에는 false 로 되돌릴 것.
+  const TEST_FILL_ALL = true;
+
   /* ---------- 진행도 상태 (localStorage 저장) ---------- */
   const STORE_KEY = "ax_room_progress_v1";
   const Progress = {
@@ -18,10 +22,29 @@
       try { localStorage.setItem(STORE_KEY, JSON.stringify([...this.seen])); }
       catch (e) {}
     },
-    mark(id) { this.seen.add(id); this.save(); App.updateHUD(); },
+    mark(id) {
+      const was = this.seen.size;
+      if (TEST_FILL_ALL) CURRICULUM.boxes.forEach(b => b.lectures.forEach(l => this.seen.add(l.id)));
+      else this.seen.add(id);
+      this.save(); App.updateHUD();
+      if (was < TOTAL && this.seen.size === TOTAL) celebrateCompletion();  // 완주 순간
+    },
     has(id) { return this.seen.has(id); },
     count() { return this.seen.size; },
     reset() { this.seen.clear(); this.save(); App.updateHUD(); }
+  };
+
+  /* ---------- 회독 레벨(게이미피케이션) — 완주할수록 사유가 깊어진다 ---------- */
+  const LEVEL_KEY = "ax_room_level_v1";
+  const MAX_LEVEL = 5;
+  // Lv1~5 칭호 (수정 쉬움): 훑기 → 파기 → 곱씹기 → 실천 → 통찰
+  const RANKS = ["", "Wanderer", "Explorer", "Thinker", "Practitioner", "Visionary"];
+  const Level = {
+    n: 0,
+    load() { try { const v = parseInt(localStorage.getItem(LEVEL_KEY), 10); if (!isNaN(v)) this.n = Math.min(MAX_LEVEL, Math.max(0, v)); } catch (e) {} },
+    save() { try { localStorage.setItem(LEVEL_KEY, String(this.n)); } catch (e) {} },
+    up() { if (this.n < MAX_LEVEL) { this.n++; this.save(); return true; } return false; },
+    label() { return this.n >= 1 ? "Lv" + this.n + " · " + RANKS[this.n] : ""; }
   };
 
   /* ---------- FX 속도 배율 — sayu(사유의 방)는 명상적으로 2배 느리게 ---------- */
@@ -148,8 +171,104 @@
     if (found) found.textContent = c;
     if (fill) fill.style.width = pct + "%";
     if (pctEl) pctEl.textContent = pct;
+    // 랭크 뱃지 (Lv2 · 탐험가) — 1회 이상 완주해야 표시
+    const rank = document.getElementById("hud-rank");
+    if (rank) { const l = Level.label(); rank.textContent = l; rank.hidden = !l; }
+    // 상태 버튼: 초기화(↺) ↔ 업그레이드 ↔ 통달
+    updateStateButton(c);
     // 상자 내 완료 점 갱신
     if (window.refreshBoxDots) window.refreshBoxDots();
+  }
+  function updateStateButton(c) {
+    const btn = document.getElementById("reset-progress");
+    if (!btn) return;
+    btn.classList.remove("is-upgrade", "is-mastered");
+    if (c >= TOTAL && Level.n < MAX_LEVEL) {
+      btn.textContent = "⬆ 업그레이드"; btn.title = "다음 단계로 (진행도 초기화)";
+      btn.classList.add("is-upgrade");
+    } else if (c >= TOTAL) {
+      btn.textContent = "✦ 통달"; btn.title = "모든 단계를 밝혔습니다";
+      btn.classList.add("is-mastered");
+    } else {
+      btn.textContent = "↺"; btn.title = "진행도 초기화";
+    }
+  }
+
+  /* ---------- 완주 축하 연출 + 업그레이드 ---------- */
+  let burstRaf = null;
+  function celebrateCompletion() {
+    const el = document.getElementById("celebrate");
+    if (!el) return;
+    const mastered = Level.n >= MAX_LEVEL;
+    const titleEl = document.getElementById("celebrate-title");
+    const subEl = document.getElementById("celebrate-sub");
+    const upBtn = document.getElementById("celebrate-up");
+    if (mastered) {
+      titleEl.textContent = "깊은 깨달음에 도달하셨습니다.";
+      subEl.textContent = "Lv5 · " + RANKS[MAX_LEVEL] + " · 모든 단계 완주";
+      if (upBtn) upBtn.hidden = true;
+    } else {
+      titleEl.textContent = "훌륭히 완주하셨습니다.";
+      subEl.textContent = "20강 완주 · 업그레이드하면 Lv" + (Level.n + 1) + " · " + RANKS[Level.n + 1];
+      if (upBtn) upBtn.hidden = false;
+    }
+    el.hidden = false;
+    void el.offsetWidth;                 // reflow로 트랜지션 확실히 발동(백그라운드 탭 rAF 스로틀 무관)
+    el.classList.add("show");
+    runBurst();
+  }
+  function closeCelebrate() {
+    const el = document.getElementById("celebrate");
+    if (!el) return;
+    el.classList.remove("show");
+    setTimeout(() => { el.hidden = true; }, 400);
+    if (burstRaf) { cancelAnimationFrame(burstRaf); burstRaf = null; }
+    const cv = document.getElementById("celebrate-cv");
+    if (cv) { const c = cv.getContext("2d"); if (c) c.clearRect(0, 0, cv.width, cv.height); }
+  }
+  function doUpgrade() {
+    if (!Level.up()) return;
+    Progress.reset();                                   // 새 회독 시작(발견도 0) + updateHUD
+    if (window.refreshCardsSeen) window.refreshCardsSeen();
+    closeCelebrate();
+    const rank = document.getElementById("hud-rank");   // 뱃지 등장 강조
+    if (rank) { rank.classList.remove("pop"); void rank.offsetWidth; rank.classList.add("pop"); }
+  }
+  function runBurst() {
+    const cv = document.getElementById("celebrate-cv");
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const W = cv.width = window.innerWidth * DPR, H = cv.height = window.innerHeight * DPR;
+    cv.style.width = window.innerWidth + "px"; cv.style.height = window.innerHeight + "px";
+    const cx = W / 2, cy = H * 0.4;
+    const cols = ["#E0C58A", "#F2C15E", "#FFE9B0", "#D98E6B"];
+    let ps = [], frames = 0, launches = 0;
+    function launch() {
+      const bx = cx + (Math.random() - 0.5) * W * 0.55, by = cy + (Math.random() - 0.5) * H * 0.28;
+      const col = cols[(Math.random() * cols.length) | 0], n = 42;
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * 6.283, sp = (Math.random() * 3 + 1.6) * DPR;
+        ps.push({ x: bx, y: by, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 60 + Math.random() * 45, max: 105, r: (Math.random() * 2 + 1.5) * DPR, col });
+      }
+    }
+    launch();
+    function frame() {
+      ctx.clearRect(0, 0, W, H); frames++;
+      if (frames % 20 === 0 && launches < 5) { launch(); launches++; }
+      for (const p of ps) {
+        p.vy += 0.045 * DPR; p.vx *= 0.99; p.vy *= 0.99; p.x += p.vx; p.y += p.vy; p.life--;
+        const al = Math.max(0, p.life / p.max);
+        ctx.globalAlpha = al; ctx.fillStyle = p.col;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ps = ps.filter(p => p.life > 0);
+      if (frames < 220 || ps.length) burstRaf = requestAnimationFrame(frame);
+      else { burstRaf = null; ctx.clearRect(0, 0, W, H); }
+    }
+    if (burstRaf) cancelAnimationFrame(burstRaf);
+    burstRaf = requestAnimationFrame(frame);
   }
 
   /* ---------- 전역 네임스페이스 ---------- */
@@ -176,13 +295,21 @@
     });
   }
 
-  /* ---------- 진행도 초기화 버튼 ---------- */
-  function initReset() {
+  /* ---------- 상태 버튼(초기화 ↔ 업그레이드) + 완주 오버레이 ---------- */
+  function initStateButton() {
     const btn = document.getElementById("reset-progress");
     if (btn) btn.addEventListener("click", () => {
-      Progress.reset();
-      if (window.refreshCardsSeen) window.refreshCardsSeen();
+      const c = Progress.count();
+      if (c >= TOTAL && Level.n < MAX_LEVEL) doUpgrade();          // 완주 → 승급
+      else if (c >= TOTAL) celebrateCompletion();                 // 통달 → 축하 재생
+      else { Progress.reset(); if (window.refreshCardsSeen) window.refreshCardsSeen(); }
     });
+    const up = document.getElementById("celebrate-up");
+    if (up) up.addEventListener("click", doUpgrade);
+    const close = document.getElementById("celebrate-close");
+    if (close) close.addEventListener("click", closeCelebrate);
+    const cel = document.getElementById("celebrate");
+    if (cel) cel.addEventListener("click", (e) => { if (e.target === cel) closeCelebrate(); });
   }
 
   /* ---------- 방 → 입장 화면 링크 ---------- */
@@ -308,8 +435,9 @@
     initBackground();               // __bgSetSkin 준비 후
     initSkinPicker();               // 선택기 버튼 이벤트
     Skin.load();                    // 저장된 스킨 반영(없으면 sayu) + 배경 통지
+    Level.load();                   // 회독 레벨 복원
     initStart();
-    initReset();
+    initStateButton();
     initRoomNav();
     App.updateHUD = updateHUD;      // room.js가 참조하도록 확정
     window.buildRoom && window.buildRoom();   // 상자 생성

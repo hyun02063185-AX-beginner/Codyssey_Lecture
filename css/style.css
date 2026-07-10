@@ -455,6 +455,48 @@ body{
   width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.95rem;transition:.25s}
 .hud__reset:hover{color:var(--ink);border-color:var(--accent);transform:rotate(-90deg)}
 
+/* ---- 게이미피케이션: 랭크 뱃지 + 업그레이드 버튼 + 완주 축하 ---- */
+.hud__rank{pointer-events:auto;background:var(--tint);border:1px solid var(--glass-brd);color:var(--ink);
+  padding:4px 11px;border-radius:99px;font-size:.72rem;letter-spacing:.06em;font-weight:600;white-space:nowrap}
+.hud__rank[hidden]{display:none}
+.hud__rank.pop{animation:rankPop .6s ease}
+@keyframes rankPop{0%{transform:scale(.6);opacity:0}50%{transform:scale(1.18)}100%{transform:scale(1);opacity:1}}
+
+.hud__reset.is-upgrade,.hud__reset.is-mastered{width:auto;height:auto;border-radius:99px;padding:6px 14px;
+  font-size:.78rem;letter-spacing:.04em;font-weight:700}
+.hud__reset.is-upgrade{color:#1a1206;background:linear-gradient(135deg,#F2C15E,#E0C58A);border-color:transparent;
+  animation:upPulse 1.9s ease-in-out infinite}
+.hud__reset.is-upgrade:hover{transform:translateY(-1px) scale(1.03);color:#1a1206;border-color:transparent}
+.hud__reset.is-mastered{color:#E0C58A;border-color:#E0C58A;background:var(--tint)}
+.hud__reset.is-mastered:hover{transform:none;color:#E0C58A}
+@keyframes upPulse{0%,100%{box-shadow:0 0 0 1px rgba(224,197,138,.45),0 0 14px rgba(224,197,138,.3)}
+  50%{box-shadow:0 0 0 1px rgba(224,197,138,.7),0 0 26px rgba(224,197,138,.6)}}
+
+.celebrate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  background-color:#0a0705;
+  background-image:radial-gradient(circle at 50% 38%,rgba(40,26,14,.55),rgba(10,7,5,.92));
+  opacity:0;pointer-events:none;transition:opacity .4s ease}
+.celebrate[hidden]{display:none}
+.celebrate.show{opacity:1;pointer-events:auto}
+.celebrate__cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.celebrate__inner{position:relative;z-index:2;text-align:center;padding:0 22px;
+  animation:celeIn .6s cubic-bezier(.2,.8,.2,1) both}
+.celebrate__kicker{font-family:var(--font-mono);letter-spacing:.4em;font-size:.72rem;color:#E0C58A;padding-left:.4em}
+.celebrate__title{font-family:var(--font-display);font-size:clamp(1.9rem,4.6vw,3rem);color:#F4EAD8;margin-top:14px;
+  filter:drop-shadow(0 2px 18px rgba(224,197,138,.35))}
+.celebrate__sub{color:#C9B79A;margin-top:14px;font-size:clamp(1rem,2.2vw,1.2rem);line-height:1.5}
+.celebrate__btns{margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.celebrate__up{background:linear-gradient(135deg,#F2C15E,#E0C58A);color:#1a1206;border:0;padding:14px 34px;
+  border-radius:99px;font-size:1.05rem;font-weight:700;letter-spacing:.06em;cursor:pointer;font-family:var(--font-body);
+  box-shadow:0 6px 24px rgba(224,197,138,.4);transition:transform .25s}
+.celebrate__up:hover{transform:translateY(-2px) scale(1.03)}
+.celebrate__up[hidden]{display:none}
+.celebrate__close{background:transparent;color:#C9B79A;border:1px solid rgba(224,197,138,.4);padding:14px 26px;
+  border-radius:99px;font-size:.95rem;cursor:pointer;font-family:var(--font-body);transition:.25s}
+.celebrate__close:hover{color:#F4EAD8;border-color:#E0C58A}
+@keyframes celeIn{0%{opacity:0;transform:translateY(16px) scale(.96)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hud__reset.is-upgrade{animation:none}.celebrate__inner{animation:none}}
+
 .room-inner{display:flex;flex-direction:column;align-items:center;gap:40px;width:100%;padding:0 24px}
 .room-guide{font-family:var(--font-display);font-size:clamp(1.1rem,2.6vw,1.5rem);letter-spacing:.16em;
   color:var(--ink);text-shadow:var(--glow-accent-text);
@@ -736,8 +778,18 @@ body{
 }
 @media (max-width:560px){
   .boxes{grid-template-columns:1fr;max-width:340px}
-  .hud__xp{width:100px}
   .slide{padding:40px 28px}
+  /* 모바일 HUD — 넘침 방지: 진행바·라벨·로고 접고 랭크·카운트·버튼만 */
+  .hud{padding:12px 14px}
+  .hud__logo{display:none}
+  .hud__xp{display:none}
+  .hud__label{display:none}
+  .hud__right{gap:9px}
+  .hud__stat{flex-direction:row;align-items:baseline;gap:5px}
+  .hud__rank{font-size:.64rem;padding:3px 8px;letter-spacing:.03em}
+  .hud__value{font-size:.92rem}
+  .hud__reset.is-upgrade,.hud__reset.is-mastered{padding:5px 11px;font-size:.7rem}
+  .hud__home{padding:6px 11px;font-size:.72rem}
 
   /* 세로모드: 상자 4개가 세로로 길어져 화면을 넘으므로 방을 세로 스크롤 가능하게 */
   #scene-room{align-items:flex-start;overflow-y:auto;overflow-x:hidden}

@@ -97,6 +97,7 @@
         <span class="hud__logo">사유의 방</span>
       </div>
       <div class="hud__right">
+        <span class="hud__rank" id="hud-rank" hidden></span>
         <div class="hud__stat">
           <span class="hud__label">발견한 강의</span>
           <span class="hud__value"><span id="found-count">0</span> / 20</span>
@@ -140,6 +141,20 @@
       <button id="slide-next" class="slide-btn">다음 ▶</button>
     </div>
   </section>
+
+  <!-- 완주 축하 오버레이 -->
+  <div id="celebrate" class="celebrate" hidden>
+    <canvas id="celebrate-cv" class="celebrate__cv"></canvas>
+    <div class="celebrate__inner">
+      <p class="celebrate__kicker">AX 20강 · 완주</p>
+      <p class="celebrate__title" id="celebrate-title">훌륭히 완주하셨습니다.</p>
+      <p class="celebrate__sub" id="celebrate-sub">20강 완주</p>
+      <div class="celebrate__btns">
+        <button id="celebrate-up" class="celebrate__up">⬆ 업그레이드</button>
+        <button id="celebrate-close" class="celebrate__close">닫기</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 스크립트: 순서 중요 -->
   <script src="js/data.js"></script>
