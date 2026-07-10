@@ -25,8 +25,15 @@
   <canvas id="bg-canvas"></canvas>
   <div class="vignette"></div>
 
+  <!-- ================= SCENE 0 : 인트로(별똥별) ================= -->
+  <section id="scene-intro" class="scene is-active" aria-label="인트로 — 클릭하여 시작">
+    <div class="intro-inner">
+      <p class="intro-hint">화면을 클릭하세요</p>
+    </div>
+  </section>
+
   <!-- ================= SCENE 1 : 시작 ================= -->
-  <section id="scene-start" class="scene is-active">
+  <section id="scene-start" class="scene">
     <div class="start-inner">
       <p class="start-kicker">AI TRANSFORMATION · 20강</p>
       <h1 class="start-title">사유의 방</h1>
@@ -66,6 +73,7 @@
     <!-- 게이미피케이션 HUD -->
     <header class="hud">
       <div class="hud__left">
+        <button id="to-start" class="hud__home" title="입장 화면으로">⌂ 입장</button>
         <span class="hud__logo">사유의 방</span>
       </div>
       <div class="hud__right">

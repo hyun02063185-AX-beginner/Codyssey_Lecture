@@ -60,14 +60,81 @@
 
   /* ---------- 씬 전환 ---------- */
   const scenes = {
+    intro: document.getElementById("scene-intro"),
     start: document.getElementById("scene-start"),
     room: document.getElementById("scene-room"),
     slides: document.getElementById("scene-slides")
   };
   function goScene(name) {
     Object.values(scenes).forEach(s => s.classList.remove("is-active"));
-    scenes[name].classList.add("is-active");
+    if (scenes[name]) scenes[name].classList.add("is-active");
   }
+
+  /* ---------- 강의 찾기 (id → {lecture, box, boxIndex}) ---------- */
+  function findLecture(id) {
+    for (let bi = 0; bi < CURRICULUM.boxes.length; bi++) {
+      const box = CURRICULUM.boxes[bi];
+      const lec = box.lectures.find(l => l.id === id);
+      if (lec) return { lecture: lec, box, boxIndex: bi };
+    }
+    return null;
+  }
+
+  /* ---------- 배경 모드 헬퍼 ---------- */
+  function bgIntro() { if (window.__bgSetSkin) window.__bgSetSkin("intro"); }
+  function bgSkin()  { if (window.__bgSetSkin) window.__bgSetSkin(Skin.current); }
+
+  /* ---------- 상자 등장(첫 진입만 스태거, 재방문은 즉시) ---------- */
+  let boxesShown = false;
+  function showBoxes() {
+    const boxesEl = document.getElementById("boxes");
+    if (!boxesEl) return;
+    if (!boxesShown && window.revealBoxes) { window.revealBoxes(); boxesShown = true; }
+    else { [...boxesEl.children].forEach(el => el.classList.add("reveal")); }
+  }
+
+  /* ---------- 해시 라우터 ----------
+     주소를 나눠 브라우저 뒤로가기가 씬 단위로 동작하게 한다.
+     #/(빈값)=인트로 · #/start=입장 · #/room=상자 · #/box/{i}=카드 · #/lecture/{id}[/{slide}]=슬라이드 */
+  const Router = {
+    parse() {
+      const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+      if (!parts.length) return { name: "intro" };
+      switch (parts[0]) {
+        case "start":   return { name: "start" };
+        case "room":    return { name: "room" };
+        case "box":     return { name: "box", box: Number(parts[1]) || 0 };
+        case "lecture": return { name: "lecture", id: Number(parts[1]),
+                                 slide: parts[2] != null ? Number(parts[2]) : 0 };
+        default:        return { name: "intro" };
+      }
+    },
+    go(path)      { location.hash = "#/" + path; },            // 히스토리 적립(push)
+    replace(path) { history.replaceState(null, "", "#/" + path); }, // 미적립(슬라이드 내부 이동용)
+    back()        { history.back(); },
+    handle() {
+      const r = Router.parse();
+      document.documentElement.dataset.route = r.name;                  // CSS 배경 전환용(인트로=밤하늘)
+      if (r.name !== "box") window.closeFanDOM && window.closeFanDOM();  // 상자 라우트 외에는 부채꼴 닫기
+      switch (r.name) {
+        case "intro":
+          bgIntro(); goScene("intro"); break;
+        case "start":
+          bgSkin(); goScene("start"); break;
+        case "room":
+          bgSkin(); goScene("room"); showBoxes(); break;
+        case "box":
+          bgSkin(); goScene("room"); showBoxes(); window.dealFan && window.dealFan(r.box); break;
+        case "lecture": {
+          const f = findLecture(r.id);
+          if (!f) { Router.go("room"); return; }
+          bgSkin(); goScene("slides");
+          window.openLecture && window.openLecture(f.lecture, f.box, r.slide || 0);
+          break;
+        }
+      }
+    }
+  };
 
   /* ---------- HUD 갱신 ---------- */
   const TOTAL = CURRICULUM.boxes.reduce((n, b) => n + b.lectures.length, 0);
@@ -86,12 +153,23 @@
 
   /* ---------- 전역 네임스페이스 ---------- */
   const App = window.App = {
-    Progress, Skin, goScene, updateHUD, TOTAL,
+    Progress, Skin, goScene, updateHUD, TOTAL, Router, findLecture,
     accent: "#22d3ee"
   };
   window.Progress = Progress;
 
-  /* ---------- 입장 버튼 → 워프 → 방 ---------- */
+  /* ---------- 인트로: 화면 클릭 → 입장 페이드인 ---------- */
+  function initIntro() {
+    const intro = document.getElementById("scene-intro");
+    if (!intro) return;
+    const enter = () => { if (Router.parse().name === "intro") Router.go("start"); };
+    intro.addEventListener("click", enter);
+    intro.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enter(); }
+    });
+  }
+
+  /* ---------- 입장 버튼 → 워프 → 방(라우터 push) ---------- */
   function initStart() {
     const btn = document.getElementById("enter-btn");
     const warp = document.getElementById("warp");
@@ -101,8 +179,7 @@
       void warp.offsetWidth;        // reflow로 애니메이션 리셋
       warp.classList.add("go");
       btn.disabled = true;
-      setTimeout(() => goScene("room"), 820 * k);   // 원이 화면을 가득 덮은 뒤 전환
-      setTimeout(() => { window.revealBoxes && window.revealBoxes(); }, 1000 * k);
+      setTimeout(() => Router.go("room"), 820 * k);   // 원이 화면을 가득 덮은 뒤 방으로
       setTimeout(() => { btn.disabled = false; }, 1800 * k);
     });
   }
@@ -116,13 +193,45 @@
     });
   }
 
+  /* ---------- 방 → 입장 화면 링크 ---------- */
+  function initRoomNav() {
+    const btn = document.getElementById("to-start");
+    if (btn) btn.addEventListener("click", () => Router.go("start"));
+  }
+
   /* ---------- 배경: 별 + 흐르는 성운 ---------- */
   function initBackground() {
     const canvas = document.getElementById("bg-canvas");
     const ctx = canvas.getContext("2d");
     const DPR = window.devicePixelRatio || 1;
-    let w, h, stars = [], dust = [];
+    let w, h, stars = [], dust = [], shooters = [];
     let bgSkin = "paper";
+    /* 별똥별(인트로 전용) */
+    function spawnShooter() {
+      const speed = (Math.random() * 4 + 6) * DPR;
+      const ang = Math.PI * (0.16 + Math.random() * 0.14);   // 우하향 대각선
+      shooters.push({
+        x: Math.random() * w * 0.85, y: Math.random() * h * 0.35,
+        vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed,
+        len: 9 + Math.random() * 9, life: 60, maxLife: 60
+      });
+    }
+    function drawShooters() {
+      if (shooters.length < 3 && Math.random() < 0.02) spawnShooter();
+      shooters.forEach(sh => {
+        sh.x += sh.vx; sh.y += sh.vy; sh.life--;
+        const tx = sh.x - sh.vx * sh.len, ty = sh.y - sh.vy * sh.len;
+        const a = Math.max(0, Math.min(1, sh.life / sh.maxLife * 1.4));
+        const g = ctx.createLinearGradient(sh.x, sh.y, tx, ty);
+        g.addColorStop(0, `rgba(255,240,210,${0.9 * a})`);
+        g.addColorStop(1, "rgba(255,240,210,0)");
+        ctx.strokeStyle = g; ctx.lineWidth = 2 * DPR; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(sh.x, sh.y); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.beginPath(); ctx.fillStyle = `rgba(255,250,232,${a})`;
+        ctx.arc(sh.x, sh.y, 1.7 * DPR, 0, Math.PI * 2); ctx.fill();
+      });
+      shooters = shooters.filter(s => s.life > 0 && s.x < w + 60 && s.y < h + 60);
+    }
     // 스킨 전환 시 배경 표현을 바꾼다 (네온=별+성운, 픽셀=도트 별, sayu=따뜻한 별빛, paper/blueprint=비움)
     window.__bgSetSkin = function (s) { bgSkin = s; };
     function resize() {
@@ -181,8 +290,8 @@
           const px = 3 * DPR;
           ctx.fillRect(Math.round(s.x / px) * px, Math.round(s.y / px) * px, px, px);
         });
-      } else if (bgSkin === "sayu") {
-        // 사유의 방 — 차가운 성운은 끄되, 별빛은 네온만큼 밝게:
+      } else if (bgSkin === "sayu" || bgSkin === "intro") {
+        // 사유의 방 / 인트로 — 차가운 성운은 끄되, 별빛은 네온만큼 밝게:
         // 밝기·밀도·반짝임은 네온과 동일, 색만 따뜻한 골드 / 낙하만 차분하게
         stars.forEach(s => {
           s.a += s.tw; const alpha = 0.35 + Math.abs(Math.sin(s.a)) * 0.65;
@@ -192,6 +301,7 @@
           ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
           ctx.fill();
         });
+        if (bgSkin === "intro") drawShooters();   // 인트로에서만 별똥별
       }
       // paper · blueprint: 캔버스 비움(그리드/여백이 배경 역할)
       requestAnimationFrame(frame);
@@ -205,12 +315,17 @@
     Progress.load();
     initBackground();               // __bgSetSkin 준비 후
     initSkinPicker();               // 선택기 버튼 이벤트
-    Skin.load();                    // 저장된 스킨 반영(없으면 paper) + 배경 통지
+    Skin.load();                    // 저장된 스킨 반영(없으면 sayu) + 배경 통지
+    initIntro();
     initStart();
     initReset();
+    initRoomNav();
     App.updateHUD = updateHUD;      // room.js가 참조하도록 확정
     window.buildRoom && window.buildRoom();   // 상자 생성
     window.initSlides && window.initSlides(); // 슬라이드 엔진 초기화
     updateHUD();
+    // 라우터 기동: 현재 해시에 맞는 씬 렌더 + 뒤로/앞으로 대응
+    window.addEventListener("hashchange", Router.handle);
+    Router.handle();
   });
 })();

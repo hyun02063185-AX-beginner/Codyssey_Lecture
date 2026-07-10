@@ -36,7 +36,7 @@
           <span class="box__count">강의 ${box.lectures.length}개</span>
           <span class="box__open">열기 →</span>
         </div>`;
-      el.addEventListener("click", () => openFan(i));
+      el.addEventListener("click", () => App.Router.go("box/" + i));  // 라우터 push → 뒤로가기로 방 복귀
       boxesEl.appendChild(el);
     });
   }
@@ -57,15 +57,17 @@
     });
   }
 
-  /* ---------- 카드 부채꼴 전개 ---------- */
-  function openFan(boxIndex) {
+  /* ---------- 카드 부채꼴 전개 (라우터가 box 라우트에서 호출) ---------- */
+  function dealFan(boxIndex) {
+    // 같은 상자로 이미 열려 있으면 애니메이션 재시작 방지
+    if (fanOverlay.classList.contains("is-open") && currentBox === boxIndex) return;
     currentBox = boxIndex;
     const box = CURRICULUM.boxes[boxIndex];
     fanTitle.textContent = `상자 ${boxIndex + 1} · 「${box.name}」 — ${box.theme}`;
     fanCardsEl.innerHTML = "";
 
     const n = box.lectures.length;
-    const spread = 64;                      // 전체 부채꼴 각도(겹침을 줄이려 넓힘)
+    const spread = 40;                      // 전체 부채꼴 각도 — 옆 카드 기울기를 줄여 제목 가독성↑
     const step = n > 1 ? spread / (n - 1) : 0;
     const start = -spread / 2;
 
@@ -133,18 +135,15 @@
     });
   }
 
-  function closeFan() {
+  // 부채꼴 DOM만 닫는다(히스토리 조작 없음) — 라우터가 box 외 라우트에서 호출
+  function closeFanDOM() {
     fanOverlay.classList.remove("is-open");
     currentBox = null;
   }
 
-  /* ---------- 카드 선택 → 강의실 입장 ---------- */
+  /* ---------- 카드 선택 → 강의 슬라이드(라우터 push) ---------- */
   function selectCard(lec, box) {
-    // 선택 카드 강조 후 슬라이드로
-    closeFan();
-    setTimeout(() => {
-      window.openLecture(lec, box);
-    }, 260 * fxScale());
+    App.Router.go("lecture/" + lec.id);   // handle()이 부채꼴 닫고 슬라이드로 전환
   }
 
   /* ---------- 카드 열람 표시 갱신 ---------- */
@@ -155,10 +154,11 @@
     });
   }
 
-  fanClose.addEventListener("click", closeFan);
-  fanOverlay.addEventListener("click", (e) => { if (e.target === fanOverlay) closeFan(); });
+  // 닫기/바깥클릭/Esc → 뒤로가기(히스토리)로 방 복귀
+  fanClose.addEventListener("click", () => App.Router.back());
+  fanOverlay.addEventListener("click", (e) => { if (e.target === fanOverlay) App.Router.back(); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && fanOverlay.classList.contains("is-open")) closeFan();
+    if (e.key === "Escape" && fanOverlay.classList.contains("is-open")) App.Router.back();
   });
 
   /* ---------- 전역 노출 ---------- */
@@ -166,4 +166,6 @@
   window.revealBoxes = revealBoxes;
   window.refreshBoxDots = refreshBoxDots;
   window.refreshCardsSeen = refreshCardsSeen;
+  window.dealFan = dealFan;
+  window.closeFanDOM = closeFanDOM;
 })();

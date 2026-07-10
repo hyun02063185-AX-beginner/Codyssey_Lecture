@@ -77,11 +77,11 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  /* ---------- 강의 열기 ---------- */
-  function openLecture(lecture, box) {
+  /* ---------- 강의 열기 (라우터가 lecture 라우트에서 호출) ---------- */
+  function openLecture(lecture, box, slideIndex) {
     activeLecture = lecture;
     slides = lecture.slides || [];
-    current = 0;
+    current = Math.max(0, Math.min(slideIndex || 0, slides.length - 1));
 
     nameEl.textContent = `${String(lecture.id).padStart(2, "0")}강 · ${lecture.title}`;
     // 강조색(--accent)은 상자 인덱스만 넘기고, 실제 색은 CSS에서 스킨 팔레트로 매핑한다
@@ -96,7 +96,7 @@
       d.addEventListener("click", () => show(Number(d.dataset.i))));
 
     App.goScene("slides");
-    show(0);   // 완료 표시는 마지막 슬라이드까지 봐야 켜진다(show에서 처리)
+    show(current);   // 완료 표시는 마지막 슬라이드까지 봐야 켜진다(show에서 처리)
   }
 
   /* ---------- 슬라이드 전환 ---------- */
@@ -114,21 +114,65 @@
 
     // 마지막 슬라이드까지 도달하면 그때 '완료'로 표시 (끝까지 들어야 점이 켜진다)
     if (activeLecture && i === slides.length - 1) Progress.mark(activeLecture.id);
+
+    // 슬라이드 위치를 URL에 반영(히스토리 미적립) → 뒤로가기 한 번이면 카드 리스트로
+    if (activeLecture) App.Router.replace("lecture/" + activeLecture.id + "/" + i);
+    revealChrome();   // 슬라이드 바뀔 때 네비를 잠깐 보여줬다 숨김
   }
   const next = () => show(current + 1);
   const prev = () => show(current - 1);
 
+  /* ---------- 크롬(상단바·하단 네비) 자동 숨김 ----------
+     전체 화면을 슬라이드에 내어주고, 상·하단 근처로 마우스가 가면(또는 슬라이드 전환 시)
+     잠깐 살아났다가 사라진다. 터치 기기는 hover가 없으니 항상 표시. */
+  const scene = document.getElementById("scene-slides");
+  const topbar = document.querySelector(".slide-topbar");
+  const nav = document.querySelector(".slide-nav");
+  const coarse = window.matchMedia && window.matchMedia("(hover: none)").matches;
+  let hideTimer = null;
+
+  function setChrome(on) {
+    topbar.classList.toggle("show", on);
+    nav.classList.toggle("show", on);
+  }
+  function revealChrome() {
+    if (coarse) { setChrome(true); return; }   // 터치: 항상 표시
+    setChrome(true);
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => setChrome(false), 2000);
+  }
+  function initChrome() {
+    if (coarse) { setChrome(true); return; }    // 터치 기기는 상시 노출
+    scene.addEventListener("mousemove", (e) => {
+      const H = window.innerHeight;
+      const nearEdge = e.clientY < H * 0.16 || e.clientY > H * 0.84;
+      if (nearEdge) {
+        setChrome(true);
+        clearTimeout(hideTimer);
+      } else {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => setChrome(false), 1400);
+      }
+    });
+    // 크롬 위에 커서가 있으면 유지
+    [topbar, nav].forEach(el => {
+      el.addEventListener("mouseenter", () => { setChrome(true); clearTimeout(hideTimer); });
+      el.addEventListener("mouseleave", () => { clearTimeout(hideTimer); hideTimer = setTimeout(() => setChrome(false), 1200); });
+    });
+  }
+
   /* ---------- 네비게이션 ---------- */
   function initSlides() {
+    initChrome();
     nextBtn.addEventListener("click", next);
     prevBtn.addEventListener("click", prev);
-    exitBtn.addEventListener("click", () => App.goScene("room"));
+    exitBtn.addEventListener("click", () => App.Router.back());
 
     document.addEventListener("keydown", (e) => {
       if (!document.getElementById("scene-slides").classList.contains("is-active")) return;
       if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
       else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prev(); }
-      else if (e.key === "Escape") App.goScene("room");
+      else if (e.key === "Escape") App.Router.back();
       else if (e.key === "Home") show(0);
       else if (e.key === "End") show(slides.length - 1);
     });

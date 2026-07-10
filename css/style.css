@@ -263,6 +263,7 @@ body{
   color:var(--ink);
   overflow:hidden;
   -webkit-font-smoothing:antialiased;
+  transition:background .6s ease;   /* 인트로↔입장·스킨 전환 시 배경 부드럽게 */
 }
 
 /* 배경 캔버스 & 비네트 */
@@ -278,6 +279,18 @@ body{
   transform:scale(1.04);
 }
 .scene.is-active{opacity:1;visibility:visible;pointer-events:auto;transform:scale(1)}
+
+/* ============================ SCENE 0 : 인트로(별똥별) ================= */
+/* 스킨과 무관하게 인트로는 밤하늘 — 어두운 배경 + 별/별똥별 캔버스가 주인공 */
+:root[data-route="intro"] body{
+  background:radial-gradient(circle at 50% 32%,#150f0b 0%,#0a0a12 62%,#000 100%)}
+:root[data-route="intro"] .vignette{
+  background:radial-gradient(circle at 50% 45%,transparent 40%,rgba(0,0,0,.55) 100%)}
+#scene-intro{cursor:pointer}
+.intro-inner{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.intro-hint{font-family:var(--font-display);letter-spacing:.34em;font-size:.9rem;padding-left:.34em;
+  color:rgba(224,197,138,.72);opacity:0;animation:introHint 3.6s ease-in-out 1.4s infinite}
+@keyframes introHint{0%,100%{opacity:0}50%{opacity:.9}}
 
 /* ============================ SCENE 1 : 시작 ============================ */
 .start-inner{text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px;
@@ -350,6 +363,11 @@ body{
   display:flex;justify-content:space-between;align-items:center;
   padding:20px 30px;pointer-events:none}
 .hud__left,.hud__right{pointer-events:auto}
+.hud__left{display:flex;align-items:center;gap:16px}
+.hud__home{background:transparent;border:1px solid var(--glass-brd);color:var(--ink-dim);
+  padding:8px 15px;border-radius:var(--radius-pill);cursor:pointer;font-size:.8rem;letter-spacing:.1em;
+  font-family:var(--font-body);transition:.25s}
+.hud__home:hover{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
 .hud__logo{font-family:var(--font-display);font-size:1.15rem;letter-spacing:.3em;color:var(--ink);opacity:.85}
 .hud__right{display:flex;align-items:center;gap:22px}
 .hud__stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
@@ -414,10 +432,10 @@ body{
 .fan-title{font-family:var(--font-display);font-size:1.5rem;letter-spacing:.16em;margin-bottom:8px;color:var(--ink)}
 .fan-hint{margin-top:38px;font-size:.78rem;color:var(--ink-dim);letter-spacing:.14em;opacity:.7}
 
-.fan-cards{position:relative;width:min(840px,94vw);height:380px;margin-top:34px}
+.fan-cards{position:relative;width:min(1120px,97vw);height:460px;margin-top:16px}
 .card{
-  position:absolute;left:50%;bottom:0;width:178px;height:250px;margin-left:-89px;
-  border-radius:var(--radius);cursor:pointer;transform-origin:50% 130%;
+  position:absolute;left:50%;bottom:0;width:216px;height:304px;margin-left:-108px;
+  border-radius:var(--radius);cursor:pointer;transform-origin:50% 320%;
   background:var(--card-bg);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:var(--border-w) solid var(--glass-brd);box-shadow:var(--shadow);
@@ -432,9 +450,9 @@ body{
   background:radial-gradient(70% 50% at 50% 0,var(--card-accent),transparent 72%)}
 .card:hover{border-color:var(--card-accent);
   box-shadow:var(--shadow-hover),0 0 0 var(--border-w) var(--card-accent),var(--glow-card-accent)}
-.card__no{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.24em;color:var(--card-accent)}
-.card__title{font-family:var(--font-display);font-size:1.02rem;line-height:1.4;color:var(--ink);font-weight:700}
-.card__tag{font-size:.7rem;color:var(--ink-dim);line-height:1.4}
+.card__no{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.24em;color:var(--card-accent)}
+.card__title{font-family:var(--font-display);font-size:1.24rem;line-height:1.38;color:var(--ink);font-weight:700}
+.card__tag{font-size:.78rem;color:var(--ink-dim);line-height:1.45}
 .card__badge{position:absolute;top:12px;right:12px;font-size:.6rem;letter-spacing:.1em;
   padding:3px 8px;border-radius:var(--radius-pill);border:1px solid var(--card-accent);color:var(--card-accent)}
 .card__seen{position:absolute;bottom:14px;right:14px;font-size:.68rem;color:var(--green);opacity:0}
@@ -445,7 +463,10 @@ body{
 
 /* ============================ SCENE 3 : 슬라이드 ======================= */
 .slide-topbar{position:absolute;top:0;left:0;right:0;z-index:20;
-  display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
+  display:flex;align-items:center;justify-content:space-between;padding:18px 28px;
+  transform:translateY(-110%);opacity:0;pointer-events:none;
+  transition:transform .38s cubic-bezier(.2,.8,.2,1),opacity .38s ease}
+.slide-topbar.show{transform:none;opacity:1;pointer-events:auto}
 .slide-exit{background:transparent;border:1px solid var(--glass-brd);color:var(--ink-dim);
   padding:9px 16px;border-radius:var(--radius-pill);cursor:pointer;font-size:.82rem;letter-spacing:.08em;transition:.25s}
 .slide-exit:hover{color:var(--ink);border-color:var(--accent)}
@@ -462,7 +483,7 @@ body{
 :root[data-slide-box="2"]{--accent:var(--pink)}
 :root[data-slide-box="3"]{--accent:var(--green)}
 
-.slide-stage{width:min(1040px,93vw);height:min(600px,78vh);position:relative}
+.slide-stage{width:min(1200px,95vw);height:min(780px,90vh);position:relative}
 .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
   padding:44px 56px;border-radius:var(--radius);overflow:hidden;
   background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
@@ -481,7 +502,7 @@ body{
 /* 커버 배경 워터마크 강의번호 — 전시 도록 느낌, 텍스트 뒤에 은은하게 */
 .s-cover-wm{position:absolute;right:4%;top:50%;transform:translateY(-50%);z-index:-1;
   font-family:var(--font-mono);font-weight:700;font-size:clamp(9rem,24vw,19rem);line-height:.8;
-  letter-spacing:-.03em;color:var(--accent);opacity:.09;pointer-events:none;filter:var(--glow-title)}
+  letter-spacing:-.03em;color:var(--accent);opacity:.22;pointer-events:none;filter:var(--glow-title)}
 
 .s-big{font-family:var(--font-display);font-weight:700;font-size:clamp(2.8rem,6.2vw,4.6rem);line-height:1.12;
   white-space:pre-line;letter-spacing:.02em;color:var(--ink);
@@ -521,7 +542,10 @@ body{
 .s-teaser::before{content:"→";color:var(--cyan);font-weight:700;flex:none}
 
 .slide-nav{position:absolute;bottom:28px;left:0;right:0;z-index:20;
-  display:flex;align-items:center;justify-content:center;gap:24px}
+  display:flex;align-items:center;justify-content:center;gap:24px;
+  transform:translateY(160%);opacity:0;pointer-events:none;
+  transition:transform .38s cubic-bezier(.2,.8,.2,1),opacity .38s ease}
+.slide-nav.show{transform:none;opacity:1;pointer-events:auto}
 .slide-btn{background:var(--glass);border:var(--border-w) solid var(--glass-brd);color:var(--ink);
   padding:11px 24px;border-radius:var(--radius-pill);cursor:pointer;font-size:.86rem;letter-spacing:.08em;
   font-family:var(--font-body);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);transition:.25s}
@@ -626,8 +650,8 @@ body{
 @media (max-width:900px){
   .boxes{grid-template-columns:repeat(2,1fr);max-width:520px}
   .s-split{grid-template-columns:1fr}
-  .fan-cards{height:340px}
-  .card{width:150px;height:212px;margin-left:-75px}
+  .fan-cards{height:390px}
+  .card{width:180px;height:252px;margin-left:-90px}
 }
 
 /* 모션 최소화 선호 시: 펼침은 즉시(모션 최소), 무한 모션 정지 */
@@ -667,7 +691,8 @@ body{
   .slide-dots i{width:7px;height:7px}
 
   .slide-stage{width:min(94vw,940px);height:calc(100vh - 96px)}
-  .slide{padding:14px 26px;justify-content:flex-start;overflow-y:auto}
+  /* 세로/PC와 동일하게 세로 가운데 정렬. 혹시 내용이 넘치면 safe가 상단정렬+스크롤로 자동 폴백 */
+  .slide{padding:14px 26px;justify-content:safe center;overflow-y:auto}
 
   .s-split{grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}   /* 가로모드는 2컬럼 유지 */
   .s-col{padding:12px 14px}
@@ -694,4 +719,38 @@ body{
 
   .s-closing-title{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.18}
   .s-teaser{font-size:clamp(.95rem,2.4vw,1.12rem);margin-top:12px;padding:12px 16px;line-height:1.5}
+
+  /* --- 입장(start) 화면: 세로로 짧으므로 컴팩트하게(스킨 선택기까지 다 보이게) --- */
+  .start-inner{gap:8px}
+  .start-kicker{font-size:.6rem}
+  .start-title{font-size:clamp(2.1rem,7vw,3rem)}
+  .start-sub{font-size:.86rem}
+  .enter-btn{margin-top:8px;padding:11px 40px;font-size:1rem}
+  .start-hint{margin-top:2px;font-size:.68rem}
+  .skin-picker{margin-top:8px;gap:8px}
+  .skin-opt{padding:6px 9px 5px}
+  .skin-sw{width:34px;height:22px}
+  .skin-lb{font-size:.62rem}
+
+  /* --- 방(4상자): 가로 폭을 살려 한 줄 4칸 + 높이 컴팩트(잘림·스크롤 방지) --- */
+  .hud{padding:10px 16px}
+  .room-inner{gap:12px;padding:0 14px}
+  .room-guide{font-size:1.02rem}
+  .boxes{grid-template-columns:repeat(4,1fr);max-width:none;gap:12px}
+  .box{min-height:0;padding:14px 13px}
+  .box__num{font-size:.7rem}
+  .box__name{font-size:1.5rem;margin-top:6px}
+  .box__theme{font-size:.82rem;margin-top:6px;line-height:1.4}
+  .box__footer{margin-top:12px}
+  .box__count{font-size:.74rem}
+
+  /* --- 카드 부채꼴: 카드·여백 축소로 화면 높이에 맞춤 --- */
+  .fan-close{top:10px;left:12px;padding:6px 12px;font-size:.72rem}
+  .fan-title{font-size:1.1rem;margin-bottom:2px}
+  .fan-cards{width:min(96vw,760px);height:224px;margin-top:8px}
+  .card{width:146px;height:204px;margin-left:-73px;padding:12px}
+  .card__no{font-size:.6rem}
+  .card__title{font-size:.98rem;line-height:1.3}
+  .card__tag{font-size:.64rem}
+  .fan-hint{margin-top:10px}
 }
