@@ -649,6 +649,18 @@ body{
 .s-img--diagram{max-height:64vh;width:min(100%,1180px)}
 .s-img-cap{margin-top:14px;color:var(--ink-dim);font-size:.86rem;text-align:center}
 .s-img-fallback{margin-top:16px;color:var(--ink-dim);font-size:.9rem;padding:40px;border:1px dashed var(--glass-brd);border-radius:var(--radius);text-align:center}
+/* 이미지 슬라이드 확대 힌트 (구석에 은은하게) */
+.s-img-hint{position:absolute;right:16px;bottom:12px;font-size:.72rem;letter-spacing:.06em;
+  color:var(--ink-dim);opacity:.55;border:1px solid var(--glass-brd);border-radius:var(--radius-pill);
+  padding:3px 11px;pointer-events:none}
+/* 이미지 전체화면 확대 오버레이 ('+' 로 열고 '-'/Esc/클릭 으로 닫기) */
+.img-zoom{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;
+  background:rgba(9,7,5,.95);cursor:zoom-out;padding:2vh 2vw}
+.img-zoom.show{display:flex}
+.img-zoom img{max-width:97vw;max-height:95vh;object-fit:contain;border-radius:8px;
+  box-shadow:0 24px 90px rgba(0,0,0,.6)}
+.img-zoom__hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  font-size:.8rem;letter-spacing:.1em;color:rgba(255,255,255,.5);font-family:var(--font-body)}
 
 .s-closing-title{font-family:var(--font-display);font-size:clamp(2.2rem,4.4vw,3.2rem);line-height:1.2;white-space:pre-line;color:var(--ink)}
 .s-teaser{margin-top:26px;padding:18px 24px;border-radius:var(--radius);border:var(--border-w) solid var(--glass-brd);

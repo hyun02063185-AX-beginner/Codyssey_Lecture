@@ -61,6 +61,7 @@
                onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
           <div class="s-img-fallback" style="display:none">이미지를 <code>assets/</code>에 넣고 경로를 지정하세요<br>(${esc(s.src || "")})</div>
           ${s.caption ? `<p class="s-img-cap">${esc(s.caption)}</p>` : ""}
+          <span class="s-img-hint">＋ 크게 · － 원래대로</span>
         </div>`;
       case "closing":
         return `<div class="slide">
@@ -102,6 +103,7 @@
   /* ---------- 슬라이드 전환 ---------- */
   function show(i) {
     if (i < 0 || i >= slides.length) return;
+    closeZoom();               // 슬라이드 바뀌면 확대 상태는 해제
     current = i;
     const cards = stage.querySelectorAll(".slide");
     cards.forEach((c, idx) => c.classList.toggle("is-active", idx === i));
@@ -161,6 +163,31 @@
     });
   }
 
+  /* ---------- 이미지 전체화면 확대 ('+' 크게 · '-' 원래대로) ---------- */
+  const imgZoom = document.createElement("div");
+  imgZoom.className = "img-zoom";
+  imgZoom.innerHTML = `<img alt=""><span class="img-zoom__hint">－ 또는 Esc 로 닫기</span>`;
+  document.body.appendChild(imgZoom);
+  imgZoom.addEventListener("click", closeZoom);
+  let zoomOpen = false;
+
+  function currentImg() {
+    const s = stage.querySelector(".slide.is-active");
+    const img = s && s.querySelector("img.s-img");
+    return (img && getComputedStyle(img).display !== "none") ? img : null;
+  }
+  function openZoom() {
+    const img = currentImg();
+    if (!img) return;                       // 이미지 슬라이드가 아니면 무시
+    imgZoom.querySelector("img").src = img.currentSrc || img.src;
+    imgZoom.classList.add("show");
+    zoomOpen = true;
+  }
+  function closeZoom() {
+    imgZoom.classList.remove("show");
+    zoomOpen = false;
+  }
+
   /* ---------- 네비게이션 ---------- */
   function initSlides() {
     initChrome();
@@ -169,7 +196,14 @@
     exitBtn.addEventListener("click", () => App.Router.back());
 
     document.addEventListener("keydown", (e) => {
-      if (!document.getElementById("scene-slides").classList.contains("is-active")) return;
+      if (!scene.classList.contains("is-active")) return;
+      // 이미지 확대 토글 ('+'는 Shift+= 또는 숫자패드 +, '='도 허용 / 브라우저 줌(Ctrl/⌘)은 건드리지 않음)
+      if ((e.key === "+" || e.key === "=") && !e.ctrlKey && !e.metaKey) { e.preventDefault(); openZoom(); return; }
+      if ((e.key === "-" || e.key === "_") && !e.ctrlKey && !e.metaKey) { e.preventDefault(); closeZoom(); return; }
+      if (zoomOpen) {                       // 확대 중엔 Esc로만 닫고, 방향키 등은 무시(확대가 남지 않게)
+        if (e.key === "Escape") { e.preventDefault(); closeZoom(); }
+        return;
+      }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
       else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prev(); }
       else if (e.key === "Escape") App.Router.back();
