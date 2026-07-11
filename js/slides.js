@@ -211,6 +211,12 @@
       else if (e.key === "End") show(slides.length - 1);
     });
 
+    // 이미지 클릭 → '+'와 동일하게 전체화면 확대
+    stage.addEventListener("click", (e) => {
+      const img = e.target.closest && e.target.closest("img.s-img");
+      if (img && getComputedStyle(img).display !== "none") openZoom();
+    });
+
     // 스와이프(모바일)
     let sx = 0;
     stage.addEventListener("touchstart", e => sx = e.touches[0].clientX, { passive: true });

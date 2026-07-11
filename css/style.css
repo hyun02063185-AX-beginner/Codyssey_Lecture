@@ -644,7 +644,7 @@ body{
 .s-col li{font-size:clamp(1.05rem,1.7vw,1.28rem);color:var(--ink);padding-left:18px;position:relative;line-height:1.5}
 .s-col li::before{content:"·";position:absolute;left:4px;color:var(--cyan);font-weight:700}
 
-.s-img{max-width:100%;max-height:52vh;border-radius:var(--radius);border:var(--border-w) solid var(--glass-brd);box-shadow:var(--shadow);object-fit:contain}
+.s-img{max-width:100%;max-height:52vh;border-radius:var(--radius);border:var(--border-w) solid var(--glass-brd);box-shadow:var(--shadow);object-fit:contain;cursor:zoom-in}
 /* 도표(구조도) 슬라이드 — 글자가 들어간 다이어그램은 최대한 크게 보여준다 */
 .s-img--diagram{max-height:64vh;width:min(100%,1180px)}
 .s-img-cap{margin-top:14px;color:var(--ink-dim);font-size:.86rem;text-align:center}
