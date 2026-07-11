@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">에이전트의 세 가지 — 관찰·판단·실행, 그리고 반복</title>
+  <desc id="d">에이전트는 자료와 시스템을 관찰하고(접근 권한 필요), 두뇌(LLM)가 다음 행동을 판단하고, 바로 쓸 수 있는 도구로 실행한다. 결과를 보고 부족하면 다시 관찰로 돌아가 반복한다.</desc>
+  <defs>
+    <marker id="ah" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto"><path d="M0,0 L7,3.2 L0,6.4 Z" fill="#E0C58A"/></marker>
+    <marker id="ac" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto"><path d="M0,0 L7,3.2 L0,6.4 Z" fill="#D98E6B"/></marker>
+    <style><![CDATA[
+      :root{ --bg:#171009; --grp:#1F1710; --card:#271C12; --edge:#4A3B2A;
+             --ink:#EDE4D6; --dim:#B5A48D; --go:#E0C58A; --gold:#D98E6B; }
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:var(--ink);font-weight:700;} .ts{fill:var(--dim);}
+      .num{fill:var(--go);font-weight:700;}
+      .lbl{fill:var(--ink);font-weight:700;} .sub{fill:var(--dim);}
+      .card{fill:var(--card);stroke:var(--edge);stroke-width:1.5;}
+      .edge{fill:none;stroke:#E0C58A;stroke-width:2.5;}
+      .loop{fill:none;stroke:#D98E6B;stroke-width:2.5;}
+    ]]></style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="720" fill="var(--bg)"/>
+  <text x="48" y="66" font-size="30" class="tt">에이전트 = 대리자 <tspan font-size="18" class="ts">· 이 네 박자로 돈다</tspan></text>
+  <text x="50" y="98" font-size="16" class="ts">관찰 → 판단 → 실행, 그리고 <tspan fill="#E0C58A" font-weight="700">반복(되돌아감)</tspan></text>
+
+  <!-- 관찰 -->
+  <rect x="90" y="240" width="320" height="168" rx="16" class="card"/>
+  <text x="118" y="292" font-size="22"><tspan class="num">①</tspan> <tspan class="lbl">관찰</tspan></text>
+  <text x="118" y="328" font-size="15.5" class="sub">자료·시스템을 본다</text>
+  <text x="118" y="352" font-size="13.5" class="sub">접근 권한이 있어야 —</text>
+  <text x="118" y="374" font-size="13.5" class="sub">프롬프트의 첨부파일처럼 "연결"</text>
+
+  <!-- 판단 -->
+  <rect x="480" y="240" width="320" height="168" rx="16" class="card"/>
+  <text x="508" y="292" font-size="22"><tspan class="num">②</tspan> <tspan class="lbl">판단</tspan></text>
+  <text x="508" y="328" font-size="15.5" class="sub">두뇌(LLM)가 고른다</text>
+  <text x="508" y="352" font-size="13.5" class="sub">다음에 뭘 할지</text>
+  <text x="508" y="374" font-size="13.5" class="sub">스스로 결정</text>
+
+  <!-- 실행 -->
+  <rect x="870" y="240" width="320" height="168" rx="16" class="card"/>
+  <text x="898" y="292" font-size="22"><tspan class="num">③</tspan> <tspan class="lbl">실행</tspan></text>
+  <text x="898" y="328" font-size="15.5" class="sub">도구로 실제 행동</text>
+  <text x="898" y="352" font-size="13.5" class="sub">바로 쓸 수 있는 도구</text>
+  <text x="898" y="374" font-size="13.5" class="sub">메일 · 검색 · DB …</text>
+
+  <!-- 사이 화살표 -->
+  <path d="M410 324 L474 324" class="edge" marker-end="url(#ah)"/>
+  <path d="M800 324 L864 324" class="edge" marker-end="url(#ah)"/>
+
+  <!-- 반복 루프 (실행 → 관찰) -->
+  <path d="M1030 408 C 1030 600, 250 600, 250 414" class="loop" marker-end="url(#ac)"/>
+  <rect x="468" y="512" width="344" height="52" rx="12" fill="var(--grp)" stroke="var(--edge)" stroke-width="1"/>
+  <text x="640" y="544" font-size="16" text-anchor="middle" class="lbl">반복 <tspan class="sub" font-weight="400">— 결과 보고, 부족하면 다시</tspan></text>
+
+  <!-- 하단 한 줄 -->
+  <text x="640" y="656" font-size="15" text-anchor="middle" class="ts">딥리서치가 딱 이 루프 — "충분한가?" 부족하면 되돌아가 다시 검색</text>
+</svg>
