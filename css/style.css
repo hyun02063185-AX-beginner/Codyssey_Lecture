@@ -620,7 +620,7 @@ body{
 .s-big{font-family:var(--font-display);font-weight:700;font-size:clamp(2.8rem,6.2vw,4.6rem);line-height:1.12;
   white-space:pre-line;letter-spacing:.02em;color:var(--ink);
   filter:var(--glow-title)}
-.s-big-sub{margin-top:24px;color:var(--ink-dim);font-size:clamp(1.25rem,2.3vw,1.55rem);line-height:1.6;max-width:32ch;font-weight:400}
+.s-big-sub{margin-top:24px;color:var(--ink-dim);font-size:clamp(1.25rem,2.3vw,1.55rem);line-height:1.6;max-width:34ch;font-weight:400;white-space:pre-line}
 
 .s-title{font-family:var(--font-display);font-weight:700;font-size:clamp(1.95rem,3.4vw,2.5rem);line-height:1.25;color:var(--ink)}
 .s-sub{margin-top:10px;color:var(--cyan);font-size:clamp(1.02rem,1.8vw,1.18rem);letter-spacing:.06em;font-weight:700}
@@ -819,8 +819,8 @@ body{
   /* 세로/PC와 동일하게 세로 가운데 정렬. 혹시 내용이 넘치면 safe가 상단정렬+스크롤로 자동 폴백 */
   .slide{padding:14px 26px;justify-content:safe center;overflow-y:auto}
 
-  /* 도식 이미지: 낮은 화면에선 캡션 몫을 빼고 줄여 스크롤 없이 한눈에 */
-  .s-img,.s-img--diagram{max-height:calc(100vh - 170px)}
+  /* 도식 이미지: 낮은 화면에선 제목·캡션 몫을 빼고 줄여 스크롤 없이 한눈에 */
+  .s-img,.s-img--diagram{max-height:calc(100vh - 205px)}
   .s-img-cap{margin-top:8px;font-size:.78rem}
 
   .s-split{grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}   /* 가로모드는 2컬럼 유지 */
