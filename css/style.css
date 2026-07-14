@@ -681,6 +681,30 @@ body{
 /* 마지막 슬라이드에서 "다음 강의 ▶"로 바뀌면 강조색으로 이어보기 유도 */
 .slide-btn.next-lecture{border-color:var(--accent);color:var(--ink);
   box-shadow:0 0 0 1px var(--accent),0 0 14px color-mix(in srgb,var(--accent) 35%,transparent)}
+
+/* 모바일 세로 상태로 슬라이드 진입 시: 가로 회전 유도 배너(내용은 안 가림, 닫기 가능) */
+.rotate-hint{
+  position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);
+  display:flex;align-items:center;gap:10px;
+  max-width:min(92vw,420px);
+  padding:10px 14px;border-radius:14px;
+  background:rgba(10,8,6,.86);border:1px solid rgba(224,197,138,.35);
+  color:#EDE4D6;font-size:.8rem;line-height:1.35;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  z-index:60;animation:rotateHintIn .35s ease;
+}
+.rotate-hint__icon{font-size:1.15rem;flex:0 0 auto;
+  animation:rotateHintSpin 1.8s ease-in-out infinite}
+.rotate-hint__text{flex:1 1 auto}
+.rotate-hint__text b{color:#E0C58A}
+.rotate-hint__close{flex:0 0 auto;background:none;border:none;color:#B5A48D;
+  font-size:.85rem;padding:4px 6px;cursor:pointer;line-height:1}
+.rotate-hint__close:hover{color:#EDE4D6}
+@keyframes rotateHintIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes rotateHintSpin{0%,100%{transform:rotate(0deg)}50%{transform:rotate(150deg)}}
+@media (hover:hover){ .rotate-hint{display:none !important} } /* 터치 없는(마우스) 환경엔 아예 노출 안 함 */
+
 .slide-dots{display:flex;gap:8px}
 .slide-dots i{width:9px;height:9px;border-radius:50%;background:var(--track);cursor:pointer;transition:.25s}
 .slide-dots i.active{background:var(--cyan);box-shadow:var(--glow-bar);transform:scale(1.25)}

@@ -87,8 +87,59 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  /* ---------- 모바일: 슬라이드 진입 시 가로 전체화면 자동 적용 ----------
+     QR로 들어오면 브라우저 기본 UI(주소창 등) 때문에 화면이 좁다.
+     터치 기기에서 슬라이드에 들어오면 전체화면 + 가로 고정을 시도한다.
+     iOS Safari 등 orientation.lock 미지원 브라우저에선 회전 유도 배너로 대체(rotate-hint). */
+  const coarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  function requestImmersive() {
+    if (!coarsePointer) return;
+    const el = document.documentElement;
+    const reqFs = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (reqFs && !document.fullscreenElement && !document.webkitFullscreenElement) {
+      try { const p = reqFs.call(el); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+    }
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock("landscape").catch(() => {});
+    }
+  }
+  function exitImmersive() {
+    const exitFs = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exitFs && (document.fullscreenElement || document.webkitFullscreenElement)) {
+      try { const p = exitFs.call(document); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+    }
+    if (screen.orientation && screen.orientation.unlock) {
+      try { screen.orientation.unlock(); } catch (e) {}
+    }
+  }
+  const rotateHint = document.getElementById("rotate-hint");
+  const portraitMQ = window.matchMedia && window.matchMedia("(orientation: portrait)");
+  let rotateHintDismissed = false;
+  function updateRotateHint() {
+    if (!rotateHint || !coarsePointer) return;
+    const inSlides = document.documentElement.dataset.route === "lecture";
+    rotateHint.hidden = rotateHintDismissed || !(inSlides && portraitMQ && portraitMQ.matches);
+  }
+  if (rotateHint) {
+    document.getElementById("rotate-hint-close").addEventListener("click", () => {
+      rotateHintDismissed = true; updateRotateHint();
+    });
+  }
+  if (portraitMQ) {
+    const onOrientChange = () => { rotateHintDismissed = false; updateRotateHint(); };
+    portraitMQ.addEventListener ? portraitMQ.addEventListener("change", onOrientChange) : portraitMQ.addListener(onOrientChange);
+  }
+  // 라우트가 lecture를 벗어나면(뒤로가기·강의실로 등) 전체화면·가로고정 해제
+  new MutationObserver(() => {
+    if (document.documentElement.dataset.route !== "lecture") exitImmersive();
+    updateRotateHint();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-route"] });
+
   /* ---------- 강의 열기 (라우터가 lecture 라우트에서 호출) ---------- */
   function openLecture(lecture, box, slideIndex) {
+    requestImmersive();
+    rotateHintDismissed = false;
+    updateRotateHint();
     activeLecture = lecture;
     slides = lecture.slides || [];
     current = Math.max(0, Math.min(slideIndex || 0, slides.length - 1));
