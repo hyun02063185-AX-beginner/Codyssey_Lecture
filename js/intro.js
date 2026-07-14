@@ -16,6 +16,16 @@
   const enterHint = document.getElementById("intro-enter");
   const cells = [...gridEl.querySelectorAll(".intro-cell")];
 
+  // 기기 모드: 모바일(수강자)=별똥별 고정·테마선택 없음 / PC(시연)=저장 테마 + 테마 고르기
+  const IS_MOBILE = (typeof window.__isMobile === "boolean") ? window.__isMobile
+    : !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+  const INTRO_KEY = "ax_intro_theme";
+  function loadTheme() {
+    try { const t = localStorage.getItem(INTRO_KEY); if (INTRO_THEMES.indexOf(t) >= 0) return t; } catch (e) {}
+    return "star";                                   // 기본 = 별똥별
+  }
+  function saveTheme(t) { try { localStorage.setItem(INTRO_KEY, t); } catch (e) {} }
+
   const REDUCE = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -238,7 +248,7 @@
     inst.st = THEMES[inst.theme].create(inst.w, inst.h, inst.quality);
   }
 
-  let running = false, rafId = null, mode = "grid", lastTheme = INTRO_THEMES[0], hintTimer = 0;
+  let running = false, rafId = null, mode = "grid", lastTheme = loadTheme(), hintTimer = 0;
   const activeInsts = () => (mode === "grid" ? gridInsts : [fullInst]);
 
   function drawOnce() {
@@ -275,10 +285,34 @@
     gridReady = true;
   }
 
+  /* ---------- 전체화면 인트로를 바로 띄운다(부팅·재진입 기본) ----------
+     PC=저장 테마 / 모바일=별똥별 고정. 그리드(테마 선택)는 PC에서 '테마 고르기'로만 진입. */
+  function showFull(theme) {
+    if (INTRO_THEMES.indexOf(theme) < 0) theme = "star";
+    lastTheme = theme;
+    fullInst.theme = theme;
+    sizeInst(fullInst, window.innerWidth, window.innerHeight);
+    seed(fullInst);
+    mode = "full";
+    fullEl.dataset.theme = theme;                     // 현재 인트로 테마(디버그·검증용)
+    fullEl.hidden = false;
+    fullEl.style.transition = "none";
+    fullEl.style.transformOrigin = "top left";
+    fullEl.style.transform = "translate(0,0) scale(1,1)";
+    fullEl.style.opacity = "1";
+    gridEl.classList.add("is-hiding");
+    if (backBtn) backBtn.hidden = IS_MOBILE;          // 모바일=테마 선택 없음
+    enterHint.classList.remove("show");
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => enterHint.classList.add("show"), 2200);
+    start();
+  }
+
   /* ---------- 선택 → 전체화면 확장 ---------- */
   function expand(cell) {
     const theme = cell.dataset.theme;
     lastTheme = theme;
+    saveTheme(theme);                                 // 선택한 테마 유지(다음 접속에도 적용)
     const r = cell.getBoundingClientRect();
     const sr = scene.getBoundingClientRect();
 
@@ -357,11 +391,13 @@
     return !window.App || !App.Router || App.Router.parse().name === "intro";
   }
   function syncRoute() {
-    if (isIntro()) { ensureGrid(); start(); }
-    else {
+    if (isIntro()) {
+      // 인트로 진입 = 전체화면 테마부터. PC·모바일 공통으로 저장된 테마(없으면 별똥별)를 쓴다.
+      // → PC에서 고른 테마가 같은 기기의 모바일 모드에도 그대로 적용된다.
+      showFull(loadTheme());
+    } else {
       stop();
-      // 다음 진입 시 항상 4분할부터
-      mode = "grid"; fullEl.hidden = true; fullEl.style.opacity = "1";
+      fullEl.hidden = true; fullEl.style.opacity = "1";
       gridEl.classList.remove("is-hiding");
       clearTimeout(hintTimer); enterHint.classList.remove("show");
     }
@@ -382,6 +418,10 @@
 
   /* ---------- 부트 ---------- */
   document.addEventListener("DOMContentLoaded", () => {
+    // 공유 링크/QR로 인트로 테마 지정 (예: ...?theme=sakura) → 저장 후 이후에도 유지.
+    // 기기 간 localStorage는 공유되지 않으므로, 학생 폰의 테마는 이 파라미터로만 일괄 지정 가능.
+    const um = location.search.match(/[?&]theme=([a-z]+)/i);
+    if (um && INTRO_THEMES.indexOf(um[1]) >= 0) saveTheme(um[1]);
     ensureGrid(true);
     syncRoute();
   });

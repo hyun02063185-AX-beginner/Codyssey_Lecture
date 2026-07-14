@@ -9,6 +9,26 @@
   //   다른 강의는 평소처럼 한 강씩만 발견된다. 실제 배포 전에는 false 로 되돌릴 것.
   const TEST_FILL_ALL = false;   // ★배포용: 20강 전부 봐야 완주
 
+  /* ---------- 기기 모드: 모바일(수강자) vs PC(시연) ----------
+     ?view=mobile / ?view=pc 로 강제 지정 가능(한 기기에서 두 모드 확인용). */
+  const IS_MOBILE = (function () {
+    const m = location.search.match(/[?&]view=(mobile|pc)/);
+    if (m) return m[1] === "mobile";
+    return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+  })();
+  window.__isMobile = IS_MOBILE;   // intro.js 등에서 공유
+
+  /* ---------- 스킨 해금 순서 (Lv 포상) ----------
+     모바일: 5종 전부 · PC: Lv1 사유의 방 → Lv2 +페이퍼 → Lv3 +네온 → Lv4 +픽셀 → Lv5 +블루프린트 */
+  const SKIN_ORDER = ["sayu", "paper", "neon", "pixel", "blueprint"];
+  function skinUnlockCount() {
+    if (IS_MOBILE) return SKIN_ORDER.length;                       // 모바일=전부
+    return Math.max(1, Math.min(SKIN_ORDER.length, Level.n));      // PC=Lv별(Lv0→1)
+  }
+  function isSkinUnlocked(name) {
+    return SKIN_ORDER.slice(0, skinUnlockCount()).indexOf(name) >= 0;
+  }
+
   /* ---------- 진행도 상태 (localStorage 저장) ---------- */
   const STORE_KEY = "ax_room_progress_v1";
   const Progress = {
@@ -44,8 +64,8 @@
   // Lv1~5 칭호 (수정 쉬움): 훑기 → 파기 → 곱씹기 → 실천 → 통찰
   const RANKS = ["", "Wanderer", "Explorer", "Thinker", "Practitioner", "Visionary"];
   const Level = {
-    n: 0,
-    load() { try { const v = parseInt(localStorage.getItem(LEVEL_KEY), 10); if (!isNaN(v)) this.n = Math.min(MAX_LEVEL, Math.max(0, v)); } catch (e) {} },
+    n: 1,                                        // Lv1부터 시작(뱃지 처음부터 표시)
+    load() { try { const v = parseInt(localStorage.getItem(LEVEL_KEY), 10); if (!isNaN(v)) this.n = Math.min(MAX_LEVEL, Math.max(1, v)); } catch (e) {} },
     save() { try { localStorage.setItem(LEVEL_KEY, String(this.n)); } catch (e) {} },
     up() { if (this.n < MAX_LEVEL) { this.n++; this.save(); return true; } return false; },
     label() { return this.n >= 1 ? "Lv" + this.n + " · " + RANKS[this.n] : ""; }
@@ -68,6 +88,7 @@
     },
     set(name, persist) {
       if (!SKINS.includes(name)) name = "sayu";
+      if (!isSkinUnlocked(name)) name = "sayu";   // 아직 해금 안 된 스킨이면 사유의 방으로
       this.current = name;
       document.documentElement.dataset.skin = name;
       if (persist !== false) { try { localStorage.setItem(SKIN_KEY, name); } catch (e) {} }
@@ -79,9 +100,22 @@
     document.querySelectorAll(".skin-opt").forEach(b =>
       b.setAttribute("aria-pressed", b.dataset.skin === Skin.current ? "true" : "false"));
   }
+  // 스킨 잠금 상태 갱신(해금=선택 가능 / 미해금=🔒 회색·비활성). Lv 오르면 다시 호출.
+  function refreshSkinLocks() {
+    document.querySelectorAll(".skin-opt").forEach(btn => {
+      const locked = !isSkinUnlocked(btn.dataset.skin);
+      btn.classList.toggle("locked", locked);
+      btn.setAttribute("aria-disabled", locked ? "true" : "false");
+      if (!IS_MOBILE) btn.title = locked ? "Lv" + (SKIN_ORDER.indexOf(btn.dataset.skin) + 1) + " 달성 시 해금" : "";
+    });
+  }
   function initSkinPicker() {
     document.querySelectorAll(".skin-opt").forEach(btn =>
-      btn.addEventListener("click", () => Skin.set(btn.dataset.skin, true)));
+      btn.addEventListener("click", () => {
+        if (!isSkinUnlocked(btn.dataset.skin)) return;   // 잠긴 스킨은 무시(포상 전)
+        Skin.set(btn.dataset.skin, true);
+      }));
+    refreshSkinLocks();
     syncPicker();
   }
 
@@ -130,6 +164,7 @@
       if (!parts.length) return { name: "intro" };
       switch (parts[0]) {
         case "start":   return { name: "start" };
+        case "reset":   return { name: "reset" };
         case "room":    return { name: "room" };
         case "box":     return { name: "box", box: Number(parts[1]) || 0 };
         case "lecture": return { name: "lecture", id: Number(parts[1]),
@@ -145,6 +180,16 @@
       document.documentElement.dataset.route = r.name;                  // CSS 배경 전환용(인트로=밤하늘)
       if (r.name !== "box") window.closeFanDOM && window.closeFanDOM();  // 상자 라우트 외에는 부채꼴 닫기
       switch (r.name) {
+        case "reset": {                       // #/reset → Lv·진행도 초기화 후 인트로로
+          try { localStorage.removeItem(LEVEL_KEY); localStorage.removeItem(STORE_KEY); localStorage.removeItem("ax_server_session"); } catch (e) {}
+          Level.n = 1; Level.save();          // Lv1부터 다시 시작
+          Progress.seen.clear(); Progress.save();
+          refreshSkinLocks(); Skin.set("sayu", true); updateHUD();
+          if (window.refreshCardsSeen) window.refreshCardsSeen();
+          Router.replace("");                 // 해시를 인트로로(히스토리 미적립)
+          Router.handle();                    // 인트로 렌더
+          return;
+        }
         case "intro":
           bgIntro(); goScene("intro"); break;
         case "start":
@@ -191,12 +236,12 @@
     const btn = document.getElementById("reset-progress");
     if (!btn) return;
     btn.classList.remove("is-upgrade", "is-mastered");
-    if (c >= TOTAL && Level.n < MAX_LEVEL) {
+    if (Level.n >= MAX_LEVEL) {                          // Lv5 통달 — 완주 여부와 무관하게 표시
+      btn.textContent = "✦ 통달"; btn.title = "통달 — 최고 경지";
+      btn.classList.add("is-mastered");
+    } else if (c >= TOTAL) {                             // 20/20 · Lv<5 → 업그레이드
       btn.textContent = "⬆ 업그레이드"; btn.title = "다음 단계로 (진행도 초기화)";
       btn.classList.add("is-upgrade");
-    } else if (c >= TOTAL) {
-      btn.textContent = "✦ 통달"; btn.title = "모든 단계를 밝혔습니다";
-      btn.classList.add("is-mastered");
     } else {
       btn.textContent = "↺"; btn.title = "진행도 초기화";
     }
@@ -243,6 +288,7 @@
     if (!Level.up()) return;
     Progress.reset();                                   // 새 회독 시작(발견도 0) + updateHUD
     if (window.refreshCardsSeen) window.refreshCardsSeen();
+    refreshSkinLocks();                                 // PC: 새 Lv에서 스킨 해금 반영
     const rank = document.getElementById("hud-rank");   // 뱃지 등장 강조
     if (rank) { rank.classList.remove("pop"); void rank.offsetWidth; rank.classList.add("pop"); }
     if (Level.n >= MAX_LEVEL) {
@@ -319,8 +365,8 @@
     const btn = document.getElementById("reset-progress");
     if (btn) btn.addEventListener("click", () => {
       const c = Progress.count();
-      if (c >= TOTAL && Level.n < MAX_LEVEL) doUpgrade();          // 완주 → 승급
-      else if (c >= TOTAL) celebrateCompletion();                 // 통달 → 축하 재생
+      if (Level.n >= MAX_LEVEL) celebrateCompletion();            // 통달 → 축하 재생
+      else if (c >= TOTAL) doUpgrade();                           // 완주 → 승급
       else { Progress.reset(); if (window.refreshCardsSeen) window.refreshCardsSeen(); }
     });
     const up = document.getElementById("celebrate-up");
@@ -459,10 +505,10 @@
   /* ---------- 부트 ---------- */
   document.addEventListener("DOMContentLoaded", () => {
     Progress.load();
+    Level.load();                   // 회독 레벨 복원 (스킨 해금이 Lv에 의존 → 먼저)
     initBackground();               // __bgSetSkin 준비 후
-    initSkinPicker();               // 선택기 버튼 이벤트
-    Skin.load();                    // 저장된 스킨 반영(없으면 sayu) + 배경 통지
-    Level.load();                   // 회독 레벨 복원
+    initSkinPicker();               // 선택기 버튼 이벤트 + 잠금 표시
+    Skin.load();                    // 저장된 스킨 반영(잠겼으면 사유의 방으로) + 배경 통지
     // ★[테스트] 서버 재시작(세션 토큰 변경) 시 완주/레벨 초기화 → 서버 띄울 때마다 완주 기능 테스트.
     //   단순 새로고침은 토큰이 그대로라 유지. (server_session.txt 는 serve.py 가 재시작마다 갱신)
     if (TEST_FILL_ALL) {
