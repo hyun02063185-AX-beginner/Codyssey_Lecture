@@ -655,10 +655,11 @@ body{
   padding:3px 11px;pointer-events:none}
 /* 이미지 전체화면 확대 오버레이 ('+' 로 열고 '-'/Esc/클릭 으로 닫기) */
 .img-zoom{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;
-  background:rgba(9,7,5,.95);cursor:zoom-out;padding:2vh 2vw}
+  background:#0a0705;cursor:zoom-out;padding:2vh 2vw;touch-action:none;overflow:hidden}
 .img-zoom.show{display:flex}
 .img-zoom img{max-width:97vw;max-height:95vh;object-fit:contain;border-radius:8px;
-  box-shadow:0 24px 90px rgba(0,0,0,.6)}
+  box-shadow:0 24px 90px rgba(0,0,0,.6);
+  touch-action:none;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-select:none}
 .img-zoom__hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
   font-size:.8rem;letter-spacing:.1em;color:rgba(255,255,255,.5);font-family:var(--font-body)}
 

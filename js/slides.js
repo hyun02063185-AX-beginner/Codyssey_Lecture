@@ -248,9 +248,10 @@
   /* ---------- 이미지 전체화면 확대 ('+' 크게 · '-' 원래대로) ---------- */
   const imgZoom = document.createElement("div");
   imgZoom.className = "img-zoom";
-  imgZoom.innerHTML = `<img alt=""><span class="img-zoom__hint">－ 또는 Esc 로 닫기</span>`;
+  const zoomHintText = coarsePointer ? "두 손가락으로 확대 · 탭해서 닫기" : "－ 또는 Esc 로 닫기";
+  imgZoom.innerHTML = `<img alt=""><span class="img-zoom__hint">${zoomHintText}</span>`;
   document.body.appendChild(imgZoom);
-  imgZoom.addEventListener("click", closeZoom);
+  const zimg = imgZoom.querySelector("img");
   let zoomOpen = false;
 
   function currentImg() {
@@ -261,14 +262,74 @@
   function openZoom() {
     const img = currentImg();
     if (!img) return;                       // 이미지 슬라이드가 아니면 무시
-    imgZoom.querySelector("img").src = img.currentSrc || img.src;
+    zimg.src = img.currentSrc || img.src;
+    resetZoom();
     imgZoom.classList.add("show");
     zoomOpen = true;
   }
   function closeZoom() {
     imgZoom.classList.remove("show");
     zoomOpen = false;
+    resetZoom();
   }
+
+  /* ---------- 확대뷰 안에서 두 손가락 핀치줌 + 패닝 ----------
+     전체화면(가로 몰입모드)에선 브라우저 기본 핀치줌이 막히므로, 확대 오버레이에서만
+     자체 제스처로 1~5배 확대·이동을 지원한다. 닫으면 배율은 1로 리셋. */
+  let scale = 1, tx = 0, ty = 0;
+  let startDist = 0, startScale = 1, startMidX = 0, startMidY = 0, startTx = 0, startTy = 0;
+  let panning = false, lastX = 0, lastY = 0, gestured = false;
+  function applyTransform() { zimg.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`; }
+  function resetZoom() { scale = 1; tx = 0; ty = 0; zimg.style.transform = ""; }
+  function distOf(a, b) { return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY); }
+
+  imgZoom.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      startDist = distOf(e.touches[0], e.touches[1]);
+      startScale = scale;
+      startMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      startMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      startTx = tx; startTy = ty; gestured = true; panning = false;
+    } else if (e.touches.length === 1 && scale > 1) {
+      panning = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    } else {
+      gestured = false;                     // 단순 탭 → 닫기 후보
+    }
+  }, { passive: false });
+
+  imgZoom.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const d = distOf(e.touches[0], e.touches[1]);
+      scale = Math.min(5, Math.max(1, startScale * (d / (startDist || 1))));
+      const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      tx = startTx + (mx - startMidX);
+      ty = startTy + (my - startMidY);
+      if (scale <= 1.001) { tx = 0; ty = 0; }
+      applyTransform(); gestured = true;
+    } else if (panning && e.touches.length === 1) {
+      e.preventDefault();
+      tx += e.touches[0].clientX - lastX;
+      ty += e.touches[0].clientY - lastY;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      applyTransform(); gestured = true;
+    }
+  }, { passive: false });
+
+  imgZoom.addEventListener("touchend", (e) => {
+    if (e.touches.length === 0) {
+      if (scale <= 1.02) resetZoom();       // 원배율 근처면 깔끔히 리셋
+      panning = false;
+    }
+  });
+
+  // 클릭/탭으로 닫기 — 단, 핀치·패닝 제스처 직후의 합성 클릭은 무시
+  imgZoom.addEventListener("click", () => {
+    if (gestured) { gestured = false; return; }
+    closeZoom();
+  });
 
   /* ---------- 네비게이션 ---------- */
   function initSlides() {

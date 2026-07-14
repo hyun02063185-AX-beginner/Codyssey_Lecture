@@ -335,6 +335,9 @@
     const canvas = document.getElementById("bg-canvas");
     const ctx = canvas.getContext("2d");
     const DPR = window.devicePixelRatio || 1;
+    // 모바일(터치)에서는 배경을 애니메이션하지 않고 별밭을 한 번만 그린다(정적).
+    // → 확대 오버레이와 겹칠 때의 렌더 아티팩트 방지 + 배터리·성능 개선.
+    const STATIC_BG = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
     let w, h, stars = [], dust = [], shooters = [];
     let bgSkin = "paper";
     /* 별똥별(인트로 전용) */
@@ -364,7 +367,7 @@
       shooters = shooters.filter(s => s.life > 0 && s.x < w + 60 && s.y < h + 60);
     }
     // 스킨 전환 시 배경 표현을 바꾼다 (네온=별+성운, 픽셀=도트 별, sayu=따뜻한 별빛, paper/blueprint=비움)
-    window.__bgSetSkin = function (s) { bgSkin = s; };
+    window.__bgSetSkin = function (s) { bgSkin = s; if (STATIC_BG) draw(); };  // 모바일: 스킨 바뀌면 정적 프레임 1회 다시 그림
     function resize() {
       w = canvas.width = window.innerWidth * DPR;
       h = canvas.height = window.innerHeight * DPR;
@@ -384,8 +387,9 @@
         dx: (Math.random() - 0.5) * 0.12 * DPR,
         dy: (Math.random() - 0.5) * 0.12 * DPR
       }));
+      if (STATIC_BG) draw();                 // 모바일: 리사이즈/회전 후 정적 프레임 1회
     }
-    function frame() {
+    function draw() {
       ctx.clearRect(0, 0, w, h);
       if (bgSkin === "neon") {
         // 성운 구름 (네온 전용 — 밝은 배경 위에 어두운 성운이 뜨는 것을 방지)
@@ -435,10 +439,11 @@
         if (bgSkin === "intro") drawShooters();   // 인트로에서만 별똥별
       }
       // paper · blueprint: 캔버스 비움(그리드/여백이 배경 역할)
-      requestAnimationFrame(frame);
     }
+    function loop() { draw(); requestAnimationFrame(loop); }
     window.addEventListener("resize", resize);
-    resize(); frame();
+    resize();
+    if (STATIC_BG) draw(); else loop();      // 모바일=정적 1프레임 · 데스크톱=애니메이션 루프
   }
 
   /* ---------- 부트 ---------- */
