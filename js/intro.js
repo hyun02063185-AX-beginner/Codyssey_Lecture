@@ -20,9 +20,13 @@
   const IS_MOBILE = (typeof window.__isMobile === "boolean") ? window.__isMobile
     : !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
   const INTRO_KEY = "ax_intro_theme";
+  // [B] 코드 고정 기본 인트로 테마 — 저장값·?theme= 가 없을 때 모두에게 적용된다.
+  //   ★향후 DB 필요한 서비스로 발전하면, 이 값을 서버/DB 설정에서 받아오도록 교체할 것.
+  //   (star=별똥별 · sakura=벚꽃 · fireworks=불꽃놀이 · snow=함박눈)
+  const DEFAULT_INTRO_THEME = "star";
   function loadTheme() {
     try { const t = localStorage.getItem(INTRO_KEY); if (INTRO_THEMES.indexOf(t) >= 0) return t; } catch (e) {}
-    return "star";                                   // 기본 = 별똥별
+    return DEFAULT_INTRO_THEME;
   }
   function saveTheme(t) { try { localStorage.setItem(INTRO_KEY, t); } catch (e) {} }
 
@@ -288,7 +292,7 @@
   /* ---------- 전체화면 인트로를 바로 띄운다(부팅·재진입 기본) ----------
      PC=저장 테마 / 모바일=별똥별 고정. 그리드(테마 선택)는 PC에서 '테마 고르기'로만 진입. */
   function showFull(theme) {
-    if (INTRO_THEMES.indexOf(theme) < 0) theme = "star";
+    if (INTRO_THEMES.indexOf(theme) < 0) theme = DEFAULT_INTRO_THEME;
     lastTheme = theme;
     fullInst.theme = theme;
     sizeInst(fullInst, window.innerWidth, window.innerHeight);
