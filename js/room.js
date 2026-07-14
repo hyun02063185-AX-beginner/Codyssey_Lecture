@@ -154,11 +154,13 @@
     });
   }
 
-  // 닫기/바깥클릭/Esc → 뒤로가기(히스토리)로 방 복귀
-  fanClose.addEventListener("click", () => App.Router.back());
-  fanOverlay.addEventListener("click", (e) => { if (e.target === fanOverlay) App.Router.back(); });
+  // 닫기/바깥클릭/Esc → 상자 페이지(방)로 복귀
+  //   history.back()이 아니라 명시적으로 #/room 으로 간다: 강의를 연속으로 본 뒤엔
+  //   히스토리 뒤로가기가 직전 강의로 가버리기 때문(상자 닫기 = 방으로 나가기).
+  fanClose.addEventListener("click", () => App.Router.go("room"));
+  fanOverlay.addEventListener("click", (e) => { if (e.target === fanOverlay) App.Router.go("room"); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && fanOverlay.classList.contains("is-open")) App.Router.back();
+    if (e.key === "Escape" && fanOverlay.classList.contains("is-open")) App.Router.go("room");
   });
 
   /* ---------- 전역 노출 ---------- */
