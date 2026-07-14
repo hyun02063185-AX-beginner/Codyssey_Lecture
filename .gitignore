@@ -4,3 +4,4 @@ node_modules/
 *.log
 .claude/
 server_session.txt
+__pycache__/

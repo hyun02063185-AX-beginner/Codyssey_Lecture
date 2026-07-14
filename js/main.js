@@ -7,7 +7,7 @@
   // ★[테스트/시연] true면 "마지막 강(20강)"을 끝까지 봤을 때 전체 완주로 처리.
   //   → 20강만 반복해 들으면 완주→업그레이드(Lv1→Lv2→…)를 빠르게 테스트할 수 있다.
   //   다른 강의는 평소처럼 한 강씩만 발견된다. 실제 배포 전에는 false 로 되돌릴 것.
-  const TEST_FILL_ALL = true;
+  const TEST_FILL_ALL = false;   // ★배포용: 20강 전부 봐야 완주
 
   /* ---------- 진행도 상태 (localStorage 저장) ---------- */
   const STORE_KEY = "ax_room_progress_v1";
