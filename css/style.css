@@ -678,6 +678,9 @@ body{
   font-family:var(--font-body);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);transition:.25s}
 .slide-btn:hover:not(:disabled){border-color:var(--cyan);transform:translateY(-2px);box-shadow:var(--btn-hover-shadow)}
 .slide-btn:disabled{opacity:.3;cursor:not-allowed}
+/* 마지막 슬라이드에서 "다음 강의 ▶"로 바뀌면 강조색으로 이어보기 유도 */
+.slide-btn.next-lecture{border-color:var(--accent);color:var(--ink);
+  box-shadow:0 0 0 1px var(--accent),0 0 14px color-mix(in srgb,var(--accent) 35%,transparent)}
 .slide-dots{display:flex;gap:8px}
 .slide-dots i{width:9px;height:9px;border-radius:50%;background:var(--track);cursor:pointer;transition:.25s}
 .slide-dots i.active{background:var(--cyan);box-shadow:var(--glow-bar);transform:scale(1.25)}

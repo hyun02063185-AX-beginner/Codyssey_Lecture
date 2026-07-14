@@ -4,8 +4,9 @@
 (function () {
   "use strict";
 
-  // ★[테스트/시연] true면 아무 강의나 끝까지 보면 20강 완주로 처리(완주 연출 빠른 확인용).
-  //   실제 배포 전에는 false 로 되돌릴 것.
+  // ★[테스트/시연] true면 "마지막 강(20강)"을 끝까지 봤을 때 전체 완주로 처리.
+  //   → 20강만 반복해 들으면 완주→업그레이드(Lv1→Lv2→…)를 빠르게 테스트할 수 있다.
+  //   다른 강의는 평소처럼 한 강씩만 발견된다. 실제 배포 전에는 false 로 되돌릴 것.
   const TEST_FILL_ALL = true;
 
   /* ---------- 진행도 상태 (localStorage 저장) ---------- */
@@ -24,8 +25,11 @@
     },
     mark(id) {
       const was = this.seen.size;
-      if (TEST_FILL_ALL) CURRICULUM.boxes.forEach(b => b.lectures.forEach(l => this.seen.add(l.id)));
-      else this.seen.add(id);
+      this.seen.add(id);
+      // 테스트 모드: 마지막 강(20강)을 끝까지 보면 전체 완주 처리
+      if (TEST_FILL_ALL && id === LAST_LECTURE_ID) {
+        CURRICULUM.boxes.forEach(b => b.lectures.forEach(l => this.seen.add(l.id)));
+      }
       this.save(); App.updateHUD();
       if (was < TOTAL && this.seen.size === TOTAL) celebrateCompletion();  // 완주 순간
     },
@@ -162,6 +166,10 @@
 
   /* ---------- HUD 갱신 ---------- */
   const TOTAL = CURRICULUM.boxes.reduce((n, b) => n + b.lectures.length, 0);
+  const LAST_LECTURE_ID = (() => {                 // 마지막 강의 id (= 20강)
+    const b = CURRICULUM.boxes[CURRICULUM.boxes.length - 1];
+    return b.lectures[b.lectures.length - 1].id;
+  })();
   function updateHUD() {
     const c = Progress.count();
     const pct = Math.round((c / TOTAL) * 100);
@@ -436,6 +444,22 @@
     initSkinPicker();               // 선택기 버튼 이벤트
     Skin.load();                    // 저장된 스킨 반영(없으면 sayu) + 배경 통지
     Level.load();                   // 회독 레벨 복원
+    // ★[테스트] 서버 재시작(세션 토큰 변경) 시 완주/레벨 초기화 → 서버 띄울 때마다 완주 기능 테스트.
+    //   단순 새로고침은 토큰이 그대로라 유지. (server_session.txt 는 serve.py 가 재시작마다 갱신)
+    if (TEST_FILL_ALL) {
+      fetch("server_session.txt", { cache: "no-store" })
+        .then(r => (r.ok ? r.text() : null))
+        .then(id => {
+          if (!id) return;
+          id = id.trim();
+          if (localStorage.getItem("ax_server_session") !== id) {
+            Progress.seen.clear(); Progress.save();
+            Level.n = 0; Level.save();
+            try { localStorage.setItem("ax_server_session", id); } catch (e) {}
+            updateHUD();
+          }
+        }).catch(() => {});
+    }
     initStart();
     initStateButton();
     initRoomNav();

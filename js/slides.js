@@ -17,6 +17,15 @@
   let slides = [];
   let activeLecture = null;
 
+  /* ---------- 다음 강의 찾기 (마지막 슬라이드 → 다음 강의로 이어보기) ---------- */
+  function nextLecture() {
+    if (!activeLecture) return null;
+    const all = [];
+    CURRICULUM.boxes.forEach(b => b.lectures.forEach(l => all.push(l)));
+    const idx = all.findIndex(l => l.id === activeLecture.id);
+    return (idx >= 0 && idx < all.length - 1) ? all[idx + 1] : null;
+  }
+
   /* ---------- 슬라이드 HTML 렌더 ---------- */
   function renderSlide(s, lecture) {
     switch (s.type) {
@@ -112,7 +121,17 @@
     progressFill.style.width = ((i + 1) / slides.length * 100) + "%";
     dotsEl.querySelectorAll("i").forEach((d, idx) => d.classList.toggle("active", idx === i));
     prevBtn.disabled = i === 0;
-    nextBtn.disabled = i === slides.length - 1;
+    // 마지막 슬라이드: 다음 강의가 있으면 "다음 강의 ▶"로 이어보기, 없으면(20강) 비활성
+    if (i === slides.length - 1) {
+      const nl = nextLecture();
+      nextBtn.disabled = !nl;
+      nextBtn.textContent = nl ? "다음 강의 ▶" : "다음 ▶";
+      nextBtn.classList.toggle("next-lecture", !!nl);
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.textContent = "다음 ▶";
+      nextBtn.classList.remove("next-lecture");
+    }
 
     // 마지막 슬라이드까지 도달하면 그때 '완료'로 표시 (끝까지 들어야 점이 켜진다)
     if (activeLecture && i === slides.length - 1) Progress.mark(activeLecture.id);
@@ -121,7 +140,14 @@
     if (activeLecture) App.Router.replace("lecture/" + activeLecture.id + "/" + i);
     revealChrome();   // 슬라이드 바뀔 때 네비를 잠깐 보여줬다 숨김
   }
-  const next = () => show(current + 1);
+  const next = () => {
+    if (current === slides.length - 1) {          // 마지막 슬라이드 → 다음 강의로
+      const nl = nextLecture();
+      if (nl) App.Router.go("lecture/" + nl.id);
+      return;
+    }
+    show(current + 1);
+  };
   const prev = () => show(current - 1);
 
   /* ---------- 크롬(상단바·하단 네비) 자동 숨김 ----------
