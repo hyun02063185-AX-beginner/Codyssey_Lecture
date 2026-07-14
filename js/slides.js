@@ -16,6 +16,7 @@
   let current = 0;
   let slides = [];
   let activeLecture = null;
+  let activeBox = null;
 
   /* ---------- 다음 강의 찾기 (마지막 슬라이드 → 다음 강의로 이어보기) ---------- */
   function nextLecture() {
@@ -146,6 +147,7 @@
     rotateHintDismissed = false;
     updateRotateHint();
     activeLecture = lecture;
+    activeBox = box;
     slides = lecture.slides || [];
     current = Math.max(0, Math.min(slideIndex || 0, slides.length - 1));
 
@@ -331,12 +333,19 @@
     closeZoom();
   });
 
+  // 슬라이드 나가기 → 이전 강의(히스토리)가 아니라, 현재 강의가 속한 카드 부채꼴 페이지로
+  function exitToCards() {
+    const bi = activeBox ? CURRICULUM.boxes.indexOf(activeBox) : -1;
+    if (bi >= 0) App.Router.go("box/" + bi);
+    else App.Router.back();
+  }
+
   /* ---------- 네비게이션 ---------- */
   function initSlides() {
     initChrome();
     nextBtn.addEventListener("click", next);
     prevBtn.addEventListener("click", prev);
-    exitBtn.addEventListener("click", () => App.Router.back());
+    exitBtn.addEventListener("click", exitToCards);
 
     document.addEventListener("keydown", (e) => {
       if (!scene.classList.contains("is-active")) return;
@@ -349,7 +358,7 @@
       }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
       else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prev(); }
-      else if (e.key === "Escape") App.Router.back();
+      else if (e.key === "Escape") exitToCards();
       else if (e.key === "Home") show(0);
       else if (e.key === "End") show(slides.length - 1);
     });
