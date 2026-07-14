@@ -112,13 +112,15 @@
       try { screen.orientation.unlock(); } catch (e) {}
     }
   }
+  // 몰입 구간 = 방(상자 그리드) · 상자(카드 부채꼴) · 슬라이드 — 세로에선 카드가 다 안 보이므로 셋 다 포함
+  const IMMERSIVE_ROUTES = { room: true, box: true, lecture: true };
   const rotateHint = document.getElementById("rotate-hint");
   const portraitMQ = window.matchMedia && window.matchMedia("(orientation: portrait)");
   let rotateHintDismissed = false;
   function updateRotateHint() {
     if (!rotateHint || !coarsePointer) return;
-    const inSlides = document.documentElement.dataset.route === "lecture";
-    rotateHint.hidden = rotateHintDismissed || !(inSlides && portraitMQ && portraitMQ.matches);
+    const inZone = !!IMMERSIVE_ROUTES[document.documentElement.dataset.route];
+    rotateHint.hidden = rotateHintDismissed || !(inZone && portraitMQ && portraitMQ.matches);
   }
   if (rotateHint) {
     document.getElementById("rotate-hint-close").addEventListener("click", () => {
@@ -129,11 +131,14 @@
     const onOrientChange = () => { rotateHintDismissed = false; updateRotateHint(); };
     portraitMQ.addEventListener ? portraitMQ.addEventListener("change", onOrientChange) : portraitMQ.addListener(onOrientChange);
   }
-  // 라우트가 lecture를 벗어나면(뒤로가기·강의실로 등) 전체화면·가로고정 해제
+  // 몰입 구간(방·상자·슬라이드)을 벗어나면(입장 화면으로 등) 전체화면·가로고정 해제
   new MutationObserver(() => {
-    if (document.documentElement.dataset.route !== "lecture") exitImmersive();
+    if (!IMMERSIVE_ROUTES[document.documentElement.dataset.route]) exitImmersive();
     updateRotateHint();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-route"] });
+
+  // main.js(입장 버튼 클릭 = 워프 시작 시점)에서 바로 몰입모드를 걸 수 있도록 노출
+  window.Immersive = { request: requestImmersive, exit: exitImmersive };
 
   /* ---------- 강의 열기 (라우터가 lecture 라우트에서 호출) ---------- */
   function openLecture(lecture, box, slideIndex) {

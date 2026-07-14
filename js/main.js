@@ -293,6 +293,7 @@
     const btn = document.getElementById("enter-btn");
     const warp = document.getElementById("warp");
     btn.addEventListener("click", () => {
+      window.Immersive && window.Immersive.request();   // 워프 시작 = 몰입 구간(방·상자·슬라이드) 진입점
       const k = fxScale();          // sayu면 워프/전환도 2배 느리게
       warp.classList.remove("go");
       void warp.offsetWidth;        // reflow로 애니메이션 리셋
@@ -323,7 +324,10 @@
   /* ---------- 방 → 입장 화면 링크 ---------- */
   function initRoomNav() {
     const btn = document.getElementById("to-start");
-    if (btn) btn.addEventListener("click", () => Router.go("start"));
+    if (btn) btn.addEventListener("click", () => {
+      window.Immersive && window.Immersive.exit();   // 몰입 구간을 벗어남 → 즉시 해제
+      Router.go("start");
+    });
   }
 
   /* ---------- 배경: 별 + 흐르는 성운 ---------- */
