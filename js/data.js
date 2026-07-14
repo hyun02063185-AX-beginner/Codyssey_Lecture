@@ -216,7 +216,7 @@ const CURRICULUM = {
                        → 경험②(성공에 취한 창작 오해: 이력서→포트폴리오 짜깁기) → 교훈(찾기≠만들기)
                        → 활용처(조직 자산) → 리더 설득(과거 자산이 미래의 힘) → 마무리 ── */
             { type: 'cover', kicker: '상자 2 · 도구 · 07', title: '지식검색\nRAG', subtitle: '내 문서와 대화하기 — 6강 지도의 첫 목적지' },
-            { type: 'big', word: '세상은 다 알아도\n내 자료는 모른다', sub: 'AI가 아무리 똑똑해도 우리 규정 · 매뉴얼 · 내 문서는 학습에 없다 — 그 빈칸을 메우는 게 지식검색' },
+            { type: 'big', word: 'AI가 세상은 다 알아도\n내 자료는 모른다.', sub: 'AI가 아무리 똑똑해도 우리 규정 · 매뉴얼 · 내 문서를 학습하지는 못한다 — 그 빈칸을 채우는 것 RAG' },
             { type: 'bullets', title: 'RAG · 이름부터 풀어보면', subtitle: 'Retrieval-Augmented Generation · 검색 증강 생성', items: [
               'Retrieval(검색) — 내 자료에서 뜻이 가까운 조각을 "찾아온다"',
               'Augmented(증강) — 찾은 조각을 질문에 "덧붙인다"(근거 보강)',

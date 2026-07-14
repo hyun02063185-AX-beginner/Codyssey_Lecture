@@ -204,22 +204,27 @@
 
   /* ---------- 완주 축하 연출 + 업그레이드 ---------- */
   let burstRaf = null;
-  function celebrateCompletion() {
-    const el = document.getElementById("celebrate");
-    if (!el) return;
-    const mastered = Level.n >= MAX_LEVEL;
+  // 현재 레벨에 맞춰 오버레이 내용을 채운다(통달=Lv5 도달 시 업그레이드 버튼 숨김)
+  function renderCelebrate() {
+    const mastered = Level.n >= MAX_LEVEL;          // Lv5 = 통달(최고 경지)
     const titleEl = document.getElementById("celebrate-title");
     const subEl = document.getElementById("celebrate-sub");
     const upBtn = document.getElementById("celebrate-up");
     if (mastered) {
       titleEl.textContent = "깊은 깨달음에 도달하셨습니다.";
-      subEl.textContent = "Lv5 · " + RANKS[MAX_LEVEL] + " · 모든 단계 완주";
+      subEl.textContent = "Lv" + MAX_LEVEL + " · " + RANKS[MAX_LEVEL] + " · 통달 — 최고 경지에 이르렀습니다";
       if (upBtn) upBtn.hidden = true;
     } else {
+      const next = Level.n + 1;
       titleEl.textContent = "훌륭히 완주하셨습니다.";
-      subEl.textContent = "20강 완주 · 업그레이드하면 Lv" + (Level.n + 1) + " · " + RANKS[Level.n + 1];
+      subEl.textContent = "20강 완주 · 업그레이드하면 Lv" + next + " · " + RANKS[next] + (next >= MAX_LEVEL ? " (통달)" : "");
       if (upBtn) upBtn.hidden = false;
     }
+  }
+  function celebrateCompletion() {
+    const el = document.getElementById("celebrate");
+    if (!el) return;
+    renderCelebrate();
     el.hidden = false;
     void el.offsetWidth;                 // reflow로 트랜지션 확실히 발동(백그라운드 탭 rAF 스로틀 무관)
     el.classList.add("show");
@@ -238,9 +243,14 @@
     if (!Level.up()) return;
     Progress.reset();                                   // 새 회독 시작(발견도 0) + updateHUD
     if (window.refreshCardsSeen) window.refreshCardsSeen();
-    closeCelebrate();
     const rank = document.getElementById("hud-rank");   // 뱃지 등장 강조
     if (rank) { rank.classList.remove("pop"); void rank.offsetWidth; rank.classList.add("pop"); }
+    if (Level.n >= MAX_LEVEL) {
+      renderCelebrate();   // Lv5(통달) 도달 → 오버레이를 통달 메시지로 전환(닫지 않고 유지)
+      runBurst();
+    } else {
+      closeCelebrate();
+    }
   }
   function runBurst() {
     const cv = document.getElementById("celebrate-cv");
