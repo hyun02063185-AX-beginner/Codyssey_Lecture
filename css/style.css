@@ -1223,3 +1223,53 @@ body{
 .axp-bar{height:14px;border-radius:7px;background:var(--track,rgba(255,255,255,.1));overflow:hidden}
 .axp-bar i{display:block;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,transparent),var(--accent));border-radius:7px;transition:width .4s cubic-bezier(.2,.8,.2,1);min-width:2px}
 .axp-barv{font-size:.76rem;color:var(--ink-dim);white-space:nowrap;text-align:right;min-width:44px}
+
+/* 검사실 v4.1 — 검사 스텝/결과 */
+.pr-badge--exam{background:rgba(122,107,176,.22);color:var(--ink);border:1px solid rgba(122,107,176,.55)}
+.exam-prog{height:6px;border-radius:4px;background:var(--track,rgba(255,255,255,.12));overflow:hidden;margin-bottom:6px}
+.exam-prog i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
+.exam-count{font-size:.74rem;color:var(--ink-dim);text-align:right;margin-bottom:14px}
+.exam-area{display:inline-block;font-size:.7rem;font-weight:700;color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);border-radius:6px;padding:2px 9px;margin-bottom:8px}
+.exam-q{font-size:1.08rem;line-height:1.5;color:var(--ink);font-weight:600;margin-bottom:18px}
+.exam-q b{color:var(--accent)}
+.exam-slider{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.exam-slider span{font-size:.76rem;color:var(--ink-dim);white-space:nowrap}
+.exam-slval{text-align:center;font-size:.85rem;color:var(--ink-dim);margin-top:8px}
+.exam-slval b{color:var(--accent);font-size:1.4rem}
+.exam-choices{display:flex;flex-direction:column;gap:9px}
+.exam-choices button{text-align:left;background:var(--glass);border:1px solid var(--glass-brd);color:var(--ink);border-radius:12px;padding:14px 16px;cursor:pointer;font-size:.92rem;font-family:var(--font-body);transition:.15s;line-height:1.4}
+.exam-choices button:hover{border-color:var(--accent);transform:translateX(3px)}
+.exam-choices button.sel{background:color-mix(in srgb,var(--accent) 22%,transparent);border-color:var(--accent)}
+.exam-locks{display:flex;flex-direction:column;gap:10px}
+.exam-lockrow{display:flex;align-items:center;gap:10px}
+.exam-lock{font-size:1.3rem;flex:none;transition:transform .2s}
+.exam-nav{display:flex;gap:10px;margin-top:22px}
+.exam-nav .pr-run{flex:1}
+/* 결과 */
+.exam-result{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.exam-viz{text-align:center}
+.exam-viz--donut{position:relative;width:180px;height:180px}
+.exam-donut-n{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2rem;font-weight:800;color:var(--accent);font-family:var(--font-display)}
+.exam-verdict{color:var(--ink)}
+.exam-level{display:inline-block;font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--accent);margin-right:10px}
+.exam-score{font-size:.9rem;color:var(--ink-dim)}
+.exam-verdict p{font-size:.9rem;line-height:1.6;color:var(--ink);margin-top:8px}
+.exam-rec{margin-top:10px!important}
+.exam-lec{background:var(--accent);color:#111;border-radius:6px;padding:1px 8px;font-size:.85rem}
+.exam-note{font-size:.82rem!important;color:var(--ink-dim)!important;margin-top:10px!important}
+.exam-note b{color:var(--ink)}
+.exam-locklist{font-size:.86rem;color:var(--ink);margin-top:10px;line-height:1.5}
+.exam-gauge{height:14px;border-radius:8px;background:var(--track,rgba(255,255,255,.12));overflow:hidden;margin:12px 0}
+.exam-gauge i{display:block;height:100%;border-radius:8px;transition:width .4s}
+.exam-gauge--risk i{background:linear-gradient(90deg,#7E8B6D,#D98E6B,#B4664A)}
+@media (max-width:560px){ .exam-result{grid-template-columns:1fr;justify-items:center;text-align:center} }
+/* 제안서 확장 */
+.axp-sec-h{font-size:.74rem;font-weight:700;letter-spacing:.1em;color:var(--ink-dim);text-transform:uppercase;margin:16px 0 8px;padding-top:6px;border-top:1px dashed var(--glass-brd)}
+.axp-prop-3{grid-template-columns:1fr 1fr 1fr}
+.axp-prop-3 canvas{max-width:100%}
+.axp-rx{margin-top:16px;border:1px solid var(--accent);border-radius:12px;padding:14px 16px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.axp-rx h4{font-size:.85rem;color:var(--accent);font-weight:700;margin-bottom:8px}
+.axp-rx ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.axp-rx li{font-size:.88rem;color:var(--ink);line-height:1.4}
+.axp-rx li.axp-empty{color:var(--ink-dim);font-style:italic;font-size:.82rem}
+@media (max-width:720px){ .axp-prop-3{grid-template-columns:1fr} }
