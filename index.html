@@ -82,6 +82,16 @@
           <span class="skin-sw skin-sw--blueprint"></span><span class="skin-lb">블루프린트</span>
         </button>
       </div>
+
+      <!-- 실습실 입장 문 (Lv.2 해금 · 읽기만) -->
+      <button id="practice-door" class="pdoor" type="button">
+        <span class="pdoor-ic">🧪</span>
+        <span class="pdoor-txt">
+          <span class="pdoor-t">실습실 입장</span>
+          <span class="pdoor-state">…</span>
+        </span>
+        <span class="pdoor-arrow">→</span>
+      </button>
     </div>
   </section>
 
@@ -142,6 +152,9 @@
     </div>
   </section>
 
+  <!-- ================= SCENE 4 : 실습실 (목업) ================= -->
+  <section id="scene-practice" class="scene"><!-- practice.js 렌더 --></section>
+
   <!-- scene 밖(body 직계)에 둔다: .scene 은 transform 전환이 걸려 있어
        내부에 두면 position:fixed 의 컨테이닝 블록이 씬으로 바뀌어 뷰포트 기준 고정이 깨진다 -->
   <div id="rotate-hint" class="rotate-hint" hidden>
@@ -170,5 +183,6 @@
   <script src="js/slides.js"></script>
   <script src="js/main.js"></script>
   <script src="js/intro.js"></script>
+  <script src="js/practice.js"></script>
 </body>
 </html>
