@@ -1204,3 +1204,22 @@ body{
   body.axp-printing .axp-proposal{border:none!important;color:#111!important}
   body.axp-printing .axp-proposal *{color:#111!important}
 }
+
+/* 진단실 v3 — 인터랙티브 부품 (칩·카운터·게이지·바차트) */
+.axp-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 10px}
+.axp-chips button{background:var(--glass);border:1px dashed var(--glass-brd);color:var(--ink);border-radius:99px;padding:6px 13px;cursor:pointer;font-size:.82rem;font-family:var(--font-body);transition:.15s}
+.axp-chips button:hover{border-style:solid;border-color:var(--accent);transform:translateY(-1px)}
+.axp-chips button.used{background:color-mix(in srgb,var(--accent) 20%,transparent);border-style:solid;border-color:var(--accent)}
+.axp-count{color:var(--accent)}
+.axp-gauge{display:block;height:8px;border-radius:5px;background:var(--track,rgba(255,255,255,.12));margin-top:12px;overflow:hidden}
+.axp-gauge i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.axp-total{font-size:.82rem;color:var(--ink-dim);margin-top:8px}
+.axp-total b{color:var(--accent);font-size:1rem}
+.axp-total span{display:block;margin-top:2px}
+/* 바차트 (2-2 분포 · 제안서 그래프 공용) */
+.axp-barc{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.axp-barrow{display:grid;grid-template-columns:minmax(70px,120px) 1fr auto;gap:9px;align-items:center}
+.axp-barl{font-size:.8rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.axp-bar{height:14px;border-radius:7px;background:var(--track,rgba(255,255,255,.1));overflow:hidden}
+.axp-bar i{display:block;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,transparent),var(--accent));border-radius:7px;transition:width .4s cubic-bezier(.2,.8,.2,1);min-width:2px}
+.axp-barv{font-size:.76rem;color:var(--ink-dim);white-space:nowrap;text-align:right;min-width:44px}

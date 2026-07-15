@@ -77,7 +77,7 @@
     scene.innerHTML = `
       <header class="pr-top">
         <button class="pr-exit" id="pr-exit">← 입장 화면</button>
-        <span class="pr-title">실습실 <span class="pr-title__sub">AI 사용 → 우리 조직 AX 도입 킷</span></span>
+        <span class="pr-title">진단실 <span class="pr-title__sub">AI로 나·우리 조직을 진단하고 AX 도입 킷을 만든다</span></span>
         <span class="pr-progress">완료 <b>${done.size}</b> / ${TOTAL_ST}${UNLOCK_ALL ? ' · <span class="pr-dev">unlock</span>' : ''}</span>
       </header>
       <div class="pr-inner">
@@ -188,14 +188,24 @@
   BUILD["1-2"] = s => `<p class="pr-goal">🎯 막연한 요청을 <b>내 버전</b>으로 구체화한다. (정답 없음 — 자기 프롬프트가 산출물)</p>
     <div class="pr-btnrow"><button class="pr-run" id="c-vague">막연하게 보내기</button></div>
     <div class="pr-out" id="c-vague-out"></div>
-    <p class="pr-sec">내 프롬프트로 고쳐쓰기 <span style="font-weight:400;text-transform:none;color:var(--ink-dim)">— 대상·역할·톤·형식·분량을 더해요</span></p>
-    <div class="pr-field"><textarea class="pr-reflect-in" id="in-1-2" rows="3" placeholder="예: 2030 직장인 대상, 친근한 말투로, SNS용 홍보문구 3개, 각 20자 이내">${esc(getOut('1-2') || '신제품 홍보문구 써줘')}</textarea></div>
+    <p class="pr-sec">요소를 눌러 붙이며 내 프롬프트로 고쳐쓰기</p>
+    <div class="axp-chips" id="p2-chips">
+      <button type="button" data-snip="대상: 2030 직장인">＋ 대상</button>
+      <button type="button" data-snip="역할: 마케터 관점으로">＋ 역할</button>
+      <button type="button" data-snip="톤: 친근하게">＋ 톤</button>
+      <button type="button" data-snip="형식: SNS 문구 3개">＋ 형식</button>
+      <button type="button" data-snip="분량: 각 20자 이내">＋ 분량</button>
+    </div>
+    <div class="pr-field"><textarea class="pr-reflect-in" id="in-1-2" rows="3" placeholder="예: 신제품 홍보문구 써줘 · 대상: 2030 직장인 · 톤: 친근하게 …">${esc(getOut('1-2') || '신제품 홍보문구 써줘')}</textarea></div>
     <div class="pr-btnrow"><button class="pr-run pr-run--good" id="c-spec">이 프롬프트로 보내보기(예시 결과)</button></div>
     <div class="pr-out" id="c-spec-out"></div>
-    ${saveFooter("1-2", { ready: true, label: "이 프롬프트 저장하고 완료", hint: "고친 프롬프트가 저장됩니다." })}`;
+    ${saveFooter("1-2", { ready: true, label: "이 프롬프트 저장하고 완료", hint: "요소를 붙여 프롬프트를 다듬어 보세요." })}`;
   WIRE["1-2"] = () => {
     const vout = inner.querySelector("#c-vague-out"), sout = inner.querySelector("#c-spec-out"), ta = inner.querySelector("#in-1-2");
     inner.querySelector("#c-vague").addEventListener("click", () => { vout.innerHTML = `<div class="pr-res pr-res--bad"><span class="pr-res-tag">막연하게 → 뻔한 답</span><p>“새로운 혁신을 만나보세요! 최고의 기술과 특별한 경험으로 일상을 바꿔드립니다. 지금 바로 만나보세요.”</p></div>`; });
+    inner.querySelectorAll("#p2-chips [data-snip]").forEach(b => b.addEventListener("click", () => {
+      const cur = ta.value.trim(); ta.value = cur ? cur + " · " + b.dataset.snip : b.dataset.snip; ta.focus(); b.classList.add("used");
+    }));
     inner.querySelector("#c-spec").addEventListener("click", () => { sout.innerHTML = `<div class="pr-res pr-res--good"><span class="pr-res-tag">구체적으로 → 바로 쓸 만한 답 (예시)</span><p>① 퇴근길, 손안의 여유<br>② 바쁜 하루의 쉼표<br>③ 오늘도 수고한 나에게</p></div>`; });
     onSave(() => { const v = ta.value.trim(); if (!v) { gateSave(false, "프롬프트를 입력해 주세요."); return; } finish("1-2", v); });
   };
@@ -241,7 +251,7 @@
         <thead><tr><th>업무명</th><th>주당<br>횟수</th><th>1회<br>소요분</th><th>반복적?</th><th>규칙<br>뚜렷?</th><th></th></tr></thead>
         <tbody id="inv-body">${rows.map(invRow).join("")}</tbody></table></div>
       <div class="pr-btnrow"><button class="pr-run" id="inv-add">+ 행 추가</button></div>
-      <p class="pr-note">📌 <b>반복적</b>이고 <b>규칙이 뚜렷</b>한 업무(하이라이트)는 <b>AI 적용 후보</b> — 2·4번 실습에서 씁니다.</p>
+      <p class="pr-note">📌 <b>반복적</b>이고 <b>규칙이 뚜렷</b>한 업무는 <b>AI 적용 후보</b> — 현재 <b id="inv-count" class="axp-count">0</b>개 · 2·4번 진단에서 씁니다.</p>
       ${saveFooter("2-1", { ready: true, hint: "업무명 1개 이상이면 저장됩니다." })}`;
   };
   function invRow(r) {
@@ -273,13 +283,15 @@
       if (cand && !b) { b = document.createElement("span"); b.className = "axp-cand"; b.textContent = "AI 후보"; tr.querySelector('[data-f="name"]').after(b); }
       else if (!cand && b) b.remove();
     }
+    function updateCount() { const c = readRows().filter(r => r.name && r.repeat && r.rule).length; const el = inner.querySelector("#inv-count"); if (el) el.textContent = c; }
     function bindRow(tr) {
-      tr.querySelectorAll(".axp-tg").forEach(tg => tg.addEventListener("click", () => { tg.classList.toggle("on"); tg.textContent = tg.classList.contains("on") ? "O" : "—"; refreshRow(tr); }));
-      tr.querySelector('[data-f="name"]').addEventListener("input", () => refreshRow(tr));
-      tr.querySelector(".axp-del").addEventListener("click", () => { if (body.querySelectorAll("tr").length > 1) tr.remove(); else tr.querySelectorAll(".axp-in").forEach(i => i.value = ""); });
+      tr.querySelectorAll(".axp-tg").forEach(tg => tg.addEventListener("click", () => { tg.classList.toggle("on"); tg.textContent = tg.classList.contains("on") ? "O" : "—"; refreshRow(tr); updateCount(); }));
+      tr.querySelector('[data-f="name"]').addEventListener("input", () => { refreshRow(tr); updateCount(); });
+      tr.querySelector(".axp-del").addEventListener("click", () => { if (body.querySelectorAll("tr").length > 1) tr.remove(); else tr.querySelectorAll(".axp-in").forEach(i => i.value = ""); updateCount(); });
     }
     body.querySelectorAll("tr").forEach(bindRow);
-    inner.querySelector("#inv-add").addEventListener("click", () => { const t = document.createElement("template"); t.innerHTML = invRow().trim(); const tr = t.content.firstChild; body.appendChild(tr); bindRow(tr); });
+    inner.querySelector("#inv-add").addEventListener("click", () => { const t = document.createElement("template"); t.innerHTML = invRow().trim(); const tr = t.content.firstChild; body.appendChild(tr); bindRow(tr); updateCount(); });
+    updateCount();
     onSave(() => { const rows = readRows().filter(r => r.name); if (!rows.length) { gateSave(false, "업무명을 1개 이상 적어 주세요."); return; } finish("2-1", rows); });
   };
 
@@ -294,13 +306,23 @@
         <span class="axp-map-t">${esc(r.name)}</span>
         <span class="axp-map-btns">${MAP_LABELS.map(l => `<button data-k="${l.k}" title="${esc(l.tip)}" class="${saved[r.name] === l.k ? 'sel' : ''}">${l.t}</button>`).join("")}</span>
       </div>`).join("")}</div>
+      <div class="axp-dist" id="map-dist"></div>
       ${saveFooter("2-2", { hint: "모든 업무를 분류하면 완료돼요." })}`;
   };
   WIRE["2-2"] = () => {
     const list = inner.querySelector("#map-list"); if (!list) return;
     const rows = [...list.querySelectorAll(".axp-map-row")];
     const picked = Object.assign({}, getOut("2-2") || {});
-    function check() { gateSave(rows.every(r => picked[r.dataset.name]), rows.every(r => picked[r.dataset.name]) ? "" : "모든 업무를 분류하면 완료돼요."); }
+    function renderDist() {
+      const dist = inner.querySelector("#map-dist"); if (!dist) return;
+      const total = rows.length, counts = {}; MAP_LABELS.forEach(l => counts[l.k] = 0);
+      Object.values(picked).forEach(k => { if (counts[k] != null) counts[k]++; });
+      dist.innerHTML = `<p class="pr-sec">분포 (${Object.keys(picked).length}/${total})</p><div class="axp-barc">` + MAP_LABELS.map(l => {
+        const c = counts[l.k], pct = total ? Math.round(c / total * 100) : 0;
+        return `<div class="axp-barrow"><span class="axp-barl">${l.t}</span><span class="axp-bar"><i style="width:${pct}%"></i></span><span class="axp-barv">${c}</span></div>`;
+      }).join("") + `</div>`;
+    }
+    function check() { const ok = rows.every(r => picked[r.dataset.name]); gateSave(ok, ok ? "" : "모든 업무를 분류하면 완료돼요."); renderDist(); }
     rows.forEach(r => r.querySelectorAll("[data-k]").forEach(b => b.addEventListener("click", () => { picked[r.dataset.name] = b.dataset.k; r.querySelectorAll("[data-k]").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); check(); })));
     check();
     onSave(() => finish("2-2", picked));
@@ -345,7 +367,7 @@
       const pct = +sl.value; lab.textContent = pct + "%";
       const savedMin = baseMin * (pct / 100) * 4.33;             // 월(4.33주) 절감 분
       const hrs = savedMin / 60, days = hrs / 8;
-      big.innerHTML = `<span class="axp-big-n">월 ${hrs.toFixed(1)}시간</span><span class="axp-big-s">= 하루 일과 ${days.toFixed(1)}일치 절감</span>`;
+      big.innerHTML = `<span class="axp-big-n">월 ${hrs.toFixed(1)}시간</span><span class="axp-big-s">= 하루 일과 ${days.toFixed(1)}일치 절감</span><span class="axp-gauge"><i style="width:${Math.round(pct / 70 * 100)}%"></i></span>`;
       return { pct, savedHrs: +hrs.toFixed(1), days: +days.toFixed(1) };
     }
     let cur = calc();
@@ -367,7 +389,7 @@
       <div class="axp-checkup">
         <div class="axp-sliders">${AXES.map((a, i) => `<div class="axp-srow"><label>${a.t} <span>— ${esc(a.q)}</span></label>
           <input type="range" class="axp-slider" data-ax="${i}" min="1" max="5" step="1" value="${saved[a.k] || 3}"><b class="axp-sval" data-v="${i}">${saved[a.k] || 3}</b></div>`).join("")}</div>
-        <div class="axp-radar-wrap"><canvas id="radar-cv" width="300" height="300"></canvas><p class="axp-lowaxis" id="radar-low"></p></div>
+        <div class="axp-radar-wrap"><canvas id="radar-cv" width="300" height="300"></canvas><p class="axp-lowaxis" id="radar-low"></p><p class="axp-total" id="radar-total"></p></div>
       </div>
       ${saveFooter("3-1", { ready: true, hint: "슬라이더로 지금 상태를 그린 뒤 저장하세요." })}`;
   };
@@ -378,8 +400,10 @@
       const sc = scores();
       sliders.forEach((s, i) => inner.querySelector(`[data-v="${i}"]`).textContent = s.value);
       drawRadar(cv, sc, AXES.map(a => a.t));
-      const min = Math.min(...sc), idx = sc.indexOf(min);
+      const min = Math.min(...sc), idx = sc.indexOf(min), total = sc.reduce((a, b) => a + b, 0), avg = total / 5, spread = Math.max(...sc) - min;
       low.innerHTML = `우리 조직의 <b>가장 짧은 다리</b> — ${AXES[idx].t} (${min}점)`;
+      const interp = avg >= 4 ? "탄탄한 편 — 확산에 집중" : avg <= 2.4 ? "이제 시작 — 작게 한 걸음부터" : spread >= 3 ? "불균형 — 짧은 다리부터 보강" : "고른 중간 — 한 축을 끌어올릴 때";
+      const te = inner.querySelector("#radar-total"); if (te) te.innerHTML = `합계 <b>${total}</b> / 25 · <span>${interp}</span>`;
     }
     sliders.forEach(s => s.addEventListener("input", draw)); draw();
     onSave(() => { const sc = scores(); const o = {}; AXES.forEach((a, i) => o[a.k] = sc[i]); const idx = sc.indexOf(Math.min(...sc)); o.low = AXES[idx].k; o.lowT = AXES[idx].t; finish("3-1", o); });
@@ -457,15 +481,24 @@
       <div id="axp-proposal" class="axp-proposal">${proposalHTML()}</div>
       <div class="pr-reflect">
         <button class="pr-done-btn" id="pr-save" ${doneAll ? "" : "disabled"}>${done.has("3-4") ? "수료 완료 ✓ · 다시 보기" : "수료하기"}</button>
-        <p class="pr-done-hint">${doneAll ? "12개 실습을 마쳤어요. 수료할 수 있습니다." : "나머지 실습을 완료하면 수료할 수 있어요. (지금도 열람·복사·인쇄는 가능)"}</p></div>`;
+        <p class="pr-done-hint">${doneAll ? "12개 진단을 마쳤어요. 수료할 수 있습니다." : "나머지 단계를 완료하면 수료할 수 있어요. (지금도 열람·복사·인쇄는 가능)"}</p></div>`;
   };
   function proposalHTML() {
     const inv = inventoryRows(), cand = inv.filter(r => r.repeat && r.rule && r.name);
     const map = getOut("2-2") || {}, p4 = getOut("2-4"), ck = getOut("3-1"), c2 = getOut("3-2"), f = getOut("3-3"), chk = getOut("1-4");
     const slot = (label, html) => `<div class="axp-slot"><h4>${label}</h4>${html || '<p class="axp-empty">아직 작성 전</p>'}</div>`;
     const chkHtml = chk && chk.some(x => x) ? `<ul>${chk.filter(x => x).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
-    const candHtml = cand.length ? `<ul>${cand.map(r => `<li>${esc(r.name)} <span class="axp-dim">(주 ${r.per}회·${r.min}분)</span></li>`).join("")}</ul>` : "";
-    const mapHtml = Object.keys(map).length ? `<ul>${Object.keys(map).map(k => `<li>${esc(k)} → <b>${MAP_LABELS.find(l => l.k === map[k]) ? MAP_LABELS.find(l => l.k === map[k]).t : map[k]}</b></li>`).join("")}</ul>` : "";
+    // ② AI 후보 업무 — 주당 소요시간 바차트
+    const candHtml = cand.length ? (() => {
+      const vals = cand.map(r => num(r.per) * num(r.min)), mx = Math.max(...vals, 1);
+      return `<div class="axp-barc">${cand.map((r, i) => `<div class="axp-barrow"><span class="axp-barl">${esc(r.name)}</span><span class="axp-bar"><i style="width:${Math.round(vals[i] / mx * 100)}%"></i></span><span class="axp-barv">${vals[i]}분/주</span></div>`).join("")}</div>`;
+    })() : "";
+    // ③ 매핑 분포 바차트
+    const mapHtml = Object.keys(map).length ? (() => {
+      const counts = {}; MAP_LABELS.forEach(l => counts[l.k] = 0); Object.values(map).forEach(k => { if (counts[k] != null) counts[k]++; });
+      const t = Object.keys(map).length;
+      return `<div class="axp-barc">${MAP_LABELS.map(l => `<div class="axp-barrow"><span class="axp-barl">${l.t}</span><span class="axp-bar"><i style="width:${t ? Math.round(counts[l.k] / t * 100) : 0}%"></i></span><span class="axp-barv">${counts[l.k]}</span></div>`).join("")}</div>`;
+    })() : "";
     const timeHtml = p4 && p4.savedHrs ? `<p class="axp-big-n">월 ${p4.savedHrs}시간</p><p class="axp-dim">하루 일과 ${p4.days}일치</p>` : "";
     const ckHtml = ck && ck.lowT ? `<canvas id="prop-radar" width="220" height="200"></canvas><p class="axp-dim">가장 짧은 다리: <b>${esc(ck.lowT)}</b></p>` : "";
     const c2Html = c2 && c2.cause ? `<p><b>${esc(c2.axis)}</b> — ${esc(c2.cause)}${c2.note ? " · " + esc(c2.note) : ""}</p>` : "";
@@ -521,7 +554,7 @@
   }
   function showGraduation() {
     const g = document.createElement("div"); g.className = "pr-grad";
-    g.innerHTML = `<div class="pr-grad__box"><p class="pr-grad__k">실습실 · 수료</p><h2 class="pr-grad__t">우리 조직 AX 도입 킷, 완성.</h2>
+    g.innerHTML = `<div class="pr-grad__box"><p class="pr-grad__k">진단실 · 수료</p><h2 class="pr-grad__t">우리 조직 AX 도입 킷, 완성.</h2>
       <p class="pr-grad__s">검증 원칙부터 파일럿 기획까지 — 한 장으로 정리됐습니다.<br>사람이 방향, AI가 초안.</p>
       <button class="pr-grad__btn" id="pr-grad-close">닫기</button></div>`;
     document.body.appendChild(g); void g.offsetWidth; g.classList.add("show");
@@ -539,7 +572,7 @@
     const un = UNLOCK_ALL || curLevel() >= 2;
     door.classList.toggle("locked", !un);
     const st = door.querySelector(".pdoor-state");
-    if (st) st.textContent = un ? "3층 · 12실습 · 우리 조직 AX 도입 킷" : "🔒 강의 1회 완주(Lv.2) 시 열림";
+    if (st) st.textContent = un ? "3층 · 12단계 진단 · 우리 조직 AX 도입 킷" : "🔒 강의 1회 완주(Lv.2) 시 열림";
     if (!door.dataset.bound) {
       door.dataset.bound = "1";
       door.addEventListener("click", () => { if (UNLOCK_ALL || curLevel() >= 2) App.Router.go("practice"); else { door.classList.remove("shake"); void door.offsetWidth; door.classList.add("shake"); } });
