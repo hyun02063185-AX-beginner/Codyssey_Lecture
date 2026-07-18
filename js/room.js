@@ -82,11 +82,14 @@
       card.tabIndex = 0;
       card.setAttribute("role", "button");
       card.setAttribute("aria-label", `${lec.id}강 ${lec.title} — 강의실 입장`);
+      // 이어보기: 보다 만 강의는 "▶ n장부터" 칩으로 표시 (끝까지 본 강은 칩 없음)
+      const resumeAt = (App.Resume && App.Resume.get(lec.id)) || 0;
       card.innerHTML = `
         ${lec.demo ? `<span class="card__badge">DEMO</span>` : ""}
         <div class="card__no">${String(lec.id).padStart(2, "0")}강</div>
         <div class="card__title">${lec.title}</div>
         <div class="card__tag">${lec.tagline}</div>
+        ${resumeAt > 0 ? `<span class="card__resume">▶ 이어보기 ${resumeAt + 1}/${(lec.slides || []).length}</span>` : ""}
         <span class="card__seen">✓ 열람함</span>`;
 
       // 부채꼴 최종 배치 (딜 완료 시 적용)

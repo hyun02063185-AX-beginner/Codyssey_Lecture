@@ -194,6 +194,12 @@
     // 마지막 슬라이드까지 도달하면 그때 '완료'로 표시 (끝까지 들어야 점이 켜진다)
     if (activeLecture && i === slides.length - 1) Progress.mark(activeLecture.id);
 
+    // 이어보기 저장: 이동마다 위치 기억, 끝까지 본 강은 해제(다음번엔 처음부터)
+    if (activeLecture && App.Resume) {
+      if (i === slides.length - 1) App.Resume.clear(activeLecture.id);
+      else App.Resume.set(activeLecture.id, i);
+    }
+
     // 슬라이드 위치를 URL에 반영(히스토리 미적립) → 뒤로가기 한 번이면 카드 리스트로
     if (activeLecture) App.Router.replace("lecture/" + activeLecture.id + "/" + i);
     revealChrome();   // 슬라이드 바뀔 때 네비를 잠깐 보여줬다 숨김

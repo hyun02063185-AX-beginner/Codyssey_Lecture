@@ -574,6 +574,10 @@ body{
   padding:3px 8px;border-radius:var(--radius-pill);border:1px solid var(--card-accent);color:var(--card-accent)}
 .card__seen{position:absolute;bottom:14px;right:14px;font-size:.68rem;color:var(--green);opacity:0}
 .card.seen .card__seen{opacity:1}
+/* 이어보기 칩 — 보다 만 강의 표시("▶ 이어보기 5/14") */
+.card__resume{position:absolute;bottom:12px;left:14px;font-size:.66rem;letter-spacing:.04em;
+  color:var(--accent);border:1px solid var(--glass-brd);border-radius:var(--radius-pill);
+  padding:3px 9px;background:var(--tint)}
 /* 완료(열람) 카드 — 상자색 헤일로로 성취를 시각화 */
 .card.seen{border-color:var(--card-accent);
   box-shadow:var(--shadow),0 0 0 var(--border-w) var(--card-accent),var(--glow-card-accent)}

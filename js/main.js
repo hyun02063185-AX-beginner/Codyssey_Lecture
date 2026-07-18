@@ -55,7 +55,21 @@
     },
     has(id) { return this.seen.has(id); },
     count() { return this.seen.size; },
-    reset() { this.seen.clear(); this.save(); App.updateHUD(); }
+    reset() { this.seen.clear(); this.save(); Resume.reset(); App.updateHUD(); }
+  };
+
+  /* ---------- 이어보기 — 강의별 마지막 슬라이드 위치 (localStorage) ----------
+     저장: 슬라이드 이동마다 · 복원: 슬라이드 번호 없이 강의 진입 시
+     해제: 그 강을 끝까지 보면(완료) 다음번엔 처음부터 · 진행도 초기화 시 전체 삭제 */
+  const RESUME_KEY = "ax_room_resume_v1";
+  const Resume = {
+    map: {},
+    load() { try { this.map = JSON.parse(localStorage.getItem(RESUME_KEY)) || {}; } catch (e) { this.map = {}; } },
+    save() { try { localStorage.setItem(RESUME_KEY, JSON.stringify(this.map)); } catch (e) {} },
+    get(id) { const v = this.map[id]; return Number.isInteger(v) && v > 0 ? v : 0; },
+    set(id, i) { if (this.map[id] !== i) { this.map[id] = i; this.save(); } },
+    clear(id) { if (id in this.map) { delete this.map[id]; this.save(); } },
+    reset() { this.map = {}; try { localStorage.removeItem(RESUME_KEY); } catch (e) {} }
   };
 
   /* ---------- 회독 레벨(게이미피케이션) — 완주할수록 사유가 깊어진다 ---------- */
@@ -170,7 +184,7 @@
         case "room":    return { name: "room" };
         case "box":     return { name: "box", box: Number(parts[1]) || 0 };
         case "lecture": return { name: "lecture", id: Number(parts[1]),
-                                 slide: parts[2] != null ? Number(parts[2]) : 0 };
+                                 slide: parts[2] != null ? Number(parts[2]) : null };  // null=명시 없음(이어보기 대상)
         default:        return { name: "intro" };
       }
     },
@@ -183,7 +197,7 @@
       if (r.name !== "box") window.closeFanDOM && window.closeFanDOM();  // 상자 라우트 외에는 부채꼴 닫기
       switch (r.name) {
         case "reset": {                       // #/reset → Lv·진행도 초기화 후 인트로로
-          try { localStorage.removeItem(LEVEL_KEY); localStorage.removeItem(STORE_KEY); localStorage.removeItem("ax_server_session"); } catch (e) {}
+          try { localStorage.removeItem(LEVEL_KEY); localStorage.removeItem(STORE_KEY); localStorage.removeItem(RESUME_KEY); localStorage.removeItem("ax_server_session"); } catch (e) {}
           Level.n = 1; Level.save();          // Lv1부터 다시 시작
           Progress.seen.clear(); Progress.save();
           refreshSkinLocks(); Skin.set("sayu", true); updateHUD();
@@ -206,7 +220,9 @@
           const f = findLecture(r.id);
           if (!f) { Router.go("room"); return; }
           bgSkin(); goScene("slides");
-          window.openLecture && window.openLecture(f.lecture, f.box, r.slide || 0);
+          // 슬라이드 번호가 URL에 없으면 이어보기 위치에서, 있으면 그 위치에서
+          window.openLecture && window.openLecture(f.lecture, f.box,
+            r.slide != null ? r.slide : Resume.get(r.id));
           break;
         }
       }
@@ -343,6 +359,7 @@
   const App = window.App = {
     Progress, Skin, goScene, updateHUD, TOTAL, Router, findLecture,
     Level,                       // 실습실(practice.js)이 Lv를 읽기만 (수정 안 함)
+    Resume,                      // 이어보기 — slides.js가 저장, room.js가 카드 표시
     accent: "#22d3ee"
   };
   window.Progress = Progress;
@@ -511,6 +528,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     Progress.load();
     Level.load();                   // 회독 레벨 복원 (스킨 해금이 Lv에 의존 → 먼저)
+    Resume.load();                  // 이어보기 위치 복원
     initBackground();               // __bgSetSkin 준비 후
     initSkinPicker();               // 선택기 버튼 이벤트 + 잠금 표시
     Skin.load();                    // 저장된 스킨 반영(잠겼으면 사유의 방으로) + 배경 통지
