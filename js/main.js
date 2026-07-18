@@ -120,7 +120,10 @@
       const locked = !isSkinUnlocked(btn.dataset.skin);
       btn.classList.toggle("locked", locked);
       btn.setAttribute("aria-disabled", locked ? "true" : "false");
-      if (!IS_MOBILE) btn.title = locked ? "Lv" + (SKIN_ORDER.indexOf(btn.dataset.skin) + 1) + " 달성 시 해금" : "";
+      // 해금 조건을 hover 없이도 보이게 — 잠긴 스킨엔 "LvN" 뱃지 상시 표시(CSS ::after)
+      const lv = "Lv" + (SKIN_ORDER.indexOf(btn.dataset.skin) + 1);
+      if (locked) btn.dataset.unlock = lv; else delete btn.dataset.unlock;
+      if (!IS_MOBILE) btn.title = locked ? lv + " 달성 시 해금" : "";
     });
   }
   function initSkinPicker() {
@@ -408,6 +411,66 @@
     });
   }
 
+  /* ---------- 전체 목차 · 핵심 훑기 ----------
+     HUD ☰ → 20강 한 화면(완료✓·이어보기▶·DEMO), 강의 클릭 = 바로 이동(이어보기 반영).
+     ⚡핵심 훑기 = 각 강의 big·quote·closing 문장만 펼침, 문장 클릭 = 그 슬라이드로 점프. */
+  let tocCore = false;
+  const tocEsc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function tocKeyLines(lec) {
+    const out = [];
+    (lec.slides || []).forEach((s, i) => {
+      if (s.type === "big" && s.word) out.push({ i, t: s.word });
+      else if (s.type === "quote" && s.text) out.push({ i, t: s.text });
+      else if (s.type === "closing" && s.title) out.push({ i, t: s.title });
+    });
+    return out;
+  }
+  function renderToc() {
+    const list = document.getElementById("toc-list");
+    if (!list) return;
+    list.innerHTML = CURRICULUM.boxes.map((box, bi) => `
+      <section class="toc__sec" style="--toc-accent:${box.accent}">
+        <h3 class="toc__sec-t">상자 ${bi + 1} · ${tocEsc(box.name)} <span>${tocEsc(box.theme)}</span></h3>
+        ${box.lectures.map(lec => {
+          const resume = Resume.get(lec.id);
+          return `<div class="toc__lec">
+            <button class="toc__lec-btn" data-lec="${lec.id}">
+              <span class="toc__no">${String(lec.id).padStart(2, "0")}</span>
+              <span class="toc__t">${tocEsc(lec.title)}</span>
+              ${lec.demo ? '<span class="toc__demo">DEMO</span>' : ""}
+              ${resume > 0 ? `<span class="toc__resume">▶ ${resume + 1}/${(lec.slides || []).length}</span>` : ""}
+              ${Progress.has(lec.id) ? '<span class="toc__done">✓</span>' : ""}
+            </button>
+            ${tocCore ? `<ul class="toc__lines">${tocKeyLines(lec).map(k =>
+              `<li><button data-lec="${lec.id}" data-slide="${k.i}">${tocEsc(k.t).replace(/\n/g, " ")}</button></li>`).join("")}</ul>` : ""}
+          </div>`;
+        }).join("")}
+      </section>`).join("");
+    list.querySelectorAll("button[data-lec]").forEach(b => b.addEventListener("click", () => {
+      closeToc();
+      const s = b.dataset.slide;
+      Router.go("lecture/" + b.dataset.lec + (s != null && s !== "" ? "/" + s : ""));
+    }));
+  }
+  function openToc()  { const el = document.getElementById("toc"); if (!el) return; renderToc(); el.hidden = false; }
+  function closeToc() { const el = document.getElementById("toc"); if (el) el.hidden = true; }
+  function initToc() {
+    const el = document.getElementById("toc");
+    if (!el) return;
+    const btn = document.getElementById("toc-btn");
+    if (btn) btn.addEventListener("click", openToc);
+    document.getElementById("toc-close").addEventListener("click", closeToc);
+    const core = document.getElementById("toc-core");
+    core.addEventListener("click", () => {
+      tocCore = !tocCore;
+      core.setAttribute("aria-pressed", String(tocCore));
+      core.classList.toggle("on", tocCore);
+      renderToc();
+    });
+    el.addEventListener("click", (e) => { if (e.target === el) closeToc(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !el.hidden) closeToc(); });
+  }
+
   /* ---------- 배경: 별 + 흐르는 성운 ---------- */
   function initBackground() {
     const canvas = document.getElementById("bg-canvas");
@@ -551,6 +614,7 @@
     initStart();
     initStateButton();
     initRoomNav();
+    initToc();
     App.updateHUD = updateHUD;      // room.js가 참조하도록 확정
     window.buildRoom && window.buildRoom();   // 상자 생성
     window.initSlides && window.initSlides(); // 슬라이드 엔진 초기화

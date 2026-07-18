@@ -136,6 +136,7 @@
           <div class="hud__xp-bar"><span id="xp-fill"></span></div>
           <span class="hud__xp-label">탐험도 <span id="xp-pct">0</span>%</span>
         </div>
+        <button id="toc-btn" class="hud__reset hud__toc" title="전체 목차 · 핵심 훑기">☰</button>
         <button id="reset-progress" class="hud__reset" title="진행도 초기화">↺</button>
       </div>
     </header>
@@ -181,6 +182,18 @@
     <span class="rotate-hint__icon">↻</span>
     <span class="rotate-hint__text">기기를 <b>가로</b>로 돌리면 더 넓게 볼 수 있어요</span>
     <button id="rotate-hint-close" class="rotate-hint__close" aria-label="닫기">✕</button>
+  </div>
+
+  <!-- 전체 목차 · 핵심 훑기 오버레이 (내용은 main.js가 렌더) -->
+  <div id="toc" class="toc" hidden>
+    <div class="toc__box">
+      <header class="toc__head">
+        <span class="toc__title">전체 목차</span>
+        <button id="toc-core" class="toc__core" aria-pressed="false">⚡ 핵심 훑기</button>
+        <button id="toc-close" class="toc__x" title="닫기">✕</button>
+      </header>
+      <div id="toc-list" class="toc__list"></div>
+    </div>
   </div>
 
   <!-- 완주 축하 오버레이 -->

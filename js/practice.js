@@ -87,7 +87,7 @@
       <header class="pr-top">
         <button class="pr-exit" id="pr-exit">← 입장 화면</button>
         <span class="pr-title">진단실 <span class="pr-title__sub">AI로 나·우리 조직을 진단하고 AX 도입 킷을 만든다</span></span>
-        <span class="pr-progress">완료 <b>${done.size}</b> / ${TOTAL_ST}${UNLOCK_ALL ? ' · <span class="pr-dev">unlock</span>' : ''}</span>
+        <span class="pr-progress">검사 <b>${EXAMS.filter(stDone).length}</b>/${EXAMS.length} · 실습 <b>${done.size}</b>/${TOTAL_ST}${UNLOCK_ALL ? ' · <span class="pr-dev">unlock</span>' : ''}</span>
       </header>
       <div class="pr-inner">
         <div class="pr-floors">${FLOORS.map(floorTab).join("")}</div>

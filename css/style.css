@@ -408,9 +408,14 @@ body{
 .skin-lb{font-size:.74rem;letter-spacing:.06em}
 .skin-opt[aria-pressed="true"] .skin-lb::after{content:" ✓";color:var(--accent)}
 /* Lv 미달로 아직 해금 안 된 스킨(PC 포상) — 회색·자물쇠·비활성 */
-.skin-opt.locked{opacity:.42;filter:grayscale(.85);cursor:not-allowed}
+.skin-opt.locked{opacity:.42;filter:grayscale(.85);cursor:not-allowed;position:relative}
 .skin-opt.locked:hover{color:var(--ink-dim);border-color:var(--glass-brd);transform:none;box-shadow:none}
 .skin-opt.locked .skin-lb::after{content:" 🔒";filter:grayscale(1)}
+/* 해금 조건 상시 노출 — 잠긴 스킨 우상단에 "LvN" 미니 뱃지 (data-unlock은 main.js가 지정) */
+.skin-opt.locked::after{content:attr(data-unlock);position:absolute;top:-7px;right:-6px;
+  font-size:.58rem;font-weight:700;letter-spacing:.04em;color:var(--accent);
+  background:var(--bg);border:1px solid var(--accent);border-radius:var(--radius-pill);
+  padding:1px 7px;filter:none;opacity:.95}
 /* 고정 미리보기 스와치 (활성 스킨과 무관하게 각 테마 느낌을 보여준다) */
 .skin-sw--paper{background:linear-gradient(135deg,#FFFFFF 58%,#6D28D9 58%)}
 .skin-sw--neon{background:radial-gradient(circle at 32% 30%,#22d3ee 0%,#a855f7 42%,#0a0a0f 78%)}
@@ -475,6 +480,43 @@ body{
 .hud__reset.is-mastered:hover{transform:none;color:#E0C58A}
 @keyframes upPulse{0%,100%{box-shadow:0 0 0 1px rgba(224,197,138,.45),0 0 14px rgba(224,197,138,.3)}
   50%{box-shadow:0 0 0 1px rgba(224,197,138,.7),0 0 26px rgba(224,197,138,.6)}}
+
+/* ==================== 전체 목차 · 핵심 훑기 오버레이 ==================== */
+.toc{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
+  background:var(--overlay-bg);padding:4vh 3vw}
+.toc__box{width:min(880px,94vw);max-height:90vh;display:flex;flex-direction:column;
+  background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);box-shadow:var(--shadow)}
+.toc__head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--glass-brd)}
+.toc__title{font-family:var(--font-display);font-size:1.15rem;letter-spacing:.12em;color:var(--ink);flex:1}
+.toc__core{background:transparent;border:1px solid var(--glass-brd);color:var(--ink-dim);cursor:pointer;
+  padding:7px 14px;border-radius:var(--radius-pill);font-size:.8rem;letter-spacing:.06em;transition:.25s}
+.toc__core:hover{color:var(--ink);border-color:var(--accent)}
+.toc__core.on{color:var(--accent);border-color:var(--accent);background:var(--tint)}
+.toc__x{background:transparent;border:1px solid var(--glass-brd);color:var(--ink-dim);cursor:pointer;
+  width:32px;height:32px;border-radius:50%;transition:.25s}
+.toc__x:hover{color:var(--ink);border-color:var(--accent)}
+.toc__list{overflow-y:auto;padding:14px 20px 20px}
+.toc__sec{margin-bottom:16px}
+.toc__sec-t{font-size:.82rem;letter-spacing:.14em;color:var(--toc-accent,var(--accent));
+  margin:10px 0 6px;font-weight:700}
+.toc__sec-t span{color:var(--ink-dim);font-weight:400;letter-spacing:.04em;margin-left:8px;font-size:.76rem}
+.toc__lec-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+  background:transparent;border:1px solid transparent;border-radius:calc(var(--radius) - 6px);
+  padding:8px 12px;color:var(--ink);font-family:var(--font-body);font-size:.95rem;transition:.2s}
+.toc__lec-btn:hover{background:var(--tint);border-color:var(--glass-brd)}
+.toc__no{font-family:var(--font-mono);font-size:.74rem;color:var(--toc-accent,var(--accent));min-width:2.2em}
+.toc__t{flex:1}
+.toc__demo{font-size:.6rem;letter-spacing:.1em;border:1px solid var(--toc-accent,var(--accent));
+  color:var(--toc-accent,var(--accent));border-radius:var(--radius-pill);padding:1px 7px}
+.toc__resume{font-size:.7rem;color:var(--accent)}
+.toc__done{color:var(--green);font-size:.85rem}
+.toc__lines{list-style:none;margin:2px 0 8px;padding:0 0 0 44px;display:flex;flex-direction:column;gap:2px}
+.toc__lines button{background:transparent;border:none;cursor:pointer;text-align:left;width:100%;
+  color:var(--ink-dim);font-size:.84rem;line-height:1.45;padding:3px 8px;border-radius:6px;
+  font-family:var(--font-body);transition:.2s}
+.toc__lines button:hover{color:var(--ink);background:var(--tint)}
+.toc__lines button::before{content:"· ";color:var(--accent)}
 
 .celebrate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
   background-color:#0a0705;
