@@ -7,3 +7,5 @@ server_session.txt
 __pycache__/
 
 *.lnk
+
+err*.txt

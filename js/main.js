@@ -124,7 +124,8 @@
     intro: document.getElementById("scene-intro"),
     start: document.getElementById("scene-start"),
     room: document.getElementById("scene-room"),
-    slides: document.getElementById("scene-slides")
+    slides: document.getElementById("scene-slides"),
+    practice: document.getElementById("scene-practice")
   };
   function goScene(name) {
     Object.values(scenes).forEach(s => s.classList.remove("is-active"));
@@ -163,8 +164,9 @@
       const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
       if (!parts.length) return { name: "intro" };
       switch (parts[0]) {
-        case "start":   return { name: "start" };
-        case "reset":   return { name: "reset" };
+        case "start":    return { name: "start" };
+        case "reset":    return { name: "reset" };
+        case "practice": return { name: "practice" };
         case "room":    return { name: "room" };
         case "box":     return { name: "box", box: Number(parts[1]) || 0 };
         case "lecture": return { name: "lecture", id: Number(parts[1]),
@@ -193,7 +195,9 @@
         case "intro":
           bgIntro(); goScene("intro"); break;
         case "start":
-          bgSkin(); goScene("start"); break;
+          bgSkin(); goScene("start"); if (window.refreshPracticeDoor) window.refreshPracticeDoor(); break;
+        case "practice":
+          bgSkin(); goScene("practice"); if (window.openPractice) window.openPractice(); break;
         case "room":
           bgSkin(); goScene("room"); showBoxes(); break;
         case "box":
@@ -338,6 +342,7 @@
   /* ---------- 전역 네임스페이스 ---------- */
   const App = window.App = {
     Progress, Skin, goScene, updateHUD, TOTAL, Router, findLecture,
+    Level,                       // 실습실(practice.js)이 Lv를 읽기만 (수정 안 함)
     accent: "#22d3ee"
   };
   window.Progress = Progress;
