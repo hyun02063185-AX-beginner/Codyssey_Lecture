@@ -6,6 +6,8 @@
   → 서버를 다시 띄울 때마다 완주 기능을 처음부터 테스트할 수 있다.
   (단순 새로고침은 토큰이 그대로라 진행도가 유지된다.)
 - IPv4(0.0.0.0)로 바인딩한다: Python 기본이 IPv6만 잡으면 브라우저가 못 붙는 문제 회피.
+- 멀티스레드로 처리한다: 브라우저는 CSS·JS·SVG를 동시 연결 여러 개로 받아가는데,
+  단일 스레드(TCPServer)는 그 동시 연결에 막혀 서버 전체가 멈출 수 있다(점검보고서 B1).
 사용: python serve.py   (기본 포트 8000)
 """
 import http.server
@@ -27,8 +29,9 @@ with open(os.path.join(ROOT, "server_session.txt"), "w", encoding="utf-8") as f:
 Handler = http.server.SimpleHTTPRequestHandler
 
 
-class Server(socketserver.TCPServer):
+class Server(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
+    daemon_threads = True      # Ctrl+C 시 열린 연결이 종료를 붙잡지 않게
 
 
 with Server(("0.0.0.0", PORT), Handler) as httpd:
