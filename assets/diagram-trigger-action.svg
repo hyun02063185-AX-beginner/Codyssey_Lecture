@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">자동화의 문법 — 트리거와 액션</title>
+  <desc id="d">이런 일이 생기면(트리거) 이걸 해라(액션). 예: 새 문의 메일이 오면 시트에 기록하고 담당자에게 알린다. 시간도 트리거가 된다: 매주 월요일 9시가 되면 보고서 초안을 생성한다. 한 번 만들면 그다음부터 손이 안 간다.</desc>
+  <defs>
+    <marker id="ac" markerWidth="12" markerHeight="12" refX="8" refY="3.8" orient="auto"><path d="M0,0 L8,3.8 L0,7.6 Z" fill="#8FC7D8"/></marker>
+    <marker id="ag" markerWidth="13" markerHeight="13" refX="8.6" refY="4.2" orient="auto"><path d="M0,0 L8.6,4.2 L0,8.4 Z" fill="#E0C58A"/></marker>
+    <style><![CDATA[
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:#EDE4D6;font-weight:700;} .ts{fill:#B5A48D;}
+      .lbl{fill:#EDE4D6;font-weight:700;} .sub{fill:#B5A48D;}
+      .trig{fill:#2A2113;stroke:#E0C58A;stroke-width:2.2;}
+      .act{fill:#271C12;stroke:#4A3B2A;stroke-width:1.6;}
+      .big{fill:none;stroke:#E0C58A;stroke-width:4;}
+      .thin{fill:none;stroke:#8FC7D8;stroke-width:2.4;}
+    ]]></style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="720" fill="#171009"/>
+  <text x="48" y="64" font-size="30" class="tt">자동화의 문법 — 트리거 → 액션</text>
+  <text x="50" y="96" font-size="16" class="ts">"이런 일이 생기면 → 이걸 해라" · 액션은 사슬로 이어진다</text>
+
+  <!-- 행 1: 이벤트 트리거 -->
+  <rect x="80" y="180" width="320" height="140" rx="18" class="trig"/>
+  <text x="112" y="228" font-size="19" fill="#E0C58A" font-weight="700">⚡ 트리거</text>
+  <text x="112" y="258" font-size="14.5" class="lbl">이런 일이 생기면</text>
+  <text x="112" y="286" font-size="13" class="sub">예: 새 문의 메일 도착</text>
+  <path d="M400 250 L490 250" class="big" marker-end="url(#ag)"/>
+
+  <rect x="498" y="188" width="300" height="124" rx="16" class="act"/>
+  <text x="528" y="234" font-size="17" class="lbl">▶ 액션 1</text>
+  <text x="528" y="264" font-size="13.5" class="sub">시트에 자동 기록</text>
+  <path d="M798 250 L878 250" class="thin" marker-end="url(#ac)"/>
+
+  <rect x="886" y="188" width="300" height="124" rx="16" class="act"/>
+  <text x="916" y="234" font-size="17" class="lbl">▶ 액션 2</text>
+  <text x="916" y="264" font-size="13.5" class="sub">담당자에게 알림</text>
+
+  <!-- 행 2: 시간 트리거 -->
+  <rect x="80" y="420" width="320" height="140" rx="18" class="trig"/>
+  <text x="112" y="468" font-size="19" fill="#E0C58A" font-weight="700">🕘 시간도 트리거</text>
+  <text x="112" y="498" font-size="14.5" class="lbl">매주 월요일 9시가 되면</text>
+  <text x="112" y="526" font-size="13" class="sub">사람이 기억할 필요 없음</text>
+  <path d="M400 490 L490 490" class="big" marker-end="url(#ag)"/>
+
+  <rect x="498" y="428" width="330" height="124" rx="16" class="act"/>
+  <text x="528" y="474" font-size="17" class="lbl">▶ 액션</text>
+  <text x="528" y="504" font-size="13.5" class="sub">주간 리포트 초안 생성</text>
+
+  <text x="900" y="482" font-size="13.5" class="ts">규칙이 뚜렷한 일이라면</text>
+  <text x="900" y="504" font-size="13.5" class="ts">무엇이든 이 문법에 담긴다</text>
+
+  <!-- 보조 문구 -->
+  <rect x="240" y="616" width="800" height="58" rx="14" fill="#1F1710" stroke="#4A3B2A"/>
+  <text x="640" y="653" font-size="18" text-anchor="middle" class="lbl"><tspan fill="#E0C58A">한 번 만들면</tspan>, 그다음부터 손이 안 간다</text>
+</svg>

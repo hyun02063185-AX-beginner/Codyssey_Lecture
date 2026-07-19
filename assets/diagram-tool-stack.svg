@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">도구 4층 구조 — 업무 시스템, 자동화, 지식검색, 두뇌</title>
+  <desc id="d">아래에서 위로 4층 적층. 1층 업무 시스템(메일·문서·DB·캘린더), 2층 자동화(정해진 일 반복), 3층 지식검색(내 자료에서 근거), 4층 두뇌 대화형 AI(묻고 답하고 초안, 골드 강조). 역할이 다르면 도구도 다르다 — 겹치지 않게 하나씩.</desc>
+  <defs>
+    <style><![CDATA[
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:#EDE4D6;font-weight:700;} .ts{fill:#B5A48D;}
+      .lbl{fill:#EDE4D6;font-weight:700;} .sub{fill:#B5A48D;}
+      .f1{fill:#1F1710;stroke:#4A3B2A;stroke-width:1.6;}
+      .f2{fill:#241A10;stroke:#4A3B2A;stroke-width:1.6;}
+      .f3{fill:#271C12;stroke:#4A3B2A;stroke-width:1.6;}
+      .f4{fill:#2A2113;stroke:#E0C58A;stroke-width:2.4;}
+      .link{stroke:#8FC7D8;stroke-width:2;stroke-dasharray:2 6;stroke-linecap:round;}
+      .no{fill:#8FC7D8;font-weight:700;}
+    ]]></style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="720" fill="#171009"/>
+  <text x="48" y="64" font-size="30" class="tt">도구 4층 구조</text>
+  <text x="50" y="96" font-size="16" class="ts">아래층이 있어야 위층이 선다 — 층당 도구는 하나씩</text>
+
+  <!-- 4층 두뇌 (골드) -->
+  <rect x="360" y="130" width="560" height="104" rx="16" class="f4"/>
+  <text x="394" y="172" font-size="14" class="no">4층</text>
+  <text x="452" y="174" font-size="20" fill="#E0C58A" font-weight="700">🧠 두뇌 (대화형 AI)</text>
+  <text x="452" y="204" font-size="13.5" class="sub">묻고 답하고 초안 — 스택의 사령탑</text>
+  <line x1="640" y1="234" x2="640" y2="268" class="link"/>
+
+  <!-- 3층 지식검색 -->
+  <rect x="300" y="272" width="680" height="104" rx="16" class="f3"/>
+  <text x="334" y="314" font-size="14" class="no">3층</text>
+  <text x="392" y="316" font-size="19" class="lbl">🔎 지식검색</text>
+  <text x="392" y="346" font-size="13.5" class="sub">내 자료에서 근거 찾기 (07강)</text>
+  <line x1="640" y1="376" x2="640" y2="410" class="link"/>
+
+  <!-- 2층 자동화 -->
+  <rect x="240" y="414" width="800" height="104" rx="16" class="f2"/>
+  <text x="274" y="456" font-size="14" class="no">2층</text>
+  <text x="332" y="458" font-size="19" class="lbl">🔁 자동화</text>
+  <text x="332" y="488" font-size="13.5" class="sub">정해진 일 반복 (09강) — 트리거→액션</text>
+  <line x1="640" y1="518" x2="640" y2="552" class="link"/>
+
+  <!-- 1층 업무 시스템 -->
+  <rect x="180" y="556" width="920" height="104" rx="16" class="f1"/>
+  <text x="214" y="598" font-size="14" class="no">1층</text>
+  <text x="272" y="600" font-size="19" class="lbl">🗂 업무 시스템</text>
+  <text x="272" y="630" font-size="13.5" class="sub">메일 · 문서 · DB · 캘린더 — 모든 층이 딛고 서는 바닥</text>
+
+  <!-- 보조 문구 (우측) -->
+  <rect x="940" y="150" width="290" height="84" rx="14" fill="#1F1710" stroke="#4A3B2A"/>
+  <text x="1085" y="184" font-size="14.5" text-anchor="middle" class="lbl">역할이 다르면 <tspan fill="#E0C58A">도구도 다르다</tspan></text>
+  <text x="1085" y="210" font-size="12.5" text-anchor="middle" class="sub">겹치지 않게, 층당 하나씩</text>
+</svg>
