@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">전산화, DX, AX — 세 개의 계단</title>
+  <desc id="d">좌하단에서 우상단으로 오르는 3단 계단. 1단 전산화는 손으로 하던 일을 컴퓨터로, 2단 DX는 흩어진 것을 데이터로, 3단 AX는 그 데이터 위에서 AI가 판단을 보조한다. 도구가 아니라 일하는 방식이 오른다.</desc>
+  <defs>
+    <marker id="ac" markerWidth="11" markerHeight="11" refX="7.5" refY="3.4" orient="auto"><path d="M0,0 L7.5,3.4 L0,6.8 Z" fill="#8FC7D8"/></marker>
+    <style><![CDATA[
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:#EDE4D6;font-weight:700;} .ts{fill:#B5A48D;}
+      .lbl{fill:#EDE4D6;font-weight:700;} .sub{fill:#B5A48D;}
+      .step{fill:#271C12;stroke:#4A3B2A;stroke-width:1.6;}
+      .stepTop{fill:#2A2113;stroke:#E0C58A;stroke-width:2.2;}
+      .arrow{fill:none;stroke:#8FC7D8;stroke-width:2.8;stroke-dasharray:none;}
+    ]]></style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="720" fill="#171009"/>
+  <text x="48" y="64" font-size="30" class="tt">전산화 → DX → AX, 세 개의 계단</text>
+  <text x="50" y="96" font-size="16" class="ts">아래 계단이 있어야 다음 계단을 딛는다</text>
+
+  <!-- 1단 · 전산화 (좌하) -->
+  <rect x="110" y="470" width="330" height="150" rx="12" class="step"/>
+  <text x="140" y="516" font-size="15" fill="#8FC7D8" font-weight="700">1단</text>
+  <text x="140" y="548" font-size="22" class="lbl">전산화</text>
+  <text x="140" y="580" font-size="14.5" class="sub">손으로 하던 일을 컴퓨터로</text>
+  <text x="140" y="602" font-size="13" class="sub">종이 대장 → 엑셀</text>
+
+  <!-- 2단 · DX (중간) -->
+  <rect x="470" y="330" width="330" height="290" rx="12" class="step"/>
+  <text x="500" y="376" font-size="15" fill="#8FC7D8" font-weight="700">2단</text>
+  <text x="500" y="408" font-size="22" class="lbl">DX</text>
+  <text x="500" y="440" font-size="14.5" class="sub">흩어진 것을 데이터로</text>
+  <text x="500" y="462" font-size="13" class="sub">엑셀들 → 연결된 시스템</text>
+
+  <!-- 3단 · AX (우상, 골드 강조) -->
+  <rect x="830" y="190" width="340" height="430" rx="12" class="stepTop"/>
+  <text x="860" y="236" font-size="15" fill="#E0C58A" font-weight="700">3단</text>
+  <text x="860" y="270" font-size="24" fill="#E0C58A" font-weight="700">AX</text>
+  <text x="860" y="304" font-size="14.5" class="sub">데이터 위에서</text>
+  <text x="860" y="326" font-size="14.5" class="sub">AI가 판단을 보조</text>
+  <text x="860" y="356" font-size="13" class="sub">요약 · 검색 · 초안 · 분류</text>
+
+  <!-- 상승 화살표 -->
+  <path d="M300 452 C 380 400, 430 390, 560 344" class="arrow" marker-end="url(#ac)"/>
+  <path d="M660 312 C 740 260, 790 250, 900 210" class="arrow" marker-end="url(#ac)"/>
+
+  <!-- 보조 문구 -->
+  <rect x="240" y="646" width="800" height="56" rx="14" fill="#1F1710" stroke="#4A3B2A"/>
+  <text x="640" y="682" font-size="18" text-anchor="middle" class="lbl">도구가 아니라, <tspan fill="#E0C58A">일하는 방식</tspan>이 오른다</text>
+</svg>

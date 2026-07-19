@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">AI가 답을 만드는 방식 — 가장 그럴듯한 다음 고르기</title>
+  <desc id="d">말풍선 안 문장 "이번 분기 매출은 ___"에서 후보 가지 세 개가 갈라진다. 증가했다 72퍼센트가 굵게 선택되고, 감소했다 18퍼센트, 파랗다 0.1퍼센트는 흐리다. 가장 그럴듯한 다음을 고를 뿐, 사실 확인은 없다.</desc>
+  <defs>
+    <marker id="ac" markerWidth="11" markerHeight="11" refX="7.5" refY="3.4" orient="auto"><path d="M0,0 L7.5,3.4 L0,6.8 Z" fill="#8FC7D8"/></marker>
+    <marker id="ag" markerWidth="12" markerHeight="12" refX="8" refY="3.8" orient="auto"><path d="M0,0 L8,3.8 L0,7.6 Z" fill="#E0C58A"/></marker>
+    <style><![CDATA[
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:#EDE4D6;font-weight:700;} .ts{fill:#B5A48D;}
+      .lbl{fill:#EDE4D6;font-weight:700;} .sub{fill:#B5A48D;}
+      .bubble{fill:#271C12;stroke:#4A3B2A;stroke-width:1.8;}
+      .cand{fill:#241A10;stroke:#4A3B2A;stroke-width:1.4;}
+      .candOn{fill:#2A2113;stroke:#E0C58A;stroke-width:2.4;}
+      .branch{fill:none;stroke:#8FC7D8;stroke-width:2.2;}
+      .branchOn{fill:none;stroke:#E0C58A;stroke-width:3.4;}
+    ]]></style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="720" fill="#171009"/>
+  <text x="48" y="64" font-size="30" class="tt">AI가 답을 만드는 방식</text>
+  <text x="50" y="96" font-size="16" class="ts">문장의 빈칸마다 "가장 그럴듯한 다음"을 고른다</text>
+
+  <!-- 말풍선 -->
+  <rect x="90" y="270" width="430" height="130" rx="22" class="bubble"/>
+  <path d="M200 400 L 180 448 L 250 402 Z" fill="#271C12" stroke="#4A3B2A" stroke-width="1.8"/>
+  <text x="128" y="326" font-size="22" class="lbl">"이번 분기 매출은</text>
+  <text x="128" y="364" font-size="22" class="lbl"><tspan fill="#8FC7D8">___</tspan> "</text>
+
+  <!-- 가지 3개 -->
+  <path d="M520 300 C 610 250, 660 232, 726 224" class="branchOn" marker-end="url(#ag)"/>
+  <path d="M520 336 C 620 336, 670 336, 726 336" class="branch" marker-end="url(#ac)"/>
+  <path d="M520 372 C 610 420, 660 440, 726 448" class="branch" opacity=".35" marker-end="url(#ac)"/>
+
+  <!-- 후보 1: 선택됨 -->
+  <rect x="732" y="182" width="330" height="80" rx="14" class="candOn"/>
+  <text x="762" y="218" font-size="21" fill="#E0C58A" font-weight="700">증가했다</text>
+  <text x="762" y="246" font-size="14" class="sub">확률 <tspan fill="#E0C58A" font-weight="700">72%</tspan> — ✓ 이게 선택된다</text>
+
+  <!-- 후보 2 -->
+  <rect x="732" y="300" width="330" height="72" rx="14" class="cand"/>
+  <text x="762" y="332" font-size="18" class="lbl">감소했다</text>
+  <text x="762" y="358" font-size="13.5" class="sub">확률 18%</text>
+
+  <!-- 후보 3: 흐리게 -->
+  <g opacity=".38">
+    <rect x="732" y="412" width="330" height="72" rx="14" class="cand"/>
+    <text x="762" y="444" font-size="18" class="lbl">파랗다</text>
+    <text x="762" y="470" font-size="13.5" class="sub">확률 0.1%</text>
+  </g>
+
+  <!-- 핵심 포인트 -->
+  <text x="305" y="480" font-size="14.5" class="ts">진짜 매출이 늘었는지는</text>
+  <text x="305" y="502" font-size="14.5" class="ts"><tspan fill="#E0C58A" font-weight="700">아무도 확인하지 않았다</tspan></text>
+
+  <!-- 보조(경고) 문구 -->
+  <rect x="200" y="606" width="880" height="66" rx="14" fill="#2A1A12" stroke="#D98E6B" stroke-width="1.6"/>
+  <text x="640" y="634" font-size="18" text-anchor="middle" class="lbl">"가장 그럴듯한 다음"을 고를 뿐 — <tspan fill="#D98E6B">사실 확인은 없다</tspan></text>
+  <text x="640" y="659" font-size="13.5" text-anchor="middle" class="sub">그래서 자신 있게 틀린다 · 매끄러움 ≠ 사실</text>
+</svg>
