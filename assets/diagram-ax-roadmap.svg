@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">나의 AX 로드맵 3단 — 지금, 3개월, 그 다음</title>
+  <desc id="d">좌에서 우로 오르는 길 위에 이정표 세 개. 지금은 반복 업무 1개에 AI(작은 원), 3개월은 팀과 공유·규칙 만들기(중간 원), 그 다음은 흐름 설계·확인 지점(큰 골드 원). 길 아래 효과를 숫자로 확인하며 전진. 크게 그리되, 이번 주에 시작한다.</desc>
+  <defs>
+    <marker id="ag" markerWidth="13" markerHeight="13" refX="8.6" refY="4.2" orient="auto"><path d="M0,0 L8.6,4.2 L0,8.4 Z" fill="#E0C58A"/></marker>
+    <style><![CDATA[
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:#EDE4D6;font-weight:700;} .ts{fill:#B5A48D;}
+      .lbl{fill:#EDE4D6;font-weight:700;} .sub{fill:#B5A48D;}
+      .road{fill:none;stroke:#8FC7D8;stroke-width:3.4;}
+      .st1{fill:#271C12;stroke:#4A3B2A;stroke-width:2;}
+      .st2{fill:#271C12;stroke:#8FC7D8;stroke-width:2.2;}
+      .st3{fill:#2A2113;stroke:#E0C58A;stroke-width:2.8;}
+    ]]></style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="720" fill="#171009"/>
+  <text x="48" y="64" font-size="30" class="tt">나의 AX 로드맵 3단</text>
+  <text x="50" y="96" font-size="16" class="ts">이 강의에서 배운 것들이 그대로 이정표가 된다</text>
+
+  <!-- 상승하는 길 (01강 계단과 호응) -->
+  <path d="M110 560 C 380 545, 520 480, 660 420 C 800 360, 950 300, 1130 245" class="road" marker-end="url(#ag)"/>
+
+  <!-- 이정표 1 · 지금 (작은 원) -->
+  <circle cx="235" cy="540" r="58" class="st1"/>
+  <text x="235" y="532" font-size="17" text-anchor="middle" class="lbl">지금</text>
+  <text x="235" y="556" font-size="11.5" text-anchor="middle" class="sub">이번 주</text>
+  <rect x="105" y="620" width="270" height="66" rx="12" fill="#1F1710" stroke="#4A3B2A"/>
+  <text x="240" y="648" font-size="14" text-anchor="middle" class="lbl">반복 업무 1개에 AI</text>
+  <text x="240" y="670" font-size="12" text-anchor="middle" class="sub">11~14강의 실전</text>
+
+  <!-- 이정표 2 · 3개월 (중간 원) -->
+  <circle cx="640" cy="428" r="74" class="st2"/>
+  <text x="640" y="420" font-size="19" text-anchor="middle" class="lbl">3개월</text>
+  <text x="640" y="446" font-size="12" text-anchor="middle" class="sub">함께 쓰기</text>
+  <rect x="500" y="522" width="280" height="66" rx="12" fill="#1F1710" stroke="#4A3B2A"/>
+  <text x="640" y="550" font-size="14" text-anchor="middle" class="lbl">팀과 공유 · 규칙 만들기</text>
+  <text x="640" y="572" font-size="12" text-anchor="middle" class="sub">19강 문화 · 16강 관문</text>
+
+  <!-- 이정표 3 · 그 다음 (큰 골드 원) -->
+  <circle cx="1040" cy="285" r="92" class="st3"/>
+  <text x="1040" y="272" font-size="21" text-anchor="middle" fill="#E0C58A" font-weight="700">그 다음</text>
+  <text x="1040" y="300" font-size="12.5" text-anchor="middle" class="sub">흐름의 설계자</text>
+  <text x="1040" y="322" font-size="12.5" text-anchor="middle" class="sub">📈</text>
+  <rect x="880" y="398" width="320" height="66" rx="12" fill="#2A2113" stroke="#E0C58A" stroke-width="1.6"/>
+  <text x="1040" y="426" font-size="14" text-anchor="middle" fill="#E0C58A" font-weight="700">흐름 설계 · 확인 지점</text>
+  <text x="1040" y="448" font-size="12" text-anchor="middle" class="sub">15강 해부 · 17강 멈춤</text>
+
+  <!-- 길 아래 문구 -->
+  <text x="420" y="640" font-size="13.5" class="ts">효과를 <tspan fill="#8FC7D8" font-weight="700">숫자로 확인</tspan>하며 전진 —</text>
+  <text x="420" y="662" font-size="13.5" class="ts">아낀 시간이 다음 걸음의 근거가 된다</text>
+
+  <!-- 보조 문구 -->
+  <rect x="800" y="590" width="430" height="58" rx="14" fill="#1F1710" stroke="#4A3B2A"/>
+  <text x="1015" y="627" font-size="17" text-anchor="middle" class="lbl">크게 그리되, <tspan fill="#E0C58A">이번 주에 시작한다</tspan></text>
+</svg>
