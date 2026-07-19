@@ -488,6 +488,7 @@ body{
 /* ==================== 전체 목차 · 핵심 훑기 오버레이 ==================== */
 .toc{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
   background:var(--overlay-bg);padding:4vh 3vw}
+.toc[hidden]{display:none}   /* display:flex가 hidden 속성을 이기지 않게 — 닫힘 보장 */
 .toc__box{width:min(880px,94vw);max-height:90vh;display:flex;flex-direction:column;
   background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);box-shadow:var(--shadow)}
