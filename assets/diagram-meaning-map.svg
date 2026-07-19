@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">뜻의 지도 — 글자가 아니라 거리(뜻)로 찾는다</title>
+  <desc id="d">어두운 좌표평면 위에 단어들이 뜻별로 군집을 이룬다. 출산·육아휴직·모성보호가 서로 가깝게 모여 있고, 연차·반차 군집과 출장·경비 군집은 멀리 있다. "출산 규정?" 질문 별표가 첫 군집 근처에 찍혀 가까운 점들과 점선으로 연결된다.</desc>
+  <defs>
+    <style><![CDATA[
+      :root{ --bg:#171009; --grp:#1F1710; --edge:#4A3B2A;
+             --ink:#EDE4D6; --dim:#B5A48D; --go:#E0C58A; --cy:#8FC7D8; }
+      text{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;}
+      .tt{fill:var(--ink);font-weight:700;} .ts{fill:var(--dim);}
+      .word{fill:var(--dim);font-size:15px;}
+      .wordOn{fill:#E0C58A;font-size:16px;font-weight:700;}
+      .dot{fill:#6B5C45;}
+      .dotOn{fill:#E0C58A;}
+      .link{stroke:#8FC7D8;stroke-width:1.8;stroke-dasharray:5 6;fill:none;}
+      .grid{stroke:#2A2014;stroke-width:1;}
+    ]]></style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="720" fill="var(--bg)"/>
+  <text x="48" y="64" font-size="30" class="tt">단어가 아니라 '뜻'으로 찾는다</text>
+  <text x="50" y="96" font-size="16" class="ts">뜻이 가까운 말들은 지도 위에서 가까이 모인다</text>
+
+  <!-- 좌표평면 -->
+  <rect x="120" y="140" width="1040" height="440" rx="14" fill="#1B140C" stroke="#4A3B2A" stroke-width="1.4"/>
+  <g>
+    <line x1="120" y1="250" x2="1160" y2="250" class="grid"/>
+    <line x1="120" y1="360" x2="1160" y2="360" class="grid"/>
+    <line x1="120" y1="470" x2="1160" y2="470" class="grid"/>
+    <line x1="330" y1="140" x2="330" y2="580" class="grid"/>
+    <line x1="540" y1="140" x2="540" y2="580" class="grid"/>
+    <line x1="750" y1="140" x2="750" y2="580" class="grid"/>
+    <line x1="960" y1="140" x2="960" y2="580" class="grid"/>
+  </g>
+
+  <!-- 군집 1 · 출산 (골드, 서로 가깝게) -->
+  <circle cx="310" cy="300" r="9" class="dotOn"/><text x="330" y="292" class="wordOn">출산</text>
+  <circle cx="272" cy="366" r="9" class="dotOn"/><text x="292" y="360" class="wordOn">육아휴직</text>
+  <circle cx="392" cy="352" r="9" class="dotOn"/><text x="410" y="346" class="wordOn">모성보호</text>
+
+  <!-- 질문 별표 -->
+  <path d="M330 208 l8.2 16.6 18.3 2.7 -13.2 12.9 3.1 18.2 -16.4 -8.6 -16.4 8.6 3.1 -18.2 -13.2 -12.9 18.3 -2.7 Z" fill="#F2D9A0" stroke="#E0C58A" stroke-width="1.4"/>
+  <text x="362" y="212" font-size="17" class="wordOn">★ "출산 규정?"</text>
+  <!-- 질문 → 가까운 점 점선 -->
+  <path d="M330 236 L312 288" class="link"/>
+  <path d="M322 238 L278 354" class="link"/>
+  <path d="M342 238 L388 340" class="link"/>
+
+  <!-- 군집 2 · 연차/반차 (멀리) -->
+  <circle cx="800" cy="230" r="8" class="dot"/><text x="818" y="224" class="word">연차</text>
+  <circle cx="872" cy="266" r="8" class="dot"/><text x="890" y="260" class="word">반차</text>
+
+  <!-- 군집 3 · 출장/경비 (또 멀리) -->
+  <circle cx="920" cy="480" r="8" class="dot"/><text x="938" y="474" class="word">출장</text>
+  <circle cx="1000" cy="516" r="8" class="dot"/><text x="1018" y="510" class="word">경비</text>
+
+  <!-- 거리 주석 -->
+  <text x="600" y="330" font-size="13.5" class="ts" opacity=".8">← 가까움 = 뜻이 비슷함 · 멀리 = 다른 이야기 →</text>
+
+  <!-- 보조 문구 -->
+  <rect x="240" y="614" width="800" height="62" rx="14" fill="#1F1710" stroke="#4A3B2A"/>
+  <text x="640" y="653" font-size="18" fill="#EDE4D6" font-weight="700" text-anchor="middle">글자가 아니라 <tspan fill="#E0C58A">거리(뜻)</tspan>로 찾는다 — 그래서 "출산"이 육아휴직·모성보호까지 데려온다</text>
+</svg>
