@@ -18,6 +18,13 @@
   })();
   window.__isMobile = IS_MOBILE;   // intro.js 등에서 공유
 
+  /* ---------- 콘텐츠 variant — 경험판 스위치 ----------
+     ?variant=personal → 7·8강처럼 slidesPersonal이 있는 강의는 경험판으로 렌더(slides.js가 분기).
+     해시 라우팅은 search를 건드리지 않으므로 세션 동안 자연 유지.
+     localStorage에 저장하지 않는다 — 링크로만 제어(평소 배포 링크는 항상 범용판). */
+  const VARIANT_PERSONAL = /[?&]variant=personal(?:&|$)/.test(location.search);
+  window.__variantPersonal = VARIANT_PERSONAL;   // slides.js 로드 분기에서 참조
+
   /* ---------- 스킨 해금 순서 (Lv 포상) ----------
      모바일: 5종 전부 · PC: Lv1 사유의 방 → Lv2 +페이퍼 → Lv3 +네온 → Lv4 +픽셀 → Lv5 +블루프린트 */
   const SKIN_ORDER = ["sayu", "paper", "neon", "pixel", "blueprint"];
@@ -615,6 +622,15 @@
     initStateButton();
     initRoomNav();
     initToc();
+    // 경험판(personal) 모드 표시 — HUD 좌측에 아주 작은 "P" 뱃지 (강사 확인용, 기본 모드엔 없음)
+    if (VARIANT_PERSONAL) {
+      const hudLeft = document.querySelector(".hud__left");
+      if (hudLeft) {
+        const b = document.createElement("span");
+        b.className = "hud__vp"; b.textContent = "P"; b.title = "경험판(personal) 모드";
+        hudLeft.appendChild(b);
+      }
+    }
     App.updateHUD = updateHUD;      // room.js가 참조하도록 확정
     window.buildRoom && window.buildRoom();   // 상자 생성
     window.initSlides && window.initSlides(); // 슬라이드 엔진 초기화

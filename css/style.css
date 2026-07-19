@@ -449,6 +449,10 @@ body{
   font-family:var(--font-body);transition:.25s}
 .hud__home:hover{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
 .hud__logo{font-family:var(--font-display);font-size:1.15rem;letter-spacing:.3em;color:var(--ink);opacity:.85}
+/* 경험판(personal) 모드 뱃지 — 강사만 알아볼 은은한 "P" (main.js가 variant 모드에서만 생성) */
+.hud__vp{display:inline-block;margin-left:10px;font-family:var(--font-mono);font-size:.6rem;
+  color:var(--ink-dim);border:1px solid var(--glass-brd);border-radius:var(--radius-pill);
+  padding:1px 7px;opacity:.5;vertical-align:middle}
 .hud__right{display:flex;align-items:center;gap:22px}
 .hud__stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .hud__label{font-size:.62rem;letter-spacing:.24em;color:var(--ink-dim)}

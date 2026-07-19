@@ -148,7 +148,8 @@
     updateRotateHint();
     activeLecture = lecture;
     activeBox = box;
-    slides = lecture.slides || [];
+    // variant 분기: ?variant=personal 이고 경험판(slidesPersonal)이 있으면 그걸 사용 (7·8강)
+    slides = (window.__variantPersonal && lecture.slidesPersonal) ? lecture.slidesPersonal : (lecture.slides || []);
     current = Math.max(0, Math.min(slideIndex || 0, slides.length - 1));
 
     nameEl.textContent = `${String(lecture.id).padStart(2, "0")}강 · ${lecture.title}`;
