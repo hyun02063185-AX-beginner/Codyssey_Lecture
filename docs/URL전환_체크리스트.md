@@ -8,15 +8,16 @@
 
 2. **`feature/lms` → `main` 병합**(검토 후) → `main` push는 **1회**로 모아서.
 
-3. **Netlify 환경변수 등록**: `SUPABASE_URL` / `SUPABASE_SERVICE_KEY` / `ADMIN_KEY` — 로컬 `.env`와 **동일한 값**.
+3. **Netlify 환경변수 등록**: `SUPABASE_URL` / `SUPABASE_SERVICE_KEY` / `ADMIN_KEY` / `AI_API_KEY` — 로컬 `.env`와 **동일한 값**.
    (Site configuration → Environment variables. 값은 절대 커밋하지 말 것 — env에만.)
 
 4. 배포 완료 후 **공개 URL에서 함수 동작 확인**:
    - 코드 입장(또는 `?join=`) → Supabase **Table Editor**의 `events`에 `session_start` 1건 insert 확인.
    - `/#/admin` → 접속 키로 대시보드 진입 확인(`stats` 함수 동작).
+   - 대시보드 **[📋 주간 브리핑]** 클릭 → 정상 생성 확인(`brief` 함수·Gemini 호출 동작).
 
-5. **CORS 확인**: `netlify/functions/track.js`·`stats.js`의 허용 도메인 정규식에 실제 배포 도메인이 포함되는지
-   (현재는 `*.netlify.app` + localhost 패턴 — 커스텀 도메인을 쓰면 두 파일 모두 코드에서 패턴 추가 필요).
+5. **CORS 확인**: `netlify/functions/track.js`·`stats.js`·`brief.js`의 허용 도메인 정규식에 실제 배포 도메인이
+   포함되는지(현재는 `*.netlify.app` + localhost 패턴 — 커스텀 도메인을 쓰면 세 파일 모두 코드에서 패턴 추가 필요).
 
 6. **공개 URL 전 동선 검증**(시크릿 창 권장):
    - 입장 화면 개편 상태(주인공 버튼 + ⚙️만, 진단실은 Lv2부터)
