@@ -58,6 +58,7 @@
         CURRICULUM.boxes.forEach(b => b.lectures.forEach(l => this.seen.add(l.id)));
       }
       this.save(); App.updateHUD();
+      window.Telemetry && Telemetry.lectureComplete(id);   // 수집 훅(코드 입력자만 전송)
       if (was < TOTAL && this.seen.size === TOTAL) celebrateCompletion();  // 완주 순간
     },
     has(id) { return this.seen.has(id); },
@@ -208,6 +209,7 @@
       switch (r.name) {
         case "reset": {                       // #/reset → Lv·진행도 초기화 후 인트로로
           try { localStorage.removeItem(LEVEL_KEY); localStorage.removeItem(STORE_KEY); localStorage.removeItem(RESUME_KEY); localStorage.removeItem("ax_server_session"); } catch (e) {}
+          if (window.Telemetry) Telemetry.clearCode();   // 수강 코드도 함께 초기화
           Level.n = 1; Level.save();          // Lv1부터 다시 시작
           Progress.seen.clear(); Progress.save();
           refreshSkinLocks(); Skin.set("sayu", true); updateHUD();
@@ -316,6 +318,7 @@
   }
   function doUpgrade() {
     if (!Level.up()) return;
+    window.Telemetry && Telemetry.runComplete(Level.n);  // 수집 훅: 20강 완주(업그레이드)
     Progress.reset();                                   // 새 회독 시작(발견도 0) + updateHUD
     if (window.refreshCardsSeen) window.refreshCardsSeen();
     refreshSkinLocks();                                 // PC: 새 Lv에서 스킨 해금 반영

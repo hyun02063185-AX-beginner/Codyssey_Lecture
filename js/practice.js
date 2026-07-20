@@ -167,6 +167,8 @@
     const s = stById(id), wasFloorDone = floorDone(s.floor), first = !done.has(id);
     if (output !== undefined) setOut(id, output);
     done.add(id); saveDone();
+    // 수집 훅: 제안서(3-4) 최초 완성 — hasAll = 12스테이션 전부 완료 여부
+    if (id === "3-4" && first && window.Telemetry) Telemetry.proposal(done.size === TOTAL_ST);
     if (id === "3-4" || done.size === TOTAL_ST) { closePanel(); setTimeout(showGraduation, 260); render(); return; }
     closePanel();
     if (first && !wasFloorDone && floorDone(s.floor) && s.floor < 3) setTimeout(() => floorUnlockToast(s.floor + 1), 260);
@@ -712,7 +714,11 @@
       <div class="exam-nav"><button class="pr-run" id="exam-retake">↻ 재검사</button>
       <button class="pr-done-btn" id="exam-save" style="flex:1">${existing ? "저장됨 ✓ · 닫기" : "결과 저장"}</button></div></div>`;
     drawExamViz(exam, res);
-    inner.querySelector("#exam-save").addEventListener("click", () => { setOut(exam.id, res); closePanel(); render(); });
+    inner.querySelector("#exam-save").addEventListener("click", () => {
+      setOut(exam.id, res);
+      window.Telemetry && Telemetry.diagnosis(exam.id, res);   // 수집 훅(코드 입력자만)
+      closePanel(); render();
+    });
     inner.querySelector("#exam-retake").addEventListener("click", () => { if (!existing || confirm("다시 검사하면 이전 결과를 덮어씁니다. 진행할까요?")) runExam(exam); });
     openPanel();
   }

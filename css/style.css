@@ -394,6 +394,27 @@ body{
 .start-hint{margin-top:6px;font-size:.78rem;color:var(--ink-dim);opacity:.6;letter-spacing:.1em}
 
 /* --- 스킨 선택기 --- */
+/* --- 수강 코드 입력(선택) — 입장 화면, 흐름을 막지 않게 작게 --- */
+.scode{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.scode__row{display:flex;gap:8px;align-items:center}
+.scode__input{width:170px;padding:8px 14px;border-radius:var(--radius-pill);
+  border:1px solid var(--glass-brd);background:var(--glass);color:var(--ink);
+  font-family:var(--font-body);font-size:.82rem;text-align:center;outline:none;transition:.25s}
+.scode__input:focus{border-color:var(--accent)}
+.scode__input--bad{border-color:#D98E6B;animation:scodeShake .3s}
+@keyframes scodeShake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.scode__btn{padding:8px 16px;border-radius:var(--radius-pill);border:1px solid var(--glass-brd);
+  background:var(--tint);color:var(--ink);cursor:pointer;font-size:.78rem;transition:.25s}
+.scode__btn:hover{border-color:var(--accent)}
+.scode__btn--ghost{background:transparent;color:var(--ink-dim)}
+.scode__badge{font-size:.82rem;color:var(--ink);border:1px solid var(--accent);
+  border-radius:var(--radius-pill);padding:6px 14px;background:var(--tint)}
+.scode__badge b{color:var(--accent)}
+.scode__note{font-size:.68rem;color:var(--ink-dim);opacity:.75;letter-spacing:.02em}
+/* HUD 수강 코드 뱃지 (P 뱃지와 동급 톤) */
+.hud__code{display:inline-block;margin-left:10px;font-size:.66rem;color:var(--ink-dim);
+  border:1px solid var(--glass-brd);border-radius:var(--radius-pill);padding:2px 9px;opacity:.75;vertical-align:middle}
+
 .skin-picker{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
 .skin-opt{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;
   background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);

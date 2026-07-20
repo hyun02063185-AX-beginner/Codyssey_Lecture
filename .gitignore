@@ -9,3 +9,9 @@ __pycache__/
 *.lnk
 
 err*.txt
+
+# 서버 키 (Netlify env와 동일 — 절대 커밋 금지)
+.env
+
+# Local Netlify folder
+.netlify

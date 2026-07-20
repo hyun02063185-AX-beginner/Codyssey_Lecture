@@ -64,6 +64,20 @@
       </button>
       <p class="start-hint">클릭하여 사유의 방으로 입장합니다</p>
 
+      <!-- 수강 코드(선택) — 입력 시에만 학습 현황이 강사에게 전송된다 (telemetry.js) -->
+      <div class="scode" id="scode">
+        <div class="scode__row" id="scode-form">
+          <input id="scode-input" class="scode__input" type="text" maxlength="20"
+                 placeholder="수강 코드 (선택)" autocomplete="off" />
+          <button id="scode-set" class="scode__btn" type="button">등록</button>
+        </div>
+        <div class="scode__row" id="scode-active" hidden>
+          <span class="scode__badge">🎫 <b id="scode-current"></b></span>
+          <button id="scode-clear" class="scode__btn scode__btn--ghost" type="button">제거</button>
+        </div>
+        <p class="scode__note">코드를 입력하면 학습 진행 상황이 강사에게 전달됩니다</p>
+      </div>
+
       <!-- 스킨(테마) 선택기 -->
       <div class="skin-picker" id="skin-picker" role="group" aria-label="테마 선택">
         <button class="skin-opt" type="button" data-skin="sayu" aria-pressed="true">
@@ -197,5 +211,6 @@
   <script src="js/main.js"></script>
   <script src="js/intro.js"></script>
   <script src="js/practice.js"></script>
+  <script src="js/telemetry.js"></script>
 </body>
 </html>
