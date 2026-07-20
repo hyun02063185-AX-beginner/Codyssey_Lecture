@@ -421,6 +421,39 @@
     });
   }
 
+  /* ---------- ⚙️ 설정 레이어 ----------
+     입장 화면 다이어트: 스킨·수강 코드·초기화를 레이어 하나로 묶는다.
+     열기/닫기 1탭, 바깥 클릭·ESC로도 닫힘. window.SettingsLayer로 공개해
+     telemetry.js(?join= 처리)가 열고 닫을 수 있게 한다. */
+  function initSettingsLayer() {
+    const layer = document.getElementById("settings-layer");
+    const btn = document.getElementById("settings-btn");
+    if (!layer || !btn) return;
+    const backdrop = document.getElementById("settings-backdrop");
+    const closeBtn = document.getElementById("settings-close");
+    function open() {
+      layer.hidden = false;
+      void layer.offsetWidth;             // reflow로 진입 트랜지션 확실히 발동
+      layer.classList.add("show");
+      btn.setAttribute("aria-expanded", "true");
+    }
+    function close() {
+      layer.classList.remove("show");
+      btn.setAttribute("aria-expanded", "false");
+      setTimeout(() => { layer.hidden = true; }, 260);
+    }
+    btn.addEventListener("click", open);
+    if (closeBtn) closeBtn.addEventListener("click", close);
+    if (backdrop) backdrop.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !layer.hidden) close(); });
+    // 초기화 — #/reset과 동일 동작(확인창 1번)
+    const resetBtn = document.getElementById("settings-reset-btn");
+    if (resetBtn) resetBtn.addEventListener("click", () => {
+      if (confirm("레벨·진행도·이어보기·수강 코드를 모두 초기화할까요?")) { close(); Router.go("reset"); }
+    });
+    window.SettingsLayer = { open, close };
+  }
+
   /* ---------- 전체 목차 · 핵심 훑기 ----------
      HUD ☰ → 20강 한 화면(완료✓·이어보기▶·DEMO), 강의 클릭 = 바로 이동(이어보기 반영).
      ⚡핵심 훑기 = 각 강의 big·quote·closing 문장만 펼침, 문장 클릭 = 그 슬라이드로 점프. */
@@ -624,6 +657,7 @@
     initStart();
     initStateButton();
     initRoomNav();
+    initSettingsLayer();
     initToc();
     // 경험판(personal) 모드 표시 — HUD 좌측에 아주 작은 "P" 뱃지 (강사 확인용, 기본 모드엔 없음)
     if (VARIANT_PERSONAL) {

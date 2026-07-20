@@ -393,9 +393,48 @@ body{
 .enter-btn:active{transform:scale(.98)}
 .start-hint{margin-top:6px;font-size:.78rem;color:var(--ink-dim);opacity:.6;letter-spacing:.1em}
 
-/* --- 스킨 선택기 --- */
-/* --- 수강 코드 입력(선택) — 입장 화면, 흐름을 막지 않게 작게 --- */
-.scode{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:6px}
+/* =========================================================================
+   ⚙️ 설정 레이어 — 입장 화면 다이어트: 부가 기능은 페이지가 아니라 레이어로.
+   모바일(≤720px)=바텀시트 / PC=중앙 패널. docs/UX_원칙.md 참조.
+   ========================================================================= */
+.settings-fab{position:absolute;top:20px;right:20px;z-index:5;
+  width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.15rem;line-height:1;cursor:pointer;color:var(--ink);
+  background:var(--glass);border:var(--border-w) solid var(--glass-brd);
+  backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  transition:border-color .25s,transform .25s}
+.settings-fab:hover{border-color:var(--accent);transform:rotate(35deg)}
+
+.settings-layer{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center}
+.settings-layer[hidden]{display:none}   /* display:flex가 hidden 속성을 이기지 않게(닫힘 보장) */
+.settings-layer__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.settings-layer__sheet{position:relative;width:min(420px,92vw);max-height:82vh;display:flex;flex-direction:column;
+  background:var(--bg);border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);
+  box-shadow:0 24px 64px rgba(0,0,0,.45);opacity:0;transform:translateY(16px) scale(.98);
+  transition:opacity .25s ease,transform .25s ease}
+.settings-layer.show .settings-layer__sheet{opacity:1;transform:translateY(0) scale(1)}
+.settings-layer__head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 18px;border-bottom:1px solid var(--glass-brd)}
+.settings-layer__title{font-family:var(--font-display);font-weight:700;letter-spacing:.03em;color:var(--ink)}
+.settings-layer__x{background:none;border:none;color:var(--ink-dim);font-size:1.1rem;cursor:pointer;padding:4px 6px}
+.settings-layer__x:hover{color:var(--ink)}
+.settings-layer__body{overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:22px}
+.settings-sec__t{font-size:.78rem;letter-spacing:.08em;color:var(--ink-dim);margin:0 0 12px;font-weight:700}
+.settings-sec__note{margin-top:8px;font-size:.7rem;color:var(--ink-dim);opacity:.75}
+.settings-reset-btn{width:100%;padding:10px;border-radius:var(--radius-pill);
+  border:1px solid var(--glass-brd);background:var(--glass);color:var(--ink);cursor:pointer;
+  font-family:var(--font-body);font-size:.85rem;transition:.25s}
+.settings-reset-btn:hover{border-color:#D98E6B;color:#D98E6B}
+/* 모바일: 중앙 패널 대신 하단에서 올라오는 바텀시트 */
+@media (max-width:720px){
+  .settings-layer{align-items:flex-end}
+  .settings-layer__sheet{width:100%;max-height:86vh;border-radius:20px 20px 0 0;
+    border-bottom:none;transform:translateY(100%)}
+  .settings-layer.show .settings-layer__sheet{transform:translateY(0)}
+}
+
+/* --- 수강 코드 입력(선택) — ⚙️ 설정 레이어 안, 흐름을 막지 않게 작게 --- */
+.scode{display:flex;flex-direction:column;align-items:center;gap:6px}
 .scode__row{display:flex;gap:8px;align-items:center}
 .scode__input{width:170px;padding:8px 14px;border-radius:var(--radius-pill);
   border:1px solid var(--glass-brd);background:var(--glass);color:var(--ink);
@@ -415,7 +454,7 @@ body{
 .hud__code{display:inline-block;margin-left:10px;font-size:.66rem;color:var(--ink-dim);
   border:1px solid var(--glass-brd);border-radius:var(--radius-pill);padding:2px 9px;opacity:.75;vertical-align:middle}
 
-.skin-picker{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.skin-picker{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .skin-opt{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;
   background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);
@@ -1014,10 +1053,9 @@ body{
 .pdoor-t{font-weight:700;letter-spacing:.04em}
 .pdoor-state{font-size:.72rem;color:var(--ink-dim)}
 .pdoor-arrow{color:var(--accent);font-weight:700}
-.pdoor.locked{opacity:.62}
-.pdoor.locked .pdoor-arrow{color:var(--ink-dim)}
-.pdoor.shake{animation:pdoorShake .4s}
-@keyframes pdoorShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* Lv2 첫 해금 순간에만 재생되는 등장 연출(은은하게) — 이후엔 조용히 표시만 */
+.pdoor-reveal{animation:pdoorReveal .7s cubic-bezier(.2,.8,.2,1)}
+@keyframes pdoorReveal{0%{opacity:0;transform:translateY(10px) scale(.96)}60%{opacity:1;transform:translateY(-2px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
 
 /* 실습실 씬 — 기본 .scene 의 flex 중앙정렬을 끄고 상단부터 흐르는 스크롤 페이지로 */
 #scene-practice{display:block;overflow-y:auto}

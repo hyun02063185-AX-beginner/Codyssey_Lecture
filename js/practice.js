@@ -760,16 +760,39 @@
   function openPractice() { done = loadDone(); out = loadOut(); activeFloor = firstUnlockedFloor(); render(); }
   window.openPractice = openPractice;
 
+  // 입장 화면 다이어트(docs/UX_원칙.md 4. 점진 노출): Lv2 미만은 진단실 자체가 존재하지 않는 것처럼
+  // 완전히 숨긴다. 처음 해금되는 "그 순간"에만 은은한 등장 연출 + 토스트를 1회 재생한다.
+  const PDOOR_SEEN_KEY = "ax_practice_door_seen_v1";
+  let pdoorEverChecked = false;   // 이번 페이지 로드에서 이미 한 번 판정했는지(진짜 "전환"만 연출 대상)
+  function practiceDoorToast() {
+    const t = document.createElement("div"); t.className = "pr-toast";
+    t.innerHTML = "🧪 <b>진단실이 열렸습니다</b>";
+    document.body.appendChild(t); void t.offsetWidth; t.classList.add("show");
+    setTimeout(() => { t.classList.remove("show"); setTimeout(() => t.remove(), 400); }, 2500);
+  }
   function initPracticeDoor() {
     const door = document.getElementById("practice-door"); if (!door) return;
     const un = UNLOCK_ALL || curLevel() >= 2;
-    door.classList.toggle("locked", !un);
     const st = door.querySelector(".pdoor-state");
-    if (st) st.textContent = un ? "3층 · 12단계 진단 · 우리 조직 AX 도입 킷" : "🔒 강의 1회 완주(Lv.2) 시 열림";
+    if (st) st.textContent = "3층 · 12단계 진단 · 우리 조직 AX 도입 킷";
     if (!door.dataset.bound) {
       door.dataset.bound = "1";
-      door.addEventListener("click", () => { if (UNLOCK_ALL || curLevel() >= 2) App.Router.go("practice"); else { door.classList.remove("shake"); void door.offsetWidth; door.classList.add("shake"); } });
+      door.addEventListener("click", () => App.Router.go("practice"));
     }
+    if (!un) { door.hidden = true; pdoorEverChecked = true; return; }
+    let seen = false;
+    try { seen = !!localStorage.getItem(PDOOR_SEEN_KEY); } catch (e) {}
+    // "전환" = 이전 판정(같은 세션 내)에서는 잠겨 있었는데 지금 열린 경우만 — 콜드 로드에서
+    // 이미 Lv2 이상인 기존 사용자에게는(seen 여부와 무관히) 조용히 보여주고 토스트는 생략한다.
+    const isFreshReveal = !UNLOCK_ALL && !seen && pdoorEverChecked;
+    door.hidden = false;
+    if (!UNLOCK_ALL && !seen) { try { localStorage.setItem(PDOOR_SEEN_KEY, "1"); } catch (e) {} }
+    if (isFreshReveal) {
+      door.classList.add("pdoor-reveal");
+      practiceDoorToast();
+      setTimeout(() => door.classList.remove("pdoor-reveal"), 900);
+    }
+    pdoorEverChecked = true;
   }
   document.addEventListener("DOMContentLoaded", initPracticeDoor);
   window.refreshPracticeDoor = initPracticeDoor;

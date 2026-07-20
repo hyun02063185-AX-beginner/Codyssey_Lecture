@@ -52,8 +52,11 @@
     </div>
   </section>
 
-  <!-- ================= SCENE 1 : 시작 ================= -->
+  <!-- ================= SCENE 1 : 시작 (얇게 — 주인공 버튼 1개 + ⚙️만) ================= -->
   <section id="scene-start" class="scene">
+    <button id="settings-btn" class="settings-fab" type="button"
+            aria-haspopup="dialog" aria-expanded="false" aria-label="설정">⚙️</button>
+
     <div class="start-inner">
       <p class="start-kicker">AI TRANSFORMATION · 20강</p>
       <h1 class="start-title">사유의 방</h1>
@@ -64,41 +67,8 @@
       </button>
       <p class="start-hint">클릭하여 사유의 방으로 입장합니다</p>
 
-      <!-- 수강 코드(선택) — 입력 시에만 학습 현황이 강사에게 전송된다 (telemetry.js) -->
-      <div class="scode" id="scode">
-        <div class="scode__row" id="scode-form">
-          <input id="scode-input" class="scode__input" type="text" maxlength="20"
-                 placeholder="수강 코드 (선택)" autocomplete="off" />
-          <button id="scode-set" class="scode__btn" type="button">등록</button>
-        </div>
-        <div class="scode__row" id="scode-active" hidden>
-          <span class="scode__badge">🎫 <b id="scode-current"></b></span>
-          <button id="scode-clear" class="scode__btn scode__btn--ghost" type="button">제거</button>
-        </div>
-        <p class="scode__note">코드를 입력하면 학습 진행 상황이 강사에게 전달됩니다</p>
-      </div>
-
-      <!-- 스킨(테마) 선택기 -->
-      <div class="skin-picker" id="skin-picker" role="group" aria-label="테마 선택">
-        <button class="skin-opt" type="button" data-skin="sayu" aria-pressed="true">
-          <span class="skin-sw skin-sw--sayu"></span><span class="skin-lb">사유의 방</span>
-        </button>
-        <button class="skin-opt" type="button" data-skin="paper" aria-pressed="false">
-          <span class="skin-sw skin-sw--paper"></span><span class="skin-lb">페이퍼</span>
-        </button>
-        <button class="skin-opt" type="button" data-skin="neon" aria-pressed="false">
-          <span class="skin-sw skin-sw--neon"></span><span class="skin-lb">네온</span>
-        </button>
-        <button class="skin-opt" type="button" data-skin="pixel" aria-pressed="false">
-          <span class="skin-sw skin-sw--pixel"></span><span class="skin-lb">픽셀</span>
-        </button>
-        <button class="skin-opt" type="button" data-skin="blueprint" aria-pressed="false">
-          <span class="skin-sw skin-sw--blueprint"></span><span class="skin-lb">블루프린트</span>
-        </button>
-      </div>
-
-      <!-- 실습실 입장 문 (Lv.2 해금 · 읽기만) -->
-      <button id="practice-door" class="pdoor" type="button">
+      <!-- 실습실 입장 문 — Lv2 미만은 완전 미노출(hidden). 해금 시 practice.js가 등장시킨다. -->
+      <button id="practice-door" class="pdoor" type="button" hidden>
         <span class="pdoor-ic">🧪</span>
         <span class="pdoor-txt">
           <span class="pdoor-t">진단실 입장</span>
@@ -108,6 +78,65 @@
       </button>
     </div>
   </section>
+
+  <!-- ⚙️ 설정 레이어 — 스킨·수강 코드·초기화. 모바일=바텀시트 / PC=중앙 패널.
+       새 기능은 여기(섹션 추가) 또는 방(씬) 내부에 — 입장 화면 상시 버튼 추가는 최후의 수단(docs/UX_원칙.md). -->
+  <div id="settings-layer" class="settings-layer" hidden>
+    <div class="settings-layer__backdrop" id="settings-backdrop"></div>
+    <div class="settings-layer__sheet" role="dialog" aria-modal="true" aria-label="설정">
+      <header class="settings-layer__head">
+        <span class="settings-layer__title">⚙️ 설정</span>
+        <button id="settings-close" class="settings-layer__x" aria-label="닫기">✕</button>
+      </header>
+      <div class="settings-layer__body">
+
+        <section class="settings-sec">
+          <h3 class="settings-sec__t">스킨</h3>
+          <div class="skin-picker" id="skin-picker" role="group" aria-label="테마 선택">
+            <button class="skin-opt" type="button" data-skin="sayu" aria-pressed="true">
+              <span class="skin-sw skin-sw--sayu"></span><span class="skin-lb">사유의 방</span>
+            </button>
+            <button class="skin-opt" type="button" data-skin="paper" aria-pressed="false">
+              <span class="skin-sw skin-sw--paper"></span><span class="skin-lb">페이퍼</span>
+            </button>
+            <button class="skin-opt" type="button" data-skin="neon" aria-pressed="false">
+              <span class="skin-sw skin-sw--neon"></span><span class="skin-lb">네온</span>
+            </button>
+            <button class="skin-opt" type="button" data-skin="pixel" aria-pressed="false">
+              <span class="skin-sw skin-sw--pixel"></span><span class="skin-lb">픽셀</span>
+            </button>
+            <button class="skin-opt" type="button" data-skin="blueprint" aria-pressed="false">
+              <span class="skin-sw skin-sw--blueprint"></span><span class="skin-lb">블루프린트</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-sec">
+          <h3 class="settings-sec__t">수강 코드</h3>
+          <!-- 선택 사항 — 입력 시에만 학습 현황이 강사에게 전송된다 (telemetry.js) -->
+          <div class="scode" id="scode">
+            <div class="scode__row" id="scode-form">
+              <input id="scode-input" class="scode__input" type="text" maxlength="20"
+                     placeholder="수강 코드 (선택)" autocomplete="off" />
+              <button id="scode-set" class="scode__btn" type="button">등록</button>
+            </div>
+            <div class="scode__row" id="scode-active" hidden>
+              <span class="scode__badge">🎫 <b id="scode-current"></b></span>
+              <button id="scode-clear" class="scode__btn scode__btn--ghost" type="button">제거</button>
+            </div>
+            <p class="scode__note">코드를 입력하면 학습 진행 상황이 강사에게 전달됩니다</p>
+          </div>
+        </section>
+
+        <section class="settings-sec">
+          <h3 class="settings-sec__t">초기화</h3>
+          <button id="settings-reset-btn" class="settings-reset-btn" type="button">진행도 전체 초기화</button>
+          <p class="settings-sec__note">레벨·진행도·이어보기·수강 코드가 모두 초기화됩니다.</p>
+        </section>
+
+      </div>
+    </div>
+  </div>
 
   <!-- 입장 워프 오버레이 -->
   <div id="warp" class="warp"></div>

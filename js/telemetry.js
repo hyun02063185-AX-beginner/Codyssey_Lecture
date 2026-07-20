@@ -27,6 +27,8 @@
     try { localStorage.setItem(CODE_KEY, c); } catch (e) {}
     refreshUI();
     sessionStart();          // 등록 즉시 세션 시작 1건
+    // ?join= 링크로 들어와 방금 등록했다면 — 레이어 닫고 바로 강의실 입장 가능하게
+    if (joinedViaLink) { joinedViaLink = false; window.SettingsLayer && window.SettingsLayer.close(); }
     return true;
   }
   function clearCode() {
@@ -103,6 +105,27 @@
       } else if (b) { b.remove(); }
     }
   }
+  /* ---------- 강의용 입장 링크 ?join=반이름 ----------
+     설정 레이어를 자동으로 열고 입력란에 "반이름-"을 채워, 수강생은 번호만 입력하면 된다.
+     이미 코드가 저장돼 있으면(재방문) 조용히 무시 — 재입력을 강요하지 않는다. */
+  let joinedViaLink = false;
+  function applyJoinLink() {
+    if (getCode()) return;
+    const m = location.search.match(/[?&]join=([^&]+)/);
+    if (!m) return;
+    let prefix;
+    try { prefix = decodeURIComponent(m[1]); } catch (e) { prefix = m[1]; }
+    prefix = prefix.trim();
+    if (!prefix) return;
+    const input = document.getElementById("scode-input");
+    if (!input) return;
+    input.value = prefix + "-";
+    joinedViaLink = true;
+    window.SettingsLayer && window.SettingsLayer.open();
+    input.focus();
+    try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
+  }
+
   function initUI() {
     const input = document.getElementById("scode-input");
     const setBtn = document.getElementById("scode-set");
@@ -119,6 +142,7 @@
     }
     if (clearBtn) clearBtn.addEventListener("click", clearCode);
     refreshUI();
+    applyJoinLink();
     sessionStart();   // 이미 코드가 저장된 재방문자 — 세션당 1회
   }
 
