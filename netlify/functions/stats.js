@@ -4,16 +4,15 @@
    admin.js(#/admin) → 이 함수 → Supabase events 조회 → 서버에서 집계 →
    요약 JSON만 응답. 원본 이벤트 나열은 절대 반환하지 않는다.
    · GET만 허용. 헤더 x-admin-key를 env ADMIN_KEY와 비교(불일치 401).
+   · 집계 로직은 _shared/aggregate.js — brief.js와 공유(이중 구현 금지).
    · 의존성 0 (REST fetch 직접 호출).
    ========================================================================= */
 "use strict";
 
-const MAX_ROWS = 5000;
+const { fetchAggregatedData } = require("./_shared/aggregate");
+
 const RATE_LIMIT = 20;              // 같은 IP 분당 20회(키 무차별 대입 방어)
 const rate = new Map();
-
-const LIT_AXES = ["이해", "활용", "검증", "안전"];
-const CHK_AXES = ["방향", "데이터", "사람", "규칙", "분위기"];
 
 function corsHeaders(event) {
   const origin = (event.headers && (event.headers.origin || event.headers.Origin)) || "";
@@ -37,86 +36,6 @@ function tooMany(ip) {
   return slot.n > RATE_LIMIT;
 }
 
-// 원본 이벤트 목록(코드별, created_at.desc 순서 유지) → 코드별 요약 1건으로 집계
-function summarizeStudent(code, events) {
-  let level = 1;
-  const completed = new Set();
-  let lastSeen = null;
-  const diagnosis = {};   // kind → scores (desc 순서라 처음 만나는 것이 최신)
-  let checkup = null;     // { scores, lowest } — 재검사해도 desc 순서상 처음 만나는 것이 최신
-  let proposal = false;
-
-  for (const e of events) {
-    if (!lastSeen || e.created_at > lastSeen) lastSeen = e.created_at;
-    const p = e.payload || {};
-    if (e.event_type === "lecture_complete") {
-      if (p.lectureId != null) completed.add(p.lectureId);
-      if (typeof p.level === "number") level = Math.max(level, p.level);
-    } else if (e.event_type === "run_complete") {
-      if (typeof p.newLevel === "number") level = Math.max(level, p.newLevel);
-    } else if (e.event_type === "diagnosis_result") {
-      if (p.kind && !diagnosis[p.kind]) diagnosis[p.kind] = p.scores || {};
-    } else if (e.event_type === "checkup_result") {
-      if (!checkup) checkup = { scores: p.scores || {}, lowest: p.lowest || "" };
-    } else if (e.event_type === "proposal_created") {
-      proposal = true;
-    }
-  }
-
-  return {
-    code,
-    completedLectures: [...completed].sort((a, b) => a - b),
-    level,
-    lastSeen,
-    diagnosis,
-    checkup,
-    proposal
-  };
-}
-
-function aggregate(students) {
-  const lectureCompletion = {};
-  const litSum = { 이해: 0, 활용: 0, 검증: 0, 안전: 0 };
-  const chkSum = { 방향: 0, 데이터: 0, 사람: 0, 규칙: 0, 분위기: 0 };
-  let litN = 0, natSum = 0, natN = 0, tacSum = 0, tacN = 0, chkN = 0;
-
-  for (const s of students) {
-    s.completedLectures.forEach(id => { lectureCompletion[id] = (lectureCompletion[id] || 0) + 1; });
-    const lit = s.diagnosis.literacy;
-    if (lit && lit.areas) {
-      let ok = true;
-      LIT_AXES.forEach(k => { if (typeof lit.areas[k] !== "number") ok = false; });
-      if (ok) { LIT_AXES.forEach(k => { litSum[k] += lit.areas[k]; }); litN++; }
-    }
-    const nat = s.diagnosis.native;
-    if (nat && typeof nat.total === "number") { natSum += nat.total; natN++; }
-    const tac = s.diagnosis.tacit;
-    if (tac && typeof tac.total === "number") { tacSum += tac.total; tacN++; }
-    const chk = s.checkup;
-    if (chk && chk.scores) {
-      let ok = true;
-      CHK_AXES.forEach(k => { if (typeof chk.scores[k] !== "number") ok = false; });
-      if (ok) { CHK_AXES.forEach(k => { chkSum[k] += chk.scores[k]; }); chkN++; }
-    }
-  }
-
-  const literacy = litN ? {} : null;
-  if (literacy) LIT_AXES.forEach(k => { literacy[k] = Math.round((litSum[k] / litN) * 10) / 10; });
-  const checkupAverage = {};
-  if (chkN) CHK_AXES.forEach(k => { checkupAverage[k] = Math.round((chkSum[k] / chkN) * 10) / 10; });
-
-  return {
-    studentCount: students.length,
-    lectureCompletion,
-    diagnosisAverages: {
-      literacy,
-      native: natN ? Math.round(natSum / natN) : null,
-      tacit: tacN ? Math.round(tacSum / tacN) : null
-    },
-    checkupAverage   // 응답자 없으면 {} — 대시보드가 "아직 데이터 없음"으로 표시
-  };
-}
-
 exports.handler = async function (event) {
   const cors = corsHeaders(event);
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: cors };
@@ -137,38 +56,14 @@ exports.handler = async function (event) {
   const key = process.env.SUPABASE_SERVICE_KEY;
   if (!url || !key) return { statusCode: 500, headers: cors };
 
-  let rows;
+  const classPrefix = (event.queryStringParameters && event.queryStringParameters.class) || "";
+
+  let data;
   try {
-    const res = await fetch(
-      url.replace(/\/$/, "") + "/rest/v1/events?select=code,event_type,payload,created_at&order=created_at.desc&limit=" + MAX_ROWS,
-      { headers: { apikey: key, Authorization: "Bearer " + key } }
-    );
-    if (!res.ok) return { statusCode: 502, headers: cors };
-    rows = await res.json();
+    data = await fetchAggregatedData({ supabaseUrl: url, supabaseKey: key, classPrefix });
   } catch (e) {
     return { statusCode: 502, headers: cors };
   }
-  const truncated = rows.length >= MAX_ROWS;
 
-  const classPrefix = (event.queryStringParameters && event.queryStringParameters.class) || "";
-
-  const byCode = new Map();
-  for (const r of rows) {
-    if (classPrefix && !String(r.code || "").startsWith(classPrefix)) continue;
-    if (!byCode.has(r.code)) byCode.set(r.code, []);
-    byCode.get(r.code).push(r);
-  }
-
-  const students = [...byCode.entries()]
-    .map(([code, evs]) => summarizeStudent(code, evs))
-    .sort((a, b) => String(b.lastSeen || "").localeCompare(String(a.lastSeen || "")));
-
-  const body = {
-    generatedAt: new Date().toISOString(),
-    students,
-    aggregate: aggregate(students),
-    truncated
-  };
-
-  return { statusCode: 200, headers: { ...cors, "Content-Type": "application/json" }, body: JSON.stringify(body) };
+  return { statusCode: 200, headers: { ...cors, "Content-Type": "application/json" }, body: JSON.stringify(data) };
 };

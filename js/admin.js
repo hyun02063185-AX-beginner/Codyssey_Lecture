@@ -13,6 +13,7 @@
 
   const KEY_STORAGE = "ax_admin_key";     // sessionStorage — 브라우저 닫으면 만료
   const ENDPOINT = "/.netlify/functions/stats";
+  const BRIEF_ENDPOINT = "/.netlify/functions/brief";
   const LIT_AXES = ["이해", "활용", "검증", "안전"];
   const AXIS_LECTURE = { 검증: "03강", 활용: "04·05강", 이해: "01·06강", 안전: "16강" };
   const CHK_AXES = ["방향", "데이터", "사람", "규칙", "분위기"];
@@ -37,6 +38,19 @@
     const res = await fetch(ENDPOINT + qs, { headers: { "x-admin-key": key } });
     if (!res.ok) { const e = new Error("stats fetch failed"); e.code = res.status; throw e; }
     return res.json();
+  }
+
+  async function fetchBrief(key, classFilter) {
+    const qs = classFilter ? ("?class=" + encodeURIComponent(classFilter)) : "";
+    const res = await fetch(BRIEF_ENDPOINT + qs, { method: "POST", headers: { "x-admin-key": key } });
+    let body = null;
+    try { body = await res.json(); } catch (e) {}
+    if (!res.ok) {
+      const e = new Error((body && body.error) || "brief fetch failed");
+      e.code = res.status; e.serverMsg = body && body.error;
+      throw e;
+    }
+    return body;   // { text, generatedAt, classFilter, studentCount }
   }
 
   /* =====================================================================
@@ -223,6 +237,7 @@
               '<option value="">전체 (' + state.full.aggregate.studentCount + '명)</option>' +
               prefixes.map(p => '<option value="' + esc(p) + '"' + (state.currentClass === p ? ' selected' : '') + '>' + esc(p) + '</option>').join("") +
             '</select>' +
+            '<button id="admin-brief-btn" class="admin-btn admin-btn--accent" type="button">📋 주간 브리핑</button>' +
             '<button id="admin-refresh" class="admin-btn" type="button">↻ 새로고침</button>' +
             '<button id="admin-exit" class="admin-btn admin-btn--ghost" type="button">✕ 닫기</button>' +
           '</div>' +
@@ -251,6 +266,21 @@
           '<header class="admin-layer__head"><span class="admin-layer__title" id="admin-detail-title"></span>' +
             '<button id="admin-detail-close" class="admin-layer__x" aria-label="닫기">✕</button></header>' +
           '<div class="admin-layer__body" id="admin-detail-body"></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div id="admin-brief" class="admin-layer" hidden>' +
+        '<div class="admin-layer__backdrop" id="admin-brief-backdrop"></div>' +
+        '<div class="admin-layer__sheet admin-layer__sheet--wide" role="dialog" aria-modal="true" aria-label="주간 브리핑">' +
+          '<header class="admin-layer__head"><span class="admin-layer__title" id="admin-brief-title">주간 브리핑</span>' +
+            '<button id="admin-brief-close" class="admin-layer__x" aria-label="닫기">✕</button></header>' +
+          '<div class="admin-layer__body">' +
+            '<div id="admin-brief-body" class="admin-brief-body"></div>' +
+            '<div class="admin-brief-actions" id="admin-brief-actions" hidden>' +
+              '<button id="admin-brief-copy" class="admin-btn" type="button">📋 복사</button>' +
+              '<button id="admin-brief-regen" class="admin-btn admin-btn--ghost" type="button">↻ 다시 생성</button>' +
+            '</div>' +
+          '</div>' +
         '</div>' +
       '</div>';
 
@@ -298,19 +328,24 @@
     root.querySelectorAll(".admin-mx__row").forEach(row => {
       row.addEventListener("click", () => openDetail(row.dataset.code));
     });
-    const layer = root.querySelector("#admin-detail");
-    root.querySelector("#admin-detail-close").addEventListener("click", () => closeDetail());
-    root.querySelector("#admin-detail-backdrop").addEventListener("click", () => closeDetail());
+    root.querySelector("#admin-detail-close").addEventListener("click", () => closeLayer("admin-detail"));
+    root.querySelector("#admin-detail-backdrop").addEventListener("click", () => closeLayer("admin-detail"));
+
+    root.querySelector("#admin-brief-btn").addEventListener("click", () => runBrief());
+    root.querySelector("#admin-brief-close").addEventListener("click", () => closeLayer("admin-brief"));
+    root.querySelector("#admin-brief-backdrop").addEventListener("click", () => closeLayer("admin-brief"));
   }
-  function closeDetail() {
-    const layer = root.querySelector("#admin-detail");
+  function closeLayer(id) {
+    const layer = root.querySelector("#" + id);
     if (!layer || layer.hidden) return;
     layer.classList.remove("show");
     setTimeout(() => { layer.hidden = true; }, 220);
   }
+  function closeDetail() { closeLayer("admin-detail"); }
   // ESC는 대시보드가 다시 그려져도(새로고침·반 필터) 중복 등록되지 않게 모듈 초기화 시 1회만 바인딩.
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && isAdminRoute() && !root.hidden) closeDetail();
+    if (e.key !== "Escape" || !isAdminRoute() || root.hidden) return;
+    closeLayer("admin-detail"); closeLayer("admin-brief");
   });
 
   function openDetail(code) {
@@ -339,10 +374,76 @@
       '<p class="admin-empty">미응시</p>'));
 
     root.querySelector("#admin-detail-body").innerHTML = parts.join("");
-    const layer = root.querySelector("#admin-detail");
+    openLayer("admin-detail");
+  }
+  function openLayer(id) {
+    const layer = root.querySelector("#" + id);
+    if (!layer) return;
     layer.hidden = false;
     void layer.offsetWidth;
     layer.classList.add("show");
+  }
+
+  /* =====================================================================
+     📋 주간 브리핑 — 집계는 이미 대시보드가 갖고 있지만, 텍스트 생성은
+     서버(brief.js)가 Gemini를 불러 만든다. 여기선 요청·로딩·렌더·복사만.
+     ===================================================================== */
+  let briefBusy = false;
+  function renderBriefMarkdown(text) {
+    // 아주 얇은 마크다운 렌더러: "## 헤더"·"- 목록"·문단만 다룬다.
+    // AI 응답은 신뢰하지 않는 텍스트로 취급 — 전부 esc()로 이스케이프 후 태그를 씌운다.
+    const lines = String(text || "").split(/\r?\n/);
+    let html = "", inList = false;
+    const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+    lines.forEach(raw => {
+      const line = raw.trim();
+      if (!line) { closeList(); return; }
+      const h2 = /^#{1,3}\s+(.*)/.exec(line);
+      if (h2) { closeList(); html += "<h4>" + esc(h2[1]) + "</h4>"; return; }
+      const li = /^[-•]\s+(.*)/.exec(line);
+      if (li) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + esc(li[1]) + "</li>"; return; }
+      closeList();
+      html += "<p>" + esc(line) + "</p>";
+    });
+    closeList();
+    return html || '<p class="admin-empty">내용 없음</p>';
+  }
+  async function runBrief() {
+    if (briefBusy) return;
+    briefBusy = true;
+    const btn = root.querySelector("#admin-brief-btn");
+    if (btn) { btn.disabled = true; btn.textContent = "생성 중…"; }
+    const cls = state.currentClass;
+    root.querySelector("#admin-brief-title").textContent = (cls ? cls + " " : "") + "주간 브리핑";
+    root.querySelector("#admin-brief-body").innerHTML = '<p class="admin-brief-loading">Gemini가 이번 주 데이터를 읽는 중…</p>';
+    root.querySelector("#admin-brief-actions").hidden = true;
+    openLayer("admin-brief");
+    let lastText = "";
+    try {
+      const res = await fetchBrief(state.key, cls);
+      lastText = res.text || "";
+      root.querySelector("#admin-brief-body").innerHTML = renderBriefMarkdown(lastText);
+    } catch (e) {
+      if (e.code === 401) { clearKey(); renderGate("키가 만료되었습니다. 다시 입력해주세요."); return; }
+      const msg = e.serverMsg || "브리핑 생성 실패 — 잠시 후 재시도";
+      root.querySelector("#admin-brief-body").innerHTML = '<p class="admin-empty">' + esc(msg) + '</p>';
+    } finally {
+      briefBusy = false;
+      if (btn) { btn.disabled = false; btn.textContent = "📋 주간 브리핑"; }
+      const actions = root.querySelector("#admin-brief-actions");
+      const copyBtn = root.querySelector("#admin-brief-copy");
+      const regenBtn = root.querySelector("#admin-brief-regen");
+      if (actions) actions.hidden = false;   // 성공/실패 모두 "다시 생성"은 눌러야 하니 항상 노출
+      if (copyBtn) {
+        copyBtn.disabled = !lastText;
+        copyBtn.onclick = () => {
+          if (!lastText) return;
+          try { navigator.clipboard.writeText(lastText); copyBtn.textContent = "복사됨 ✓"; setTimeout(() => { copyBtn.textContent = "📋 복사"; }, 1400); }
+          catch (e2) {}
+        };
+      }
+      if (regenBtn) regenBtn.onclick = () => runBrief();
+    }
   }
 
   /* =====================================================================
