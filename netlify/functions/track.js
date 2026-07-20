@@ -11,7 +11,7 @@
 
 const EVENT_TYPES = new Set([
   "session_start", "lecture_complete", "run_complete",
-  "diagnosis_result", "proposal_created"
+  "diagnosis_result", "proposal_created", "checkup_result"
 ]);
 const MAX_BODY = 8 * 1024;          // 8KB
 const RATE_LIMIT = 30;              // 같은 IP 분당 30회

@@ -82,6 +82,9 @@
     sentOnce.add(k);
     send("proposal_created", { hasAll: !!hasAll });
   }
+  function checkup(scores, lowest) {
+    send("checkup_result", { scores: scores || {}, lowest: lowest || "" });
+  }
 
   /* ---------- UI: 입장 화면 코드 입력 + HUD 뱃지 ---------- */
   function refreshUI() {
@@ -155,6 +158,7 @@
     runComplete: runComplete,
     diagnosis: diagnosis,
     proposal: proposal,
+    checkup: checkup,
     clearCode: clearCode,     // #/reset 연동
     refreshUI: refreshUI
   };

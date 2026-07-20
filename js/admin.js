@@ -15,6 +15,7 @@
   const ENDPOINT = "/.netlify/functions/stats";
   const LIT_AXES = ["이해", "활용", "검증", "안전"];
   const AXIS_LECTURE = { 검증: "03강", 활용: "04·05강", 이해: "01·06강", 안전: "16강" };
+  const CHK_AXES = ["방향", "데이터", "사람", "규칙", "분위기"];
   const NAT_TYPES = ["신중한 전통파", "실용적 병행파", "AI 네이티브"];
   const TAC_VERDICTS = ["개방형", "혼합형", "금고형"];
 
@@ -190,8 +191,16 @@
       '<ul class="admin-dist">' + TAC_VERDICTS.map(v => '<li>' + esc(v) + ' <b>' + dist[v] + '</b>명</li>').join("") + '</ul>' +
       '</div>';
   }
-  function checkupCard() {
-    return emptyDiagCard("조직 건강검진 평균 (5축)", "아직 데이터 없음 — 3단계에서 수집 예정");
+  function checkupCard(d) {
+    const chk = d.aggregate.checkupAverage;
+    if (!chk || !Object.keys(chk).length) return emptyDiagCard("조직 건강검진 평균 (5축)", "아직 데이터 없음");
+    let low = CHK_AXES[0];
+    CHK_AXES.forEach(k => { if (chk[k] < chk[low]) low = k; });
+    return '<div class="admin-diag-card">' +
+      '<h3 class="admin-diag-card__t">조직 건강검진 평균 (5축)</h3>' +
+      '<canvas id="admin-radar-chk" width="220" height="200" class="admin-radar-cv"></canvas>' +
+      '<p class="admin-diag-card__note">가장 짧은 다리: <b>' + esc(low) + '</b></p>' +
+      '</div>';
   }
   function emptyDiagCard(title, msg) {
     return '<div class="admin-diag-card admin-diag-card--empty"><h3 class="admin-diag-card__t">' + esc(title) + '</h3>' +
@@ -250,6 +259,11 @@
       const cv = root.querySelector("#admin-radar-lit");
       const lit = d.aggregate.diagnosisAverages.literacy;
       drawRadarMini(cv, LIT_AXES.map(k => lit[k]), LIT_AXES, 5);
+    }
+    if (d.aggregate.checkupAverage && Object.keys(d.aggregate.checkupAverage).length) {
+      const cv = root.querySelector("#admin-radar-chk");
+      const chk = d.aggregate.checkupAverage;
+      drawRadarMini(cv, CHK_AXES.map(k => chk[k]), CHK_AXES, 5);
     }
   }
 

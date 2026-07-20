@@ -169,6 +169,11 @@
     done.add(id); saveDone();
     // 수집 훅: 제안서(3-4) 최초 완성 — hasAll = 12스테이션 전부 완료 여부
     if (id === "3-4" && first && window.Telemetry) Telemetry.proposal(done.size === TOTAL_ST);
+    // 수집 훅: 조직 건강검진(3-1) 저장 — 재검사 시에도 매번 전송(stats가 최신만 취함)
+    if (id === "3-1" && window.Telemetry && output) {
+      const scores = {}; AXES.forEach(a => { scores[a.t] = output[a.k]; });
+      Telemetry.checkup(scores, output.lowT);
+    }
     if (id === "3-4" || done.size === TOTAL_ST) { closePanel(); setTimeout(showGraduation, 260); render(); return; }
     closePanel();
     if (first && !wasFloorDone && floorDone(s.floor) && s.floor < 3) setTimeout(() => floorUnlockToast(s.floor + 1), 260);
