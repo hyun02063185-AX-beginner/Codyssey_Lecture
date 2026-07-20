@@ -1383,3 +1383,128 @@ body{
 .axp-rx li{font-size:.88rem;color:var(--ink);line-height:1.4}
 .axp-rx li.axp-empty{color:var(--ink-dim);font-style:italic;font-size:.82rem}
 @media (max-width:720px){ .axp-prop-3{grid-template-columns:1fr} }
+
+/* =========================================================================
+   강사 대시보드 (admin.js, #/admin) — LMS 2단계
+   · main.js 씬 시스템과 무관한 독립 오버레이. PC 1차 화면 — 375px는
+     "무너지지 않는" 수준(가로 스크롤 허용)만 맞춘다(docs/UX_원칙.md 참고).
+   ========================================================================= */
+.admin-root{position:fixed;inset:0;z-index:500;overflow-y:auto;
+  background:var(--bg);color:var(--ink);font-family:var(--font-body)}
+.admin-root[hidden]{display:none}   /* [hidden] 기본값을 확실히(엔진 CSS 관례와 동일) */
+
+/* ---- 게이트(키 입력) ---- */
+.admin-gate{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;position:relative}
+.admin-gate__exit{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--ink-dim);
+  font-size:1.2rem;cursor:pointer;padding:6px}
+.admin-gate__exit:hover{color:var(--ink)}
+.admin-gate__box{width:min(360px,92vw);text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;
+  background:var(--glass);border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);padding:36px 28px}
+.admin-gate__kicker{font-family:var(--font-mono);letter-spacing:.3em;font-size:.68rem;color:var(--ink-dim)}
+.admin-gate__title{font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin:0 0 8px}
+.admin-gate__input{width:100%;padding:11px 16px;border-radius:var(--radius-pill);text-align:center;
+  border:1px solid var(--glass-brd);background:var(--bg);color:var(--ink);font-size:.95rem;outline:none}
+.admin-gate__input:focus{border-color:var(--accent)}
+.admin-gate__btn{width:100%;padding:11px;border-radius:var(--radius-pill);border:1px solid var(--accent);
+  background:var(--accent);color:#111;font-weight:700;cursor:pointer;font-size:.92rem}
+.admin-gate__btn:disabled{opacity:.6;cursor:default}
+.admin-gate__err{color:#D98E6B;font-size:.82rem;margin:0}
+
+/* ---- 대시보드 레이아웃 ---- */
+.admin-dash{max-width:1180px;margin:0 auto;padding:28px 24px 60px}
+.admin-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding-bottom:18px;border-bottom:1px solid var(--glass-brd);margin-bottom:22px}
+.admin-head__l{display:flex;flex-direction:column;gap:4px}
+.admin-head__title{font-family:var(--font-display);font-size:1.3rem;font-weight:700}
+.admin-head__gen{font-size:.74rem;color:var(--ink-dim)}
+.admin-warn{color:#D98E6B}
+.admin-head__r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.admin-select{padding:8px 12px;border-radius:var(--radius-pill);border:1px solid var(--glass-brd);
+  background:var(--glass);color:var(--ink);font-family:var(--font-body);font-size:.85rem}
+.admin-btn{padding:8px 16px;border-radius:var(--radius-pill);border:1px solid var(--glass-brd);
+  background:var(--glass);color:var(--ink);cursor:pointer;font-size:.85rem;font-family:var(--font-body)}
+.admin-btn:hover{border-color:var(--accent)}
+.admin-btn--ghost{background:transparent}
+.admin-btn:disabled{opacity:.6;cursor:default}
+
+.admin-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.admin-card{background:var(--glass);border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);
+  padding:18px;display:flex;flex-direction:column;gap:4px;align-items:center}
+.admin-card__v{font-size:1.7rem;font-weight:700;font-family:var(--font-display)}
+.admin-card__l{font-size:.76rem;color:var(--ink-dim);letter-spacing:.04em}
+
+.admin-sec{margin-bottom:32px}
+.admin-sec__t{font-size:1rem;font-weight:700;margin:0 0 14px;font-family:var(--font-display)}
+.admin-empty{color:var(--ink-dim);font-style:italic;font-size:.85rem}
+
+/* ---- 진행 매트릭스 ---- */
+.admin-mx-wrap{overflow-x:auto;border:1px solid var(--glass-brd);border-radius:var(--radius)}
+.admin-mx{border-collapse:collapse;font-size:.78rem;white-space:nowrap}
+.admin-mx thead th{background:var(--glass);padding:8px 4px;text-align:center;border-bottom:2px solid var(--glass-brd);
+  border-top:3px solid var(--bx,var(--accent))}
+.admin-mx__no{display:block;font-size:.68rem;color:var(--ink-dim)}
+.admin-mx__bar{display:block;width:16px;height:24px;margin:4px auto;background:var(--track);border-radius:3px;
+  position:relative;overflow:hidden}
+.admin-mx__bar i{position:absolute;left:0;right:0;bottom:0;background:var(--bx,var(--accent));opacity:.75}
+.admin-mx__cnt{display:block;font-size:.62rem;color:var(--ink-dim)}
+.admin-mx__row{cursor:pointer;transition:background .15s}
+.admin-mx__row:hover{background:var(--tint)}
+.admin-mx td,.admin-mx th{padding:6px 8px}
+.admin-mx__code{position:sticky;left:0;background:var(--bg);text-align:left;font-weight:600;
+  border-right:1px solid var(--glass-brd);z-index:1}
+.admin-mx__code--h{background:var(--glass)}
+.admin-mx__warn{color:#D98E6B}
+.admin-mx__td{width:30px;height:28px;text-align:center;color:transparent;border-left:1px solid var(--glass-brd);
+  border-top:3px solid transparent}
+.admin-mx thead th.admin-mx__th{border-left:1px solid var(--glass-brd)}
+.admin-mx__td.is-done{color:var(--bx,var(--accent));background:color-mix(in srgb,var(--bx,var(--accent)) 14%,transparent);
+  border-top-color:var(--bx,var(--accent))}
+.admin-mx__meta{color:var(--ink-dim);text-align:center;font-size:.74rem}
+.admin-mx__meta--last{text-align:right}
+
+/* ---- 진단 집계 ---- */
+.admin-diag-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.admin-diag-card{background:var(--glass);border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);
+  padding:18px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.admin-diag-card--empty{justify-content:center;min-height:140px}
+.admin-diag-card__t{font-size:.82rem;font-weight:700;margin:0}
+.admin-diag-card__note{font-size:.78rem;color:var(--ink-dim);margin:4px 0 0}
+.admin-radar-cv{max-width:100%}
+.admin-gauge-row{display:flex;align-items:baseline;gap:4px}
+.admin-gauge-n{font-size:1.6rem;font-weight:700;font-family:var(--font-display)}
+.admin-gauge-max{font-size:.78rem;color:var(--ink-dim)}
+.admin-diag-card .exam-gauge{width:100%}
+.admin-dist{list-style:none;display:flex;flex-direction:column;gap:3px;font-size:.78rem;color:var(--ink-dim);width:100%}
+.admin-dist b{color:var(--ink)}
+
+/* ---- 수강생 상세 레이어 ---- */
+.admin-layer{position:fixed;inset:0;z-index:520;display:flex;align-items:center;justify-content:center}
+.admin-layer[hidden]{display:none}
+.admin-layer__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.admin-layer__sheet{position:relative;width:min(420px,92vw);max-height:82vh;overflow-y:auto;
+  background:var(--bg);border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);
+  box-shadow:0 24px 64px rgba(0,0,0,.45);opacity:0;transform:translateY(16px) scale(.98);
+  transition:opacity .22s ease,transform .22s ease}
+.admin-layer.show .admin-layer__sheet{opacity:1;transform:translateY(0) scale(1)}
+.admin-layer__head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 18px;border-bottom:1px solid var(--glass-brd)}
+.admin-layer__title{font-weight:700;font-family:var(--font-display)}
+.admin-layer__x{background:none;border:none;color:var(--ink-dim);font-size:1.1rem;cursor:pointer;padding:4px 6px}
+.admin-layer__x:hover{color:var(--ink)}
+.admin-layer__body{padding:18px;display:flex;flex-direction:column;gap:6px}
+.admin-detail-row{display:flex;justify-content:space-between;font-size:.86rem;padding:3px 0}
+.admin-detail-row span{color:var(--ink-dim)}
+.admin-detail-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.admin-chip{font-size:.7rem;padding:3px 9px;border-radius:var(--radius-pill);background:var(--tint);color:var(--ink)}
+.admin-detail-h{font-size:.78rem;color:var(--ink-dim);margin:12px 0 2px;letter-spacing:.04em}
+.admin-detail-line{font-size:.86rem;line-height:1.5}
+
+@media (max-width:900px){
+  .admin-summary{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .admin-dash{padding:20px 14px 48px}
+  .admin-summary{grid-template-columns:1fr}
+  .admin-head{flex-direction:column;align-items:stretch}
+  .admin-head__r{justify-content:space-between}
+}
