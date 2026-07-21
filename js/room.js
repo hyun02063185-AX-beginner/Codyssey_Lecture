@@ -43,9 +43,10 @@
 
   /* ---------- 상자 등장 애니메이션 (입장 직후) ---------- */
   function revealBoxes() {
+    const calm = window.SITE_CONFIG && SITE_CONFIG.fxLevel === "calm";
     const k = fxScale();
     [...boxesEl.children].forEach((el, i) => {
-      setTimeout(() => el.classList.add("reveal"), i * 120 * k);
+      setTimeout(() => el.classList.add("reveal"), calm ? 0 : i * 120 * k);
     });
   }
 

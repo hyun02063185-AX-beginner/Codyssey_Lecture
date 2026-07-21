@@ -26,8 +26,8 @@
   window.__variantPersonal = VARIANT_PERSONAL;   // slides.js 로드 분기에서 참조
 
   /* ---------- 스킨 해금 순서 (Lv 포상) ----------
-     모바일: 5종 전부 · PC: Lv1 사유의 방 → Lv2 +페이퍼 → Lv3 +네온 → Lv4 +픽셀 → Lv5 +블루프린트 */
-  const SKIN_ORDER = ["sayu", "paper", "neon", "pixel", "blueprint"];
+     모바일: 전부 · PC: Lv별로 SITE_CONFIG.availableSkins 순서대로 하나씩(0번째=defaultSkin은 Lv1부터). */
+  const SKIN_ORDER = SITE_CONFIG.availableSkins;
   function skinUnlockCount() {
     if (IS_MOBILE) return SKIN_ORDER.length;                       // 모바일=전부
     return Math.max(1, Math.min(SKIN_ORDER.length, Level.n));      // PC=Lv별(Lv0→1)
@@ -100,17 +100,17 @@
 
   /* ---------- 스킨(테마) — 진행도와 별도 키(axRoomSkin) ---------- */
   const SKIN_KEY = "axRoomSkin";
-  const SKINS = ["paper", "neon", "pixel", "blueprint", "sayu"];
+  const SKINS = SITE_CONFIG.availableSkins;
   const Skin = {
-    current: "sayu",
+    current: SITE_CONFIG.defaultSkin,
     load() {
       let s = null;
       try { s = localStorage.getItem(SKIN_KEY); } catch (e) { /* localStorage 불가 */ }
-      this.set(SKINS.includes(s) ? s : "sayu", false);   // 저장값 없으면 기본 사유의 방
+      this.set(SKINS.includes(s) ? s : SITE_CONFIG.defaultSkin, false);   // 저장값 없으면 기본 스킨
     },
     set(name, persist) {
-      if (!SKINS.includes(name)) name = "sayu";
-      if (!isSkinUnlocked(name)) name = "sayu";   // 아직 해금 안 된 스킨이면 사유의 방으로
+      if (!SKINS.includes(name)) name = SITE_CONFIG.defaultSkin;
+      if (!isSkinUnlocked(name)) name = SITE_CONFIG.defaultSkin;   // 아직 해금 안 된 스킨이면 기본 스킨으로
       this.current = name;
       document.documentElement.dataset.skin = name;
       if (persist !== false) { try { localStorage.setItem(SKIN_KEY, name); } catch (e) {} }
@@ -212,7 +212,7 @@
           if (window.Telemetry) Telemetry.clearCode();   // 수강 코드도 함께 초기화
           Level.n = 1; Level.save();          // Lv1부터 다시 시작
           Progress.seen.clear(); Progress.save();
-          refreshSkinLocks(); Skin.set("sayu", true); updateHUD();
+          refreshSkinLocks(); Skin.set(SITE_CONFIG.defaultSkin, true); updateHUD();
           if (window.refreshCardsSeen) window.refreshCardsSeen();
           Router.replace("");                 // 해시를 인트로로(히스토리 미적립)
           Router.handle();                    // 인트로 렌더
@@ -223,6 +223,7 @@
         case "start":
           bgSkin(); goScene("start"); if (window.refreshPracticeDoor) window.refreshPracticeDoor(); break;
         case "practice":
+          if (SITE_CONFIG.practiceRoom === false) { Router.go("room"); return; }  // 이 사이트엔 없는 기능
           bgSkin(); goScene("practice"); if (window.openPractice) window.openPractice(); break;
         case "room":
           bgSkin(); goScene("room"); showBoxes(); break;
@@ -294,7 +295,7 @@
     } else {
       const next = Level.n + 1;
       titleEl.textContent = "훌륭히 완주하셨습니다.";
-      subEl.textContent = "20강 완주 · 업그레이드하면 Lv" + next + " · " + RANKS[next] + (next >= MAX_LEVEL ? " (통달)" : "");
+      subEl.textContent = TOTAL + "강 완주 · 업그레이드하면 Lv" + next + " · " + RANKS[next] + (next >= MAX_LEVEL ? " (통달)" : "");
       if (upBtn) upBtn.hidden = false;
     }
   }
@@ -332,6 +333,7 @@
     }
   }
   function runBurst() {
+    if (SITE_CONFIG.fxLevel === "calm") return;   // calm: 오버레이 자체의 페이드만(폭죽 생략)
     const cv = document.getElementById("celebrate-cv");
     if (!cv) return;
     const ctx = cv.getContext("2d");
@@ -385,6 +387,12 @@
     const warp = document.getElementById("warp");
     btn.addEventListener("click", () => {
       window.Immersive && window.Immersive.request();   // 워프 시작 = 몰입 구간(방·상자·슬라이드) 진입점
+      if (SITE_CONFIG.fxLevel === "calm") {              // calm: 원형 워프 생략 — 씬 자체의 페이드만
+        btn.disabled = true;
+        setTimeout(() => Router.go("room"), 260);
+        setTimeout(() => { btn.disabled = false; }, 700);
+        return;
+      }
       const k = fxScale();          // sayu면 워프/전환도 2배 느리게
       warp.classList.remove("go");
       void warp.offsetWidth;        // reflow로 애니메이션 리셋
@@ -421,16 +429,16 @@
     });
   }
 
-  /* ---------- ⚙️ 설정 레이어 ----------
-     입장 화면 다이어트: 스킨·수강 코드·초기화를 레이어 하나로 묶는다.
-     열기/닫기 1탭, 바깥 클릭·ESC로도 닫힘. window.SettingsLayer로 공개해
-     telemetry.js(?join= 처리)가 열고 닫을 수 있게 한다. */
-  function initSettingsLayer() {
-    const layer = document.getElementById("settings-layer");
-    const btn = document.getElementById("settings-btn");
-    if (!layer || !btn) return;
-    const backdrop = document.getElementById("settings-backdrop");
-    const closeBtn = document.getElementById("settings-close");
+  /* ---------- 유틸 레이어 (🎫 내 정보 / 🎨 테마) ----------
+     입장 화면 다이어트 B안: ⚙️ 톱니 하나 대신 성격별 아이콘 2개, 레이어도 2개.
+     열기/닫기 1탭, 바깥 클릭·ESC로도 닫힘. window.CodeLayer·window.ThemeLayer로
+     공개해 telemetry.js(?join= 처리)가 코드 레이어를 열고 닫을 수 있게 한다. */
+  function createUtilLayer(layerId, btnId, closeId, backdropId) {
+    const layer = document.getElementById(layerId);
+    const btn = document.getElementById(btnId);
+    if (!layer || !btn) return null;
+    const backdrop = document.getElementById(backdropId);
+    const closeBtn = document.getElementById(closeId);
     function open() {
       layer.hidden = false;
       void layer.offsetWidth;             // reflow로 진입 트랜지션 확실히 발동
@@ -446,12 +454,16 @@
     if (closeBtn) closeBtn.addEventListener("click", close);
     if (backdrop) backdrop.addEventListener("click", close);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !layer.hidden) close(); });
-    // 초기화 — #/reset과 동일 동작(확인창 1번)
-    const resetBtn = document.getElementById("settings-reset-btn");
-    if (resetBtn) resetBtn.addEventListener("click", () => {
-      if (confirm("레벨·진행도·이어보기·수강 코드를 모두 초기화할까요?")) { close(); Router.go("reset"); }
+    return { open, close };
+  }
+  function initUtilLayers() {
+    window.CodeLayer = createUtilLayer("code-layer", "code-btn", "code-close", "code-backdrop");
+    window.ThemeLayer = createUtilLayer("theme-layer", "theme-btn", "theme-close", "theme-backdrop");
+    // 초기화 — #/reset과 동일 동작(확인창 1번). 🎨 테마 레이어 하단에 자리.
+    const resetBtn = document.getElementById("theme-reset-btn");
+    if (resetBtn && window.ThemeLayer) resetBtn.addEventListener("click", () => {
+      if (confirm("레벨·진행도·이어보기·수강 코드를 모두 초기화할까요?")) { ThemeLayer.close(); Router.go("reset"); }
     });
-    window.SettingsLayer = { open, close };
   }
 
   /* ---------- 전체 목차 · 핵심 훑기 ----------
@@ -630,8 +642,32 @@
     if (STATIC_BG) draw(); else loop();      // 모바일=정적 1프레임 · 데스크톱=애니메이션 루프
   }
 
+  /* ---------- site-config.js 값을 화면에 적용 (제목·문구류) ----------
+     index.html에는 지금과 같은 값이 정적 텍스트로도 박혀 있다(무JS 상태 대비 기본값) —
+     여기서 SITE_CONFIG로 덮어써 "site-config.js만 바꾸면 된다"를 보장한다.
+     현재 값은 100% 동일하므로 이 사이트에선 화면상 변화가 없다. */
+  function applySiteConfig() {
+    const fillN = s => String(s).replace("{N}", TOTAL);
+    document.title = SITE_CONFIG.siteSubtitle + " · " + SITE_CONFIG.siteName;
+    const kicker = document.querySelector(".start-kicker");
+    if (kicker) kicker.textContent = fillN(SITE_CONFIG.kicker);
+    const title = document.querySelector(".start-title");
+    if (title) title.textContent = SITE_CONFIG.siteName;
+    const sub = document.querySelector(".start-sub");
+    if (sub) sub.textContent = fillN(SITE_CONFIG.tagline);
+    const hint = document.querySelector(".start-hint");
+    if (hint) hint.textContent = SITE_CONFIG.enterHint;
+    const hudLogo = document.querySelector(".hud__logo");
+    if (hudLogo) hudLogo.textContent = SITE_CONFIG.siteName;
+    const slideExit = document.getElementById("slide-exit");
+    if (slideExit) slideExit.textContent = "← " + SITE_CONFIG.siteName;
+    const celKicker = document.querySelector(".celebrate__kicker");
+    if (celKicker) celKicker.textContent = SITE_CONFIG.courseLabel + " " + TOTAL + "강 · 완주";
+  }
+
   /* ---------- 부트 ---------- */
   document.addEventListener("DOMContentLoaded", () => {
+    applySiteConfig();
     Progress.load();
     Level.load();                   // 회독 레벨 복원 (스킨 해금이 Lv에 의존 → 먼저)
     Resume.load();                  // 이어보기 위치 복원
@@ -657,7 +693,7 @@
     initStart();
     initStateButton();
     initRoomNav();
-    initSettingsLayer();
+    initUtilLayers();
     initToc();
     // 경험판(personal) 모드 표시 — HUD 좌측에 아주 작은 "P" 뱃지 (강사 확인용, 기본 모드엔 없음)
     if (VARIANT_PERSONAL) {

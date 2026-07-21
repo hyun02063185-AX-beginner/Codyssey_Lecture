@@ -394,16 +394,21 @@ body{
 .start-hint{margin-top:6px;font-size:.78rem;color:var(--ink-dim);opacity:.6;letter-spacing:.1em}
 
 /* =========================================================================
-   ⚙️ 설정 레이어 — 입장 화면 다이어트: 부가 기능은 페이지가 아니라 레이어로.
+   유틸 아이콘 2개(🎫 내 정보 / 🎨 테마) + 레이어 — 입장 화면 다이어트 B안.
    모바일(≤720px)=바텀시트 / PC=중앙 패널. docs/UX_원칙.md 참조.
    ========================================================================= */
-.settings-fab{position:absolute;top:20px;right:20px;z-index:5;
-  width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:1.15rem;line-height:1;cursor:pointer;color:var(--ink);
+.start-utils{position:absolute;top:20px;right:20px;z-index:5;display:flex;gap:8px}
+.util-fab{height:42px;min-width:42px;padding:0;border-radius:999px;display:flex;align-items:center;
+  justify-content:center;gap:6px;font-size:1.05rem;line-height:1;cursor:pointer;color:var(--ink);
   background:var(--glass);border:var(--border-w) solid var(--glass-brd);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  transition:border-color .25s,transform .25s}
-.settings-fab:hover{border-color:var(--accent);transform:rotate(35deg)}
+  transition:border-color .25s,transform .25s,padding .25s,min-width .25s}
+.util-fab:hover{border-color:var(--accent)}
+.util-fab--theme:hover{transform:rotate(20deg)}
+/* 🎫 코드 등록 후: 아이콘 → 코드 텍스트 뱃지로(같은 버튼, 같은 자리) */
+.util-fab--code.has-code{min-width:0;padding:0 14px}
+.util-fab__code-text{font-size:.76rem;font-weight:700;letter-spacing:.01em;white-space:nowrap;color:var(--accent);
+  max-width:110px;overflow:hidden;text-overflow:ellipsis}
 
 .settings-layer{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center}
 .settings-layer[hidden]{display:none}   /* display:flex가 hidden 속성을 이기지 않게(닫힘 보장) */
@@ -425,6 +430,10 @@ body{
   border:1px solid var(--glass-brd);background:var(--glass);color:var(--ink);cursor:pointer;
   font-family:var(--font-body);font-size:.85rem;transition:.25s}
 .settings-reset-btn:hover{border-color:#D98E6B;color:#D98E6B}
+/* 🎨 테마 레이어 하단의 "진행 기록 초기화" — 구분선 아래 작게 */
+.settings-divider{height:1px;background:var(--glass-brd);opacity:.6;margin:2px 0}
+.settings-reset-btn--small{padding:7px;font-size:.72rem;opacity:.7}
+.settings-reset-btn--small:hover{opacity:1}
 /* 모바일: 중앙 패널 대신 하단에서 올라오는 바텀시트 */
 @media (max-width:720px){
   .settings-layer{align-items:flex-end}
@@ -450,9 +459,6 @@ body{
   border-radius:var(--radius-pill);padding:6px 14px;background:var(--tint)}
 .scode__badge b{color:var(--accent)}
 .scode__note{font-size:.68rem;color:var(--ink-dim);opacity:.75;letter-spacing:.02em}
-/* HUD 수강 코드 뱃지 (P 뱃지와 동급 톤) */
-.hud__code{display:inline-block;margin-left:10px;font-size:.66rem;color:var(--ink-dim);
-  border:1px solid var(--glass-brd);border-radius:var(--radius-pill);padding:2px 9px;opacity:.75;vertical-align:middle}
 
 .skin-picker{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .skin-opt{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;

@@ -33,16 +33,20 @@
   function setKey(k)     { try { sessionStorage.setItem(KEY_STORAGE, k); } catch (e) {} }
   function clearKey()    { try { sessionStorage.removeItem(KEY_STORAGE); } catch (e) {} }
 
-  async function fetchStats(key, classFilter) {
-    const qs = classFilter ? ("?class=" + encodeURIComponent(classFilter)) : "";
-    const res = await fetch(ENDPOINT + qs, { headers: { "x-admin-key": key } });
+  function filterQS(classFilter, courseFilter) {
+    const parts = [];
+    if (classFilter) parts.push("class=" + encodeURIComponent(classFilter));
+    if (courseFilter) parts.push("course=" + encodeURIComponent(courseFilter));
+    return parts.length ? ("?" + parts.join("&")) : "";
+  }
+  async function fetchStats(key, classFilter, courseFilter) {
+    const res = await fetch(ENDPOINT + filterQS(classFilter, courseFilter), { headers: { "x-admin-key": key } });
     if (!res.ok) { const e = new Error("stats fetch failed"); e.code = res.status; throw e; }
     return res.json();
   }
 
-  async function fetchBrief(key, classFilter) {
-    const qs = classFilter ? ("?class=" + encodeURIComponent(classFilter)) : "";
-    const res = await fetch(BRIEF_ENDPOINT + qs, { method: "POST", headers: { "x-admin-key": key } });
+  async function fetchBrief(key, classFilter, courseFilter) {
+    const res = await fetch(BRIEF_ENDPOINT + filterQS(classFilter, courseFilter), { method: "POST", headers: { "x-admin-key": key } });
     let body = null;
     try { body = await res.json(); } catch (e) {}
     if (!res.ok) {
@@ -50,7 +54,7 @@
       e.code = res.status; e.serverMsg = body && body.error;
       throw e;
     }
-    return body;   // { text, generatedAt, classFilter, studentCount }
+    return body;   // { text, generatedAt, classFilter, courseFilter, studentCount }
   }
 
   /* =====================================================================
@@ -62,7 +66,7 @@
         '<button class="admin-gate__exit" id="admin-gate-exit" aria-label="닫기">✕</button>' +
         '<div class="admin-gate__box">' +
           '<p class="admin-gate__kicker">강사 전용</p>' +
-          '<h1 class="admin-gate__title">사유의 방 · 대시보드</h1>' +
+          '<h1 class="admin-gate__title">' + esc(SITE_CONFIG.siteName) + ' · 대시보드</h1>' +
           '<input id="admin-key-input" class="admin-gate__input" type="password" placeholder="접속 키" autocomplete="off" />' +
           '<button id="admin-key-go" class="admin-gate__btn" type="button">입장</button>' +
           (errMsg ? '<p class="admin-gate__err">' + esc(errMsg) + '</p>' : '') +
@@ -93,11 +97,16 @@
   /* =====================================================================
      대시보드
      ===================================================================== */
-  const state = { key: "", full: null, view: null, currentClass: "" };
+  const state = { key: "", full: null, view: null, currentClass: "", currentCourse: "" };
 
   function classPrefixes(students) {
     const set = new Set();
     students.forEach(s => { const m = /^([^-]+)-/.exec(s.code); if (m) set.add(m[1]); });
+    return [...set].sort();
+  }
+  function courseValues(students) {
+    const set = new Set();
+    students.forEach(s => { if (s.course) set.add(s.course); });
     return [...set].sort();
   }
 
@@ -118,7 +127,7 @@
   function avgCompletionPct(students) {
     if (!students.length) return 0;
     const sum = students.reduce((a, s) => a + s.completedLectures.length, 0);
-    return Math.round((sum / students.length) / 20 * 100);
+    return Math.round((sum / students.length) / totalLectures() * 100);
   }
   function boxAccent(lectureId) {
     try {
@@ -127,9 +136,12 @@
     } catch (e) { return FALLBACK_ACCENTS[0]; }
   }
   const FALLBACK_ACCENTS = ["#3E8E8E", "#7A6BB0", "#CE6D7C", "#79996A"];
+  function totalLectures() {
+    try { return CURRICULUM.boxes.reduce((n, b) => n + b.lectures.length, 0) || 20; } catch (e) { return 20; }
+  }
 
   async function renderDashboard(fullData, key) {
-    state.key = key; state.full = fullData; state.view = fullData; state.currentClass = "";
+    state.key = key; state.full = fullData; state.view = fullData; state.currentClass = ""; state.currentCourse = "";
     paintDashboard();
   }
 
@@ -138,7 +150,7 @@
   }
 
   function matrixHTML(d) {
-    const lectures = Array.from({ length: 20 }, (_, i) => i + 1);
+    const lectures = Array.from({ length: totalLectures() }, (_, i) => i + 1);
     const total = d.students.length || 1;
     const head = lectures.map(id => {
       const c = d.aggregate.lectureCompletion[id] || 0;
@@ -157,7 +169,7 @@
       return '<tr class="admin-mx__row" data-code="' + esc(s.code) + '">' +
         '<td class="admin-mx__code">' + (stale ? '<span class="admin-mx__warn" title="7일 이상 활동 없음">⚠</span> ' : '') + esc(s.code) + '</td>' +
         cells +
-        '<td class="admin-mx__meta">' + s.completedLectures.length + '/20</td>' +
+        '<td class="admin-mx__meta">' + s.completedLectures.length + '/' + totalLectures() + '</td>' +
         '<td class="admin-mx__meta">Lv' + s.level + '</td>' +
         '<td class="admin-mx__meta admin-mx__meta--last">' + fmtTime(s.lastSeen) + '</td>' +
         '</tr>';
@@ -224,6 +236,7 @@
   function paintDashboard() {
     const d = state.view;
     const prefixes = classPrefixes(state.full.students);
+    const courses = courseValues(state.full.students);
     root.innerHTML =
       '<div class="admin-dash">' +
         '<header class="admin-head">' +
@@ -233,6 +246,10 @@
               (d.truncated ? ' · <b class="admin-warn">일부만 표시(5000건 초과)</b>' : '') + '</span>' +
           '</div>' +
           '<div class="admin-head__r">' +
+            '<select id="admin-course" class="admin-select">' +
+              '<option value="">전체 과정</option>' +
+              courses.map(c => '<option value="' + esc(c) + '"' + (state.currentCourse === c ? ' selected' : '') + '>' + esc(c) + '</option>').join("") +
+            '</select>' +
             '<select id="admin-class" class="admin-select">' +
               '<option value="">전체 (' + state.full.aggregate.studentCount + '명)</option>' +
               prefixes.map(p => '<option value="' + esc(p) + '"' + (state.currentClass === p ? ' selected' : '') + '>' + esc(p) + '</option>').join("") +
@@ -297,26 +314,42 @@
     }
   }
 
+  // 반 필터·과정 필터는 병행 — 둘 다 state에 반영해 함께 재조회한다.
+  async function applyFilters() {
+    const noFilter = !state.currentClass && !state.currentCourse;
+    state.view = noFilter ? state.full : await fetchStats(state.key, state.currentClass, state.currentCourse);
+  }
   function bindDashboard() {
-    const sel = root.querySelector("#admin-class");
-    sel.addEventListener("change", async () => {
-      const cls = sel.value;
-      sel.disabled = true;
+    const classSel = root.querySelector("#admin-class");
+    classSel.addEventListener("change", async () => {
+      classSel.disabled = true;
       try {
-        const data = cls ? await fetchStats(state.key, cls) : state.full;
-        state.currentClass = cls; state.view = data;
+        state.currentClass = classSel.value;
+        await applyFilters();
         paintDashboard();
       } catch (e) {
         if (e.code === 401) { clearKey(); renderGate("키가 만료되었습니다. 다시 입력해주세요."); }
+        else { classSel.disabled = false; }
+      }
+    });
+    const courseSel = root.querySelector("#admin-course");
+    courseSel.addEventListener("change", async () => {
+      courseSel.disabled = true;
+      try {
+        state.currentCourse = courseSel.value;
+        await applyFilters();
+        paintDashboard();
+      } catch (e) {
+        if (e.code === 401) { clearKey(); renderGate("키가 만료되었습니다. 다시 입력해주세요."); }
+        else { courseSel.disabled = false; }
       }
     });
     root.querySelector("#admin-refresh").addEventListener("click", async () => {
       const btn = root.querySelector("#admin-refresh");
       btn.disabled = true; btn.textContent = "불러오는 중…";
       try {
-        const full = await fetchStats(state.key, "");
-        state.full = full;
-        state.view = state.currentClass ? await fetchStats(state.key, state.currentClass) : full;
+        state.full = await fetchStats(state.key, "", "");
+        await applyFilters();
         paintDashboard();
       } catch (e) {
         if (e.code === 401) { clearKey(); renderGate("키가 만료되었습니다. 다시 입력해주세요."); }
@@ -355,7 +388,7 @@
     const parts = [];
     parts.push('<div class="admin-detail-row"><span>레벨</span><b>Lv' + s.level + '</b></div>');
     parts.push('<div class="admin-detail-row"><span>최근 활동</span><b>' + fmtTime(s.lastSeen) + '</b></div>');
-    parts.push('<div class="admin-detail-row"><span>완료 강의</span><b>' + s.completedLectures.length + '/20</b></div>');
+    parts.push('<div class="admin-detail-row"><span>완료 강의</span><b>' + s.completedLectures.length + '/' + totalLectures() + '</b></div>');
     parts.push('<div class="admin-detail-chips">' + (s.completedLectures.map(id => '<span class="admin-chip">' + String(id).padStart(2, "0") + '강</span>').join("") || '<span class="admin-empty">없음</span>') + '</div>');
     parts.push('<div class="admin-detail-row"><span>제안서</span><b>' + (s.proposal ? "완성 ✓" : "미완성") + '</b></div>');
 
@@ -413,14 +446,15 @@
     briefBusy = true;
     const btn = root.querySelector("#admin-brief-btn");
     if (btn) { btn.disabled = true; btn.textContent = "생성 중…"; }
-    const cls = state.currentClass;
-    root.querySelector("#admin-brief-title").textContent = (cls ? cls + " " : "") + "주간 브리핑";
+    const cls = state.currentClass, course = state.currentCourse;
+    const scopeLabel = [course, cls].filter(Boolean).join(" · ");
+    root.querySelector("#admin-brief-title").textContent = (scopeLabel ? scopeLabel + " " : "") + "주간 브리핑";
     root.querySelector("#admin-brief-body").innerHTML = '<p class="admin-brief-loading">Gemini가 이번 주 데이터를 읽는 중…</p>';
     root.querySelector("#admin-brief-actions").hidden = true;
     openLayer("admin-brief");
     let lastText = "";
     try {
-      const res = await fetchBrief(state.key, cls);
+      const res = await fetchBrief(state.key, cls, course);
       lastText = res.text || "";
       root.querySelector("#admin-brief-body").innerHTML = renderBriefMarkdown(lastText);
     } catch (e) {

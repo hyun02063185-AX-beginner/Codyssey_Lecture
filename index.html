@@ -52,10 +52,18 @@
     </div>
   </section>
 
-  <!-- ================= SCENE 1 : 시작 (얇게 — 주인공 버튼 1개 + ⚙️만) ================= -->
+  <!-- ================= SCENE 1 : 시작 (얇게 — 주인공 버튼 1개 + 유틸 아이콘 2개만) ================= -->
   <section id="scene-start" class="scene">
-    <button id="settings-btn" class="settings-fab" type="button"
-            aria-haspopup="dialog" aria-expanded="false" aria-label="설정">⚙️</button>
+    <div class="start-utils">
+      <!-- 🎫 내 정보 — 코드 미등록 시 아이콘, 등록 후엔 같은 자리에 코드 뱃지("A반-07")로 전환 -->
+      <button id="code-btn" class="util-fab util-fab--code" type="button"
+              aria-haspopup="dialog" aria-expanded="false" aria-label="내 정보">
+        <span class="util-fab__icon">🎫</span>
+      </button>
+      <!-- 🎨 테마 -->
+      <button id="theme-btn" class="util-fab util-fab--theme" type="button"
+              aria-haspopup="dialog" aria-expanded="false" aria-label="테마">🎨</button>
+    </div>
 
     <div class="start-inner">
       <p class="start-kicker">AI TRANSFORMATION · 20강</p>
@@ -79,17 +87,45 @@
     </div>
   </section>
 
-  <!-- ⚙️ 설정 레이어 — 스킨·수강 코드·초기화. 모바일=바텀시트 / PC=중앙 패널.
+  <!-- 🎫 내 정보 레이어 — 수강 코드 입력·안내·변경/제거. 모바일=바텀시트 / PC=중앙 패널.
        새 기능은 여기(섹션 추가) 또는 방(씬) 내부에 — 입장 화면 상시 버튼 추가는 최후의 수단(docs/UX_원칙.md). -->
-  <div id="settings-layer" class="settings-layer" hidden>
-    <div class="settings-layer__backdrop" id="settings-backdrop"></div>
-    <div class="settings-layer__sheet" role="dialog" aria-modal="true" aria-label="설정">
+  <div id="code-layer" class="settings-layer" hidden>
+    <div class="settings-layer__backdrop" id="code-backdrop"></div>
+    <div class="settings-layer__sheet" role="dialog" aria-modal="true" aria-label="내 정보">
       <header class="settings-layer__head">
-        <span class="settings-layer__title">⚙️ 설정</span>
-        <button id="settings-close" class="settings-layer__x" aria-label="닫기">✕</button>
+        <span class="settings-layer__title">🎫 내 정보</span>
+        <button id="code-close" class="settings-layer__x" aria-label="닫기">✕</button>
       </header>
       <div class="settings-layer__body">
+        <section class="settings-sec">
+          <h3 class="settings-sec__t">수강 코드</h3>
+          <!-- 선택 사항 — 입력 시에만 학습 현황이 강사에게 전송된다 (telemetry.js) -->
+          <div class="scode" id="scode">
+            <div class="scode__row" id="scode-form">
+              <input id="scode-input" class="scode__input" type="text" maxlength="20"
+                     placeholder="수강 코드 (선택)" autocomplete="off" />
+              <button id="scode-set" class="scode__btn" type="button">등록</button>
+            </div>
+            <div class="scode__row" id="scode-active" hidden>
+              <span class="scode__badge">🎫 <b id="scode-current"></b></span>
+              <button id="scode-clear" class="scode__btn scode__btn--ghost" type="button">제거</button>
+            </div>
+            <p class="scode__note">코드를 입력하면 학습 진행 상황이 강사에게 전달됩니다</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
 
+  <!-- 🎨 테마 레이어 — 스킨 5종 + 진행 기록 초기화(하단, 작게). -->
+  <div id="theme-layer" class="settings-layer" hidden>
+    <div class="settings-layer__backdrop" id="theme-backdrop"></div>
+    <div class="settings-layer__sheet" role="dialog" aria-modal="true" aria-label="테마">
+      <header class="settings-layer__head">
+        <span class="settings-layer__title">🎨 테마</span>
+        <button id="theme-close" class="settings-layer__x" aria-label="닫기">✕</button>
+      </header>
+      <div class="settings-layer__body">
         <section class="settings-sec">
           <h3 class="settings-sec__t">스킨</h3>
           <div class="skin-picker" id="skin-picker" role="group" aria-label="테마 선택">
@@ -111,29 +147,8 @@
           </div>
         </section>
 
-        <section class="settings-sec">
-          <h3 class="settings-sec__t">수강 코드</h3>
-          <!-- 선택 사항 — 입력 시에만 학습 현황이 강사에게 전송된다 (telemetry.js) -->
-          <div class="scode" id="scode">
-            <div class="scode__row" id="scode-form">
-              <input id="scode-input" class="scode__input" type="text" maxlength="20"
-                     placeholder="수강 코드 (선택)" autocomplete="off" />
-              <button id="scode-set" class="scode__btn" type="button">등록</button>
-            </div>
-            <div class="scode__row" id="scode-active" hidden>
-              <span class="scode__badge">🎫 <b id="scode-current"></b></span>
-              <button id="scode-clear" class="scode__btn scode__btn--ghost" type="button">제거</button>
-            </div>
-            <p class="scode__note">코드를 입력하면 학습 진행 상황이 강사에게 전달됩니다</p>
-          </div>
-        </section>
-
-        <section class="settings-sec">
-          <h3 class="settings-sec__t">초기화</h3>
-          <button id="settings-reset-btn" class="settings-reset-btn" type="button">진행도 전체 초기화</button>
-          <p class="settings-sec__note">레벨·진행도·이어보기·수강 코드가 모두 초기화됩니다.</p>
-        </section>
-
+        <div class="settings-divider"></div>
+        <button id="theme-reset-btn" class="settings-reset-btn settings-reset-btn--small" type="button">진행 기록 초기화</button>
       </div>
     </div>
   </div>
@@ -234,6 +249,7 @@
   </div>
 
   <!-- 스크립트: 순서 중요 -->
+  <script src="js/site-config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/room.js"></script>
   <script src="js/slides.js"></script>

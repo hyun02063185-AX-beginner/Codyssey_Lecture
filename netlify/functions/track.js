@@ -56,8 +56,10 @@ exports.handler = async function (event) {
 
   const code = String(data.code || "").replace(/\s+/g, "");
   const type = String(data.event_type || "");
+  const course = String(data.course || "");
   if (code.length < 2 || code.length > 20)   return { statusCode: 400, headers: cors };
   if (!EVENT_TYPES.has(type))                return { statusCode: 400, headers: cors };
+  if (!/^[a-z]{2,20}$/.test(course))         return { statusCode: 400, headers: cors };
   const payload = (data.payload && typeof data.payload === "object") ? data.payload : {};
 
   const url = process.env.SUPABASE_URL;
@@ -73,7 +75,7 @@ exports.handler = async function (event) {
         "Authorization": "Bearer " + key,
         "Prefer": "return=minimal"
       },
-      body: JSON.stringify({ code: code, event_type: type, payload: payload })
+      body: JSON.stringify({ code: code, event_type: type, payload: payload, course: course })
     });
     if (!res.ok) return { statusCode: 502, headers: cors };
     return { statusCode: 204, headers: cors };

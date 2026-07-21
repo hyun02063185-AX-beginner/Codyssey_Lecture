@@ -170,10 +170,11 @@ exports.handler = async function (event) {
   if (!supaUrl || !supaKey) return { statusCode: 500, headers: cors };
 
   const classPrefix = (event.queryStringParameters && event.queryStringParameters.class) || "";
+  const course = (event.queryStringParameters && event.queryStringParameters.course) || "";   // 없으면 전체 과정
 
   let data;
   try {
-    data = await fetchAggregatedData({ supabaseUrl: supaUrl, supabaseKey: supaKey, classPrefix });
+    data = await fetchAggregatedData({ supabaseUrl: supaUrl, supabaseKey: supaKey, classPrefix, course });
   } catch (e) {
     return { statusCode: 502, headers: cors };
   }
@@ -181,10 +182,10 @@ exports.handler = async function (event) {
   // 수강생 0명 — AI를 부르지 않고 결정론적으로 응답한다.
   // (환각으로 가짜 수강생을 지어낼 여지 자체를 코드 레벨에서 차단 + 비용 절약)
   if (data.aggregate.studentCount === 0) {
-    const empty = "## 이번 주 요약\n" +
-      (classPrefix ? '"' + classPrefix + '" 반의' : "아직") + " 수집된 수강 데이터가 없습니다.";
+    const scope = classPrefix ? '"' + classPrefix + '" 반' : (course ? '"' + course + '" 과정' : "");
+    const empty = "## 이번 주 요약\n" + (scope ? scope + "의" : "아직") + " 수집된 수강 데이터가 없습니다.";
     return { statusCode: 200, headers: { ...cors, "Content-Type": "application/json" },
-      body: JSON.stringify({ text: empty, generatedAt: data.generatedAt, classFilter: classPrefix || null, studentCount: 0 }) };
+      body: JSON.stringify({ text: empty, generatedAt: data.generatedAt, classFilter: classPrefix || null, courseFilter: course || null, studentCount: 0 }) };
   }
 
   let text;
@@ -196,5 +197,5 @@ exports.handler = async function (event) {
   }
 
   return { statusCode: 200, headers: { ...cors, "Content-Type": "application/json" },
-    body: JSON.stringify({ text, generatedAt: data.generatedAt, classFilter: classPrefix || null, studentCount: data.aggregate.studentCount }) };
+    body: JSON.stringify({ text, generatedAt: data.generatedAt, classFilter: classPrefix || null, courseFilter: course || null, studentCount: data.aggregate.studentCount }) };
 };

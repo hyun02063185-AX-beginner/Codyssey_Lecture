@@ -230,8 +230,9 @@
     }
   };
 
-  // 4분할 순서/구성 — 여기 배열만 바꾸면 테마 추가/삭제 가능
-  const INTRO_THEMES = ["star", "sakura", "fireworks", "snow"];
+  // 4분할 순서/구성 — site-config.js의 introThemes에서 온다(THEMES에 정의된 것만 골라 쓸 수 있음).
+  // 주의: #intro-grid의 4버튼은 아직 정적 마크업 — 개수를 바꾸면 index.html도 맞춰야 한다.
+  const INTRO_THEMES = SITE_CONFIG.introThemes;
 
   /* =====================================================================
      엔진 — 인스턴스(캔버스) 목록을 단일 rAF 루프로 그림

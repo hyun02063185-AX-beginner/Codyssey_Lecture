@@ -57,10 +57,11 @@ exports.handler = async function (event) {
   if (!url || !key) return { statusCode: 500, headers: cors };
 
   const classPrefix = (event.queryStringParameters && event.queryStringParameters.class) || "";
+  const course = (event.queryStringParameters && event.queryStringParameters.course) || "";   // 없으면 전체 과정
 
   let data;
   try {
-    data = await fetchAggregatedData({ supabaseUrl: url, supabaseKey: key, classPrefix });
+    data = await fetchAggregatedData({ supabaseUrl: url, supabaseKey: key, classPrefix, course });
   } catch (e) {
     return { statusCode: 502, headers: cors };
   }

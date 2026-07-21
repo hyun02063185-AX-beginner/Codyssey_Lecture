@@ -533,7 +533,7 @@
       (tac && tac.locks && tac.locks.length) ? { t: "② 이번 주 문서화 1건: " + esc(tac.locks[0]), ok: 1 } : { t: "② 암묵지 기록 후 생성", ok: 0 },
       cand.length ? { t: "③ 첫 파일럿 후보: " + esc(cand[0].name), ok: 1 } : { t: "③ 업무 인벤토리(2-1) 후 생성", ok: 0 }
     ];
-    return `<div class="axp-prop-head"><h3>우리 팀에 가져갈 한 장</h3><p class="axp-dim">사람이 방향, AI가 초안</p></div>
+    return `<div class="axp-prop-head"><h3>우리 팀에 가져갈 한 장</h3><p class="axp-dim">${esc(SITE_CONFIG.finalMessage)}</p></div>
       <p class="axp-sec-h">검사 결과</p>
       <div class="axp-prop-grid axp-prop-3">
         ${slot("🧠 AI 리터러시", litHtml, "검사 전")}
@@ -587,7 +587,7 @@
     L.push(lit ? "① " + litRx[lit.low] : "① 리터러시 검사 후 생성");
     L.push((tac && tac.locks && tac.locks.length) ? "② 이번 주 문서화 1건: " + tac.locks[0] : "② 암묵지 기록 후 생성");
     L.push(cand.length ? "③ 첫 파일럿 후보: " + cand[0].name : "③ 업무 인벤토리(2-1) 후 생성");
-    L.push("", "사람이 방향, AI가 초안.");
+    L.push("", SITE_CONFIG.finalMessage + ".");
     return L.join("\n");
   }
 
@@ -604,7 +604,7 @@
   function showGraduation() {
     const g = document.createElement("div"); g.className = "pr-grad";
     g.innerHTML = `<div class="pr-grad__box"><p class="pr-grad__k">진단실 · 수료</p><h2 class="pr-grad__t">우리 조직 AX 도입 킷, 완성.</h2>
-      <p class="pr-grad__s">검증 원칙부터 파일럿 기획까지 — 한 장으로 정리됐습니다.<br>사람이 방향, AI가 초안.</p>
+      <p class="pr-grad__s">검증 원칙부터 파일럿 기획까지 — 한 장으로 정리됐습니다.<br>${esc(SITE_CONFIG.finalMessage)}.</p>
       <button class="pr-grad__btn" id="pr-grad-close">닫기</button></div>`;
     document.body.appendChild(g); void g.offsetWidth; g.classList.add("show");
     g.querySelector("#pr-grad-close").addEventListener("click", () => { g.classList.remove("show"); setTimeout(() => g.remove(), 300); });
@@ -777,6 +777,7 @@
   }
   function initPracticeDoor() {
     const door = document.getElementById("practice-door"); if (!door) return;
+    if (SITE_CONFIG.practiceRoom === false) { door.hidden = true; return; }   // 이 사이트엔 없는 기능
     const un = UNLOCK_ALL || curLevel() >= 2;
     const st = door.querySelector(".pdoor-state");
     if (st) st.textContent = "3층 · 12단계 진단 · 우리 조직 AX 도입 킷";

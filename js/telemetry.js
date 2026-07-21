@@ -28,7 +28,7 @@
     refreshUI();
     sessionStart();          // 등록 즉시 세션 시작 1건
     // ?join= 링크로 들어와 방금 등록했다면 — 레이어 닫고 바로 강의실 입장 가능하게
-    if (joinedViaLink) { joinedViaLink = false; window.SettingsLayer && window.SettingsLayer.close(); }
+    if (joinedViaLink) { joinedViaLink = false; window.CodeLayer && window.CodeLayer.close(); }
     return true;
   }
   function clearCode() {
@@ -47,7 +47,7 @@
         method: "POST",
         keepalive: true,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, event_type, payload: payload || {} })
+        body: JSON.stringify({ code, event_type, payload: payload || {}, course: SITE_CONFIG.course })
       }).catch(function (e) { console.debug("[telemetry] skip:", e && e.message); });
     } catch (e) { console.debug("[telemetry] skip:", e && e.message); }
   }
@@ -86,7 +86,29 @@
     send("checkup_result", { scores: scores || {}, lowest: lowest || "" });
   }
 
-  /* ---------- UI: 입장 화면 코드 입력 + HUD 뱃지 ---------- */
+  /* ---------- UI: 입장 화면 코드 입력 + 🎫 아이콘↔뱃지 전환 ---------- */
+  // 코드 미등록 = 🎫 아이콘 / 등록 = 같은 자리에 코드 텍스트 뱃지("A반-07")로 바뀐다.
+  // HUD 쪽 뱃지는 두지 않는다(중복 표시 방지 — 입장 화면 쪽으로 일원화).
+  function renderCodeBtn(code) {
+    const btn = document.getElementById("code-btn");
+    if (!btn) return;
+    btn.innerHTML = "";
+    const icon = document.createElement("span");
+    icon.className = "util-fab__icon";
+    icon.textContent = "🎫";
+    btn.appendChild(icon);
+    if (code) {
+      const text = document.createElement("span");
+      text.className = "util-fab__code-text";
+      text.textContent = code;
+      btn.appendChild(text);
+      btn.classList.add("has-code");
+      btn.title = "수강 코드 — 학습 현황이 강사에게 전달됩니다";
+    } else {
+      btn.classList.remove("has-code");
+      btn.removeAttribute("title");
+    }
+  }
   function refreshUI() {
     const code = getCode();
     const form = document.getElementById("scode-form");
@@ -97,19 +119,10 @@
       active.hidden = !code;
       if (cur) cur.textContent = code;
     }
-    // HUD 뱃지 (방·슬라이드 화면 좌측 — 코드가 있을 때만 생성)
-    const hudLeft = document.querySelector(".hud__left");
-    if (hudLeft) {
-      let b = hudLeft.querySelector(".hud__code");
-      if (code) {
-        if (!b) { b = document.createElement("span"); b.className = "hud__code"; hudLeft.appendChild(b); }
-        b.textContent = "🎫 " + code;
-        b.title = "수강 코드 — 학습 현황이 강사에게 전달됩니다";
-      } else if (b) { b.remove(); }
-    }
+    renderCodeBtn(code);
   }
   /* ---------- 강의용 입장 링크 ?join=반이름 ----------
-     설정 레이어를 자동으로 열고 입력란에 "반이름-"을 채워, 수강생은 번호만 입력하면 된다.
+     🎫 내 정보 레이어를 자동으로 열고 입력란에 "반이름-"을 채워, 수강생은 번호만 입력하면 된다.
      이미 코드가 저장돼 있으면(재방문) 조용히 무시 — 재입력을 강요하지 않는다. */
   let joinedViaLink = false;
   function applyJoinLink() {
@@ -124,7 +137,7 @@
     if (!input) return;
     input.value = prefix + "-";
     joinedViaLink = true;
-    window.SettingsLayer && window.SettingsLayer.open();
+    window.CodeLayer && window.CodeLayer.open();
     input.focus();
     try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
   }

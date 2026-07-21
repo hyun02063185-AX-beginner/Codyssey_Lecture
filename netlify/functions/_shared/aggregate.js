@@ -17,12 +17,14 @@ function summarizeStudent(code, events) {
   let level = 1;
   const completed = new Set();
   let lastSeen = null;
+  let course = "";         // desc 순서라 처음 만나는 이벤트의 course = 최근 활동 기준 과정
   const diagnosis = {};   // kind → scores (desc 순서라 처음 만나는 것이 최신)
   let checkup = null;     // { scores, lowest } — 재검사해도 desc 순서상 처음 만나는 것이 최신
   let proposal = false;
 
   for (const e of events) {
     if (!lastSeen || e.created_at > lastSeen) lastSeen = e.created_at;
+    if (!course && e.course) course = e.course;
     const p = e.payload || {};
     if (e.event_type === "lecture_complete") {
       if (p.lectureId != null) completed.add(p.lectureId);
@@ -43,6 +45,7 @@ function summarizeStudent(code, events) {
     completedLectures: [...completed].sort((a, b) => a - b),
     level,
     lastSeen,
+    course,
     diagnosis,
     checkup,
     proposal
@@ -94,11 +97,13 @@ function aggregate(students) {
 
 // Supabase 조회 + 코드별 그룹핑 + 요약 + 팀 집계까지 한 번에.
 // stats.js·brief.js 둘 다 이 함수 하나만 부르면 된다.
-async function fetchAggregatedData({ supabaseUrl, supabaseKey, classPrefix }) {
-  const res = await fetch(
-    supabaseUrl.replace(/\/$/, "") + "/rest/v1/events?select=code,event_type,payload,created_at&order=created_at.desc&limit=" + MAX_ROWS,
-    { headers: { apikey: supabaseKey, Authorization: "Bearer " + supabaseKey } }
-  );
+// course: 정확히 일치(대시보드는 여러 과정을 한 Supabase 프로젝트에서 공유하므로 기본은 이 사이트 과정).
+// classPrefix: 코드 접두어(반) 부분 일치.
+async function fetchAggregatedData({ supabaseUrl, supabaseKey, classPrefix, course }) {
+  let url = supabaseUrl.replace(/\/$/, "") +
+    "/rest/v1/events?select=code,event_type,payload,created_at,course&order=created_at.desc&limit=" + MAX_ROWS;
+  if (course) url += "&course=eq." + encodeURIComponent(course);
+  const res = await fetch(url, { headers: { apikey: supabaseKey, Authorization: "Bearer " + supabaseKey } });
   if (!res.ok) { const e = new Error("supabase fetch failed"); e.upstream = true; throw e; }
   const rows = await res.json();
   const truncated = rows.length >= MAX_ROWS;
