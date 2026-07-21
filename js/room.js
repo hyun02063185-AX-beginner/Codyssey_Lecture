@@ -26,7 +26,7 @@
       el.dataset.boxIndex = i;
       el.innerHTML = `
         <div>
-          <div class="box__num">상자 ${String(i + 1).padStart(2, "0")} · ${box.name}</div>
+          <div class="box__num">${SITE_CONFIG.boxLabel || "상자"} ${String(i + 1).padStart(2, "0")} · ${box.name}</div>
           <div class="box__name">${box.name}</div>
           <div class="box__theme">${box.theme}</div>
           <div class="box__dots">${box.lectures.map(l =>
@@ -64,7 +64,7 @@
     if (fanOverlay.classList.contains("is-open") && currentBox === boxIndex) return;
     currentBox = boxIndex;
     const box = CURRICULUM.boxes[boxIndex];
-    fanTitle.textContent = `상자 ${boxIndex + 1} · 「${box.name}」 — ${box.theme}`;
+    fanTitle.textContent = `${SITE_CONFIG.boxLabel || "상자"} ${boxIndex + 1} · 「${box.name}」 — ${box.theme}`;
     fanCardsEl.innerHTML = "";
 
     const n = box.lectures.length;

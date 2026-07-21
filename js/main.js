@@ -26,9 +26,12 @@
   window.__variantPersonal = VARIANT_PERSONAL;   // slides.js 로드 분기에서 참조
 
   /* ---------- 스킨 해금 순서 (Lv 포상) ----------
-     모바일: 전부 · PC: Lv별로 SITE_CONFIG.availableSkins 순서대로 하나씩(0번째=defaultSkin은 Lv1부터). */
+     모바일: 전부 · PC: Lv별로 SITE_CONFIG.availableSkins 순서대로 하나씩(0번째=defaultSkin은 Lv1부터).
+     SITE_CONFIG.skinGating===false인 사이트(예: 입문 과정)는 Lv 무관 전부 해금 —
+     본진 site-config.js엔 이 키가 없어 기본 게이팅 동작이 그대로 유지된다(이식 대상). */
   const SKIN_ORDER = SITE_CONFIG.availableSkins;
   function skinUnlockCount() {
+    if (SITE_CONFIG.skinGating === false) return SKIN_ORDER.length;
     if (IS_MOBILE) return SKIN_ORDER.length;                       // 모바일=전부
     return Math.max(1, Math.min(SKIN_ORDER.length, Level.n));      // PC=Lv별(Lv0→1)
   }
@@ -84,7 +87,7 @@
   const LEVEL_KEY = "ax_room_level_v1";
   const MAX_LEVEL = 5;
   // Lv1~5 칭호 (수정 쉬움): 훑기 → 파기 → 곱씹기 → 실천 → 통찰
-  const RANKS = ["", "Wanderer", "Explorer", "Thinker", "Practitioner", "Visionary"];
+  const RANKS = SITE_CONFIG.rankTitles || ["", "Wanderer", "Explorer", "Thinker", "Practitioner", "Visionary"];
   const Level = {
     n: 1,                                        // Lv1부터 시작(뱃지 처음부터 표시)
     load() { try { const v = parseInt(localStorage.getItem(LEVEL_KEY), 10); if (!isNaN(v)) this.n = Math.min(MAX_LEVEL, Math.max(1, v)); } catch (e) {} },
@@ -289,12 +292,12 @@
     const subEl = document.getElementById("celebrate-sub");
     const upBtn = document.getElementById("celebrate-up");
     if (mastered) {
-      titleEl.textContent = "깊은 깨달음에 도달하셨습니다.";
+      titleEl.textContent = SITE_CONFIG.completionTitleMastered || "깊은 깨달음에 도달하셨습니다.";
       subEl.textContent = "Lv" + MAX_LEVEL + " · " + RANKS[MAX_LEVEL] + " · 통달 — 최고 경지에 이르렀습니다";
       if (upBtn) upBtn.hidden = true;
     } else {
       const next = Level.n + 1;
-      titleEl.textContent = "훌륭히 완주하셨습니다.";
+      titleEl.textContent = SITE_CONFIG.completionTitle || "훌륭히 완주하셨습니다.";
       subEl.textContent = TOTAL + "강 완주 · 업그레이드하면 Lv" + next + " · " + RANKS[next] + (next >= MAX_LEVEL ? " (통달)" : "");
       if (upBtn) upBtn.hidden = false;
     }

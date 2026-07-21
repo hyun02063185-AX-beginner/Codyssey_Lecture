@@ -33,6 +33,16 @@
 
 ---
 
+## 저장소 rename 시
+
+GitHub에서 저장소 이름을 바꾸면(예: `Last_Lecture` → `AX_Lecture`) 다음을 확인:
+
+- 로컬 remote 갱신: `git remote set-url origin <새 저장소 URL>` → `git remote -v` → `git fetch`로 연결 검증.
+- 이 저장소를 로컬에 clone해둔 다른 PC(노트북 등)에서도 동일한 `git remote set-url` 명령을 각자 실행할 것.
+- Netlify에 연결된 저장소가 있다면 Site configuration → Build & deploy → Repository에서 새 이름으로 연결이 유지되는지 확인(GitHub가 rename 시 자동으로 따라가지만, 배포가 실패하면 재연결 필요).
+
+---
+
 ## 참고
 
 - 정적 사이트 + 서버 함수 조합이라 **빌드 설정은 없음**(`netlify.toml`에 `publish = "."`, `functions = "netlify/functions"`만 지정).

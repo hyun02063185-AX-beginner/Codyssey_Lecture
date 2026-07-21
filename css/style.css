@@ -1049,6 +1049,7 @@ body{
    실습실 v2 (practice.js) — 스킨 변수 재사용해 5스킨 대응
    ========================================================================= */
 /* 입장 화면 문 */
+.pdoor[hidden]{display:none}   /* display:flex가 hidden 속성을 이기지 않게(닫힘 보장) — 버그픽스: Lv2 미만에서 진단실 버튼이 실제로는 보이고 있었음 */
 .pdoor{margin-top:18px;display:inline-flex;align-items:center;gap:12px;cursor:pointer;
   background:var(--glass);border:var(--border-w) solid var(--glass-brd);border-radius:var(--radius);
   padding:12px 18px;color:var(--ink);font-family:var(--font-body);
