@@ -1,0 +1,9 @@
+{
+  "name": "ax-lecture",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AX 실무 입문 20강 — 사유의 방 (정적 사이트, 빌드 없음). 테스트만 Node 내장 test runner 사용.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
