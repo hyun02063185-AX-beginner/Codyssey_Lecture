@@ -2,7 +2,8 @@
 Thumbs.db
 node_modules/
 *.log
-.claude/
+.claude/*
+!.claude/agents/
 server_session.txt
 __pycache__/
 
