@@ -73,11 +73,10 @@ function checkSlideShape(slide, where, errors) {
 }
 
 // 완전한 슬라이드 배열(기본 slides 또는 slidesPersonal 경험판) 하나를 통째로 검사.
-// strictLastClosing=false면 "closing이 배열 어딘가에 존재"만 요구한다 — 실측 결과, 경험판
-// (slidesPersonal)은 강사 라이브 강의용이라 정식 closing 뒤에 [부록] 참고 도식 슬라이드가
-// 붙는 경우가 있었다(예: 8강 경험판 마지막 = 도구층위 부록 이미지, closing은 그 앞).
-// 이는 콘텐츠 결함이 아니라 두 덱 종류의 의도된 구조 차이로 판단해 규칙을 그에 맞게 나눴다
-// (콘텐츠는 고치지 않음 — order/하네스_구축_지시서.md 가드레일).
+// strictLastClosing=false면 "closing이 배열 어딘가에 존재"만 요구한다 — 예전엔 8강 경험판의
+// [부록] 참고 도식 슬라이드가 closing 뒤에 붙어 있어 완화했었지만(order/하네스_구축_지시서.md),
+// order/AX경험판_종결_지시서.md ③ 조치로 부록을 closing 앞으로 옮겨 원래 규칙을 복원했다 —
+// 이제 slidesPersonal도 기본 slides와 동일하게 strictLastClosing 기본값(true)을 그대로 쓴다.
 function checkDeck(deck, label, errors, { requireTeaser, strictLastClosing = true }) {
   if (!Array.isArray(deck) || deck.length === 0) {
     errors.push(`${label}: 비어있거나 배열이 아님`);
@@ -125,7 +124,7 @@ CURRICULUM.boxes.forEach((box, bi) => {
     test(`${label} — slidesPersonal(경험판, 있으면) 구조 유효`, () => {
       if (!lec.slidesPersonal) return;
       const errors = [];
-      checkDeck(lec.slidesPersonal, `${label}: slidesPersonal`, errors, { requireTeaser: false, strictLastClosing: false });
+      checkDeck(lec.slidesPersonal, `${label}: slidesPersonal`, errors, { requireTeaser: false });
       assert.deepEqual(errors, [], errors.join("\n"));
     });
 
