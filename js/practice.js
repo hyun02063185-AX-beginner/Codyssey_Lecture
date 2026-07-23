@@ -779,8 +779,6 @@
     const door = document.getElementById("practice-door"); if (!door) return;
     if (SITE_CONFIG.practiceRoom === false) { door.hidden = true; return; }   // 이 사이트엔 없는 기능
     const un = UNLOCK_ALL || curLevel() >= 2;
-    const st = door.querySelector(".pdoor-state");
-    if (st) st.textContent = "3층 · 12단계 진단 · 우리 조직 AX 도입 킷";
     if (!door.dataset.bound) {
       door.dataset.bound = "1";
       door.addEventListener("click", () => App.Router.go("practice"));

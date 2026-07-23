@@ -1056,9 +1056,7 @@ body{
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);transition:.25s}
 .pdoor:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--btn-hover-shadow)}
 .pdoor-ic{font-size:1.4rem}
-.pdoor-txt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.3}
-.pdoor-t{font-weight:700;letter-spacing:.04em}
-.pdoor-state{font-size:.72rem;color:var(--ink-dim)}
+.pdoor-t{font-weight:700;letter-spacing:.04em;font-size:.92rem}
 .pdoor-arrow{color:var(--accent);font-weight:700}
 /* Lv2 첫 해금 순간에만 재생되는 등장 연출(은은하게) — 이후엔 조용히 표시만 */
 .pdoor-reveal{animation:pdoorReveal .7s cubic-bezier(.2,.8,.2,1)}

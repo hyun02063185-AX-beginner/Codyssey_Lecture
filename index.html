@@ -75,13 +75,11 @@
       </button>
       <p class="start-hint">클릭하여 사유의 방으로 입장합니다</p>
 
-      <!-- 실습실 입장 문 — Lv2 미만은 완전 미노출(hidden). 해금 시 practice.js가 등장시킨다. -->
+      <!-- 실습실 입장 문 — Lv2 미만은 완전 미노출(hidden). 해금 시 practice.js가 등장시킨다.
+           부제 없이 아이콘+라벨만(게이미피케이션_Lv3_지시서 ① — 강의실 입장 대비 부 동선 위계). -->
       <button id="practice-door" class="pdoor" type="button" hidden>
         <span class="pdoor-ic">🧪</span>
-        <span class="pdoor-txt">
-          <span class="pdoor-t">진단실 입장</span>
-          <span class="pdoor-state">…</span>
-        </span>
+        <span class="pdoor-t">진단실 입장</span>
         <span class="pdoor-arrow">→</span>
       </button>
     </div>
@@ -131,9 +129,6 @@
           <div class="skin-picker" id="skin-picker" role="group" aria-label="테마 선택">
             <button class="skin-opt" type="button" data-skin="sayu" aria-pressed="true">
               <span class="skin-sw skin-sw--sayu"></span><span class="skin-lb">사유의 방</span>
-            </button>
-            <button class="skin-opt" type="button" data-skin="paper" aria-pressed="false">
-              <span class="skin-sw skin-sw--paper"></span><span class="skin-lb">페이퍼</span>
             </button>
             <button class="skin-opt" type="button" data-skin="neon" aria-pressed="false">
               <span class="skin-sw skin-sw--neon"></span><span class="skin-lb">네온</span>

@@ -25,18 +25,21 @@
   const VARIANT_PERSONAL = /[?&]variant=personal(?:&|$)/.test(location.search);
   window.__variantPersonal = VARIANT_PERSONAL;   // slides.js 로드 분기에서 참조
 
-  /* ---------- 스킨 해금 순서 (Lv 포상) ----------
-     모바일: 전부 · PC: Lv별로 SITE_CONFIG.availableSkins 순서대로 하나씩(0번째=defaultSkin은 Lv1부터).
-     SITE_CONFIG.skinGating===false인 사이트(예: 입문 과정)는 Lv 무관 전부 해금 —
-     본진 site-config.js엔 이 키가 없어 기본 게이팅 동작이 그대로 유지된다(이식 대상). */
+  /* ---------- 스킨 해금 Lv (site-config 주도) ----------
+     스킨별 필요 Lv은 SITE_CONFIG.skinUnlockLevel에서 읽는다(한 Lv에 여러 스킨이 동시 해금될 수
+     있음 — 엔진은 하드코딩하지 않는다). 명시 안 된 스킨은 availableSkins 배열 순서(1-based)로
+     폴백한다. 모바일은 전부 해금, SITE_CONFIG.skinGating===false인 사이트(예: 입문 과정)도
+     Lv 무관 전부 해금. */
   const SKIN_ORDER = SITE_CONFIG.availableSkins;
-  function skinUnlockCount() {
-    if (SITE_CONFIG.skinGating === false) return SKIN_ORDER.length;
-    if (IS_MOBILE) return SKIN_ORDER.length;                       // 모바일=전부
-    return Math.max(1, Math.min(SKIN_ORDER.length, Level.n));      // PC=Lv별(Lv0→1)
+  function skinUnlockLevel(name) {
+    const map = SITE_CONFIG.skinUnlockLevel;
+    if (map && Object.prototype.hasOwnProperty.call(map, name)) return map[name];
+    return SKIN_ORDER.indexOf(name) + 1;
   }
   function isSkinUnlocked(name) {
-    return SKIN_ORDER.slice(0, skinUnlockCount()).indexOf(name) >= 0;
+    if (SITE_CONFIG.skinGating === false) return true;
+    if (IS_MOBILE) return true;                                     // 모바일=전부
+    return Level.n >= skinUnlockLevel(name);
   }
 
   /* ---------- 진행도 상태 (localStorage 저장) ---------- */
@@ -85,8 +88,8 @@
 
   /* ---------- 회독 레벨(게이미피케이션) — 완주할수록 사유가 깊어진다 ---------- */
   const LEVEL_KEY = "ax_room_level_v1";
-  const MAX_LEVEL = 5;
-  // Lv1~5 칭호 (수정 쉬움): 훑기 → 파기 → 곱씹기 → 실천 → 통찰
+  const MAX_LEVEL = SITE_CONFIG.maxLevel || 5;   // 상한은 site-config 주도(게이미피케이션_Lv3_지시서 ②)
+  // Lv 칭호: SITE_CONFIG.rankTitles가 있으면 그걸 쓰고, 없으면 엔진 기본값(길이는 MAX_LEVEL+1이어야 함)
   const RANKS = SITE_CONFIG.rankTitles || ["", "Wanderer", "Explorer", "Thinker", "Practitioner", "Visionary"];
   const Level = {
     n: 1,                                        // Lv1부터 시작(뱃지 처음부터 표시)
@@ -132,7 +135,7 @@
       btn.classList.toggle("locked", locked);
       btn.setAttribute("aria-disabled", locked ? "true" : "false");
       // 해금 조건을 hover 없이도 보이게 — 잠긴 스킨엔 "LvN" 뱃지 상시 표시(CSS ::after)
-      const lv = "Lv" + (SKIN_ORDER.indexOf(btn.dataset.skin) + 1);
+      const lv = "Lv" + skinUnlockLevel(btn.dataset.skin);
       if (locked) btn.dataset.unlock = lv; else delete btn.dataset.unlock;
       if (!IS_MOBILE) btn.title = locked ? lv + " 달성 시 해금" : "";
     });
@@ -272,7 +275,7 @@
     const btn = document.getElementById("reset-progress");
     if (!btn) return;
     btn.classList.remove("is-upgrade", "is-mastered");
-    if (Level.n >= MAX_LEVEL) {                          // Lv5 통달 — 완주 여부와 무관하게 표시
+    if (Level.n >= MAX_LEVEL) {                          // 통달(Lv 상한 도달) — 완주 여부와 무관하게 표시
       btn.textContent = "✦ 통달"; btn.title = "통달 — 최고 경지";
       btn.classList.add("is-mastered");
     } else if (c >= TOTAL) {                             // 20/20 · Lv<5 → 업그레이드
@@ -285,9 +288,9 @@
 
   /* ---------- 완주 축하 연출 + 업그레이드 ---------- */
   let burstRaf = null;
-  // 현재 레벨에 맞춰 오버레이 내용을 채운다(통달=Lv5 도달 시 업그레이드 버튼 숨김)
+  // 현재 레벨에 맞춰 오버레이 내용을 채운다(통달=Lv 상한 도달 시 업그레이드 버튼 숨김)
   function renderCelebrate() {
-    const mastered = Level.n >= MAX_LEVEL;          // Lv5 = 통달(최고 경지)
+    const mastered = Level.n >= MAX_LEVEL;          // Lv 상한 도달 = 통달(최고 경지)
     const titleEl = document.getElementById("celebrate-title");
     const subEl = document.getElementById("celebrate-sub");
     const upBtn = document.getElementById("celebrate-up");
@@ -329,7 +332,7 @@
     const rank = document.getElementById("hud-rank");   // 뱃지 등장 강조
     if (rank) { rank.classList.remove("pop"); void rank.offsetWidth; rank.classList.add("pop"); }
     if (Level.n >= MAX_LEVEL) {
-      renderCelebrate();   // Lv5(통달) 도달 → 오버레이를 통달 메시지로 전환(닫지 않고 유지)
+      renderCelebrate();   // 통달(Lv 상한) 도달 → 오버레이를 통달 메시지로 전환(닫지 않고 유지)
       runBurst();
     } else {
       closeCelebrate();
