@@ -17,8 +17,15 @@
   function getCode() {
     try { return localStorage.getItem(CODE_KEY) || ""; } catch (e) { return ""; }
   }
+  // 전각 영숫자·기호(U+FF01~FF5E)를 반각으로, 전각 공백(U+3000)을 일반 공백으로 —
+  // 오타 계열 중 자동 교정 가능한 것만(order/LMS_운영기초_지시서.md ②). 등록 여부 검증은
+  // 하지 않는다(코드 목록 노출 방지 — 서버 track.js가 조용히 판정).
   function normalize(raw) {
-    const c = String(raw || "").replace(/\s+/g, "");
+    const c = String(raw || "")
+      .replace(/[！-～]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+      .replace(/　/g, " ")
+      .trim()
+      .replace(/\s+/g, "");
     return (c.length >= 2 && c.length <= 20) ? c : null;
   }
   function setCode(raw) {

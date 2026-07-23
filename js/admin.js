@@ -14,6 +14,8 @@
   const KEY_STORAGE = "ax_admin_key";     // sessionStorage — 브라우저 닫으면 만료
   const ENDPOINT = "/.netlify/functions/stats";
   const BRIEF_ENDPOINT = "/.netlify/functions/brief";
+  const CODES_ENDPOINT = "/.netlify/functions/codes";
+  const COURSES = ["ax", "aifirst"];   // 코드 발급 도구의 과정 선택지(order/LMS_운영기초_지시서.md ①)
   const LIT_AXES = ["이해", "활용", "검증", "안전"];
   const AXIS_LECTURE = { 검증: "03강", 활용: "04·05강", 이해: "01·06강", 안전: "16강" };
   const CHK_AXES = ["방향", "데이터", "사람", "규칙", "분위기"];
@@ -55,6 +57,29 @@
       throw e;
     }
     return body;   // { text, generatedAt, classFilter, courseFilter, studentCount }
+  }
+
+  async function fetchCodeBatches(key, course) {
+    const qs = course ? ("?course=" + encodeURIComponent(course)) : "";
+    const res = await fetch(CODES_ENDPOINT + qs, { headers: { "x-admin-key": key } });
+    if (!res.ok) { const e = new Error("codes fetch failed"); e.code = res.status; throw e; }
+    const body = await res.json();
+    return body.batches;   // [{ course, batch, count, createdAt }]
+  }
+  async function issueCodes(key, course, batch, count) {
+    const res = await fetch(CODES_ENDPOINT, {
+      method: "POST",
+      headers: { "x-admin-key": key, "Content-Type": "application/json" },
+      body: JSON.stringify({ course, batch, count })
+    });
+    let body = null;
+    try { body = await res.json(); } catch (e) {}
+    if (!res.ok) {
+      const e = new Error((body && body.error) || "발급 실패");
+      e.code = res.status; e.serverMsg = body && body.error;
+      throw e;
+    }
+    return body;   // { course, batch, codes, created }
   }
 
   /* =====================================================================
@@ -254,6 +279,7 @@
               '<option value="">전체 (' + state.full.aggregate.studentCount + '명)</option>' +
               prefixes.map(p => '<option value="' + esc(p) + '"' + (state.currentClass === p ? ' selected' : '') + '>' + esc(p) + '</option>').join("") +
             '</select>' +
+            '<button id="admin-issue-btn" class="admin-btn" type="button">🎫 코드 발급</button>' +
             '<button id="admin-brief-btn" class="admin-btn admin-btn--accent" type="button">📋 주간 브리핑</button>' +
             '<button id="admin-refresh" class="admin-btn" type="button">↻ 새로고침</button>' +
             '<button id="admin-exit" class="admin-btn admin-btn--ghost" type="button">✕ 닫기</button>' +
@@ -298,6 +324,15 @@
               '<button id="admin-brief-regen" class="admin-btn admin-btn--ghost" type="button">↻ 다시 생성</button>' +
             '</div>' +
           '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div id="admin-issue" class="admin-layer" hidden>' +
+        '<div class="admin-layer__backdrop" id="admin-issue-backdrop"></div>' +
+        '<div class="admin-layer__sheet admin-layer__sheet--wide" role="dialog" aria-modal="true" aria-label="코드 발급">' +
+          '<header class="admin-layer__head"><span class="admin-layer__title">🎫 코드 발급</span>' +
+            '<button id="admin-issue-close" class="admin-layer__x" aria-label="닫기">✕</button></header>' +
+          '<div class="admin-layer__body" id="admin-issue-body"></div>' +
         '</div>' +
       '</div>';
 
@@ -367,6 +402,10 @@
     root.querySelector("#admin-brief-btn").addEventListener("click", () => runBrief());
     root.querySelector("#admin-brief-close").addEventListener("click", () => closeLayer("admin-brief"));
     root.querySelector("#admin-brief-backdrop").addEventListener("click", () => closeLayer("admin-brief"));
+
+    root.querySelector("#admin-issue-btn").addEventListener("click", () => openIssueLayer());
+    root.querySelector("#admin-issue-close").addEventListener("click", () => closeLayer("admin-issue"));
+    root.querySelector("#admin-issue-backdrop").addEventListener("click", () => closeLayer("admin-issue"));
   }
   function closeLayer(id) {
     const layer = root.querySelector("#" + id);
@@ -378,7 +417,7 @@
   // ESC는 대시보드가 다시 그려져도(새로고침·반 필터) 중복 등록되지 않게 모듈 초기화 시 1회만 바인딩.
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" || !isAdminRoute() || root.hidden) return;
-    closeLayer("admin-detail"); closeLayer("admin-brief");
+    closeLayer("admin-detail"); closeLayer("admin-brief"); closeLayer("admin-issue");
   });
 
   function openDetail(code) {
@@ -478,6 +517,148 @@
       }
       if (regenBtn) regenBtn.onclick = () => runBrief();
     }
+  }
+
+  /* =====================================================================
+     🎫 코드 발급 — 반 단위 코드 생성 + CSV/인쇄 카드(order/LMS_운영기초_지시서.md ①)
+     관리 화면·이름 매핑·코드 비활성화·수강생 계정은 만들지 않는다(가장 기본만).
+     ===================================================================== */
+  function renderIssueForm() {
+    return '<form id="issue-form" class="admin-issue-form">' +
+      '<label class="admin-issue-field">과정<select id="issue-course" class="admin-select">' +
+        COURSES.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join("") +
+      '</select></label>' +
+      '<label class="admin-issue-field">반 이름<input id="issue-batch" class="admin-issue-input" type="text" maxlength="20" placeholder="예: A반" autocomplete="off" /></label>' +
+      '<label class="admin-issue-field">인원수<input id="issue-count" class="admin-issue-input admin-issue-input--num" type="number" min="1" max="99" value="1" /></label>' +
+      '<button id="issue-submit" class="admin-btn admin-btn--accent" type="submit">발급</button>' +
+      '</form>' +
+      '<div id="issue-result"></div>' +
+      '<div class="admin-issue-divider"></div>' +
+      '<h3 class="admin-sec__t">발급된 반 목록</h3>' +
+      '<div id="issue-list"><p class="admin-empty">불러오는 중…</p></div>';
+  }
+
+  function joinLinkFor(batch) {
+    return location.origin + location.pathname + "?join=" + encodeURIComponent(batch);
+  }
+  function csvField(v) {
+    const s = String(v == null ? "" : v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function downloadCsv(res) {
+    const link = joinLinkFor(res.batch);
+    const lines = ["코드,입장링크"];
+    res.codes.forEach(c => lines.push([csvField(c), csvField(link)].join(",")));
+    const csv = "﻿" + lines.join("\r\n");   // BOM: 엑셀에서 한글 깨짐 방지
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = res.course + "_" + res.batch + "_코드.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function ensurePrintContainer() {
+    // admin-root 밖(document.body 직속)에 둔다 — 대시보드가 재렌더돼도(새로고침·필터)
+    // 인쇄 내용이 유지되고, @media print에서 이 컨테이너만 남기고 나머지를 숨기기 쉽다.
+    let el = document.getElementById("admin-print-cards");
+    if (!el) { el = document.createElement("div"); el.id = "admin-print-cards"; document.body.appendChild(el); }
+    return el;
+  }
+  function printCards(res) {
+    const link = joinLinkFor(res.batch);
+    let qrSvg = "";
+    try {
+      if (window.qrcode) {
+        const qr = qrcode(0, "M");
+        qr.addData(link);
+        qr.make();
+        qrSvg = qr.createSvgTag({ cellSize: 4, margin: 4, scalable: true });
+      }
+    } catch (e) { qrSvg = ""; }
+    const cards = res.codes.map(c =>
+      '<div class="print-card">' +
+        '<div class="print-card__course">' + esc(SITE_CONFIG.siteName) + ' · ' + esc(res.batch) + '</div>' +
+        '<div class="print-card__code">' + esc(c) + '</div>' +
+        (qrSvg ? '<div class="print-card__qr">' + qrSvg + '</div>' : '') +
+        '<div class="print-card__hint">QR을 찍거나 직접 접속: ' + esc(link) + '</div>' +
+      '</div>'
+    ).join("");
+    ensurePrintContainer().innerHTML = '<div class="print-card-grid">' + cards + '</div>';
+    // practice.js의 제안서 인쇄(axp-printing)와 같은 기법 — body에 클래스를 잠깐 얹어
+    // 그 사이에만 이 컨테이너가 보이게 한다.
+    document.body.classList.add("admin-printing");
+    setTimeout(() => window.print(), 50);
+    setTimeout(() => document.body.classList.remove("admin-printing"), 500);
+  }
+
+  function renderIssueResult(res) {
+    const note = res.created ? '' : '<p class="admin-issue-note">이미 발급된 반입니다 — 기존 코드를 그대로 보여줍니다(재발급 안전, 중복 생성 없음).</p>';
+    const rows = res.codes.map(c => '<li class="admin-issue-code">' + esc(c) + '</li>').join("");
+    return '<div class="admin-issue-result">' +
+      '<h4 class="admin-issue-result__t">' + esc(res.course) + ' · ' + esc(res.batch) + ' (' + res.codes.length + '명)</h4>' +
+      note +
+      '<ul class="admin-issue-codelist">' + rows + '</ul>' +
+      '<div class="admin-issue-actions">' +
+        '<button id="issue-csv-btn" class="admin-btn" type="button">⬇ CSV 다운로드</button>' +
+        '<button id="issue-print-btn" class="admin-btn" type="button">🖨️ 카드 인쇄</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderIssueList(batches) {
+    if (!batches.length) return '<p class="admin-empty">아직 발급된 반이 없습니다.</p>';
+    const rows = batches.map(b =>
+      '<tr><td>' + esc(b.course) + '</td><td>' + esc(b.batch) + '</td><td>' + b.count + '명</td><td>' + fmtTime(b.createdAt) + '</td></tr>'
+    ).join("");
+    return '<table class="admin-issue-list"><thead><tr><th>과정</th><th>반</th><th>인원</th><th>발급일</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+  async function refreshIssueList() {
+    const listEl = root.querySelector("#issue-list");
+    if (!listEl) return;
+    try {
+      const batches = await fetchCodeBatches(state.key, "");
+      listEl.innerHTML = renderIssueList(batches);
+    } catch (e) {
+      if (e.code === 401) { clearKey(); renderGate("키가 만료되었습니다. 다시 입력해주세요."); return; }
+      listEl.innerHTML = '<p class="admin-empty">목록을 불러오지 못했습니다.</p>';
+    }
+  }
+
+  function bindIssueForm() {
+    const form = root.querySelector("#issue-form");
+    const courseSel = root.querySelector("#issue-course");
+    if (SITE_CONFIG.course && COURSES.indexOf(SITE_CONFIG.course) >= 0) courseSel.value = SITE_CONFIG.course;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const course = courseSel.value;
+      const batch = root.querySelector("#issue-batch").value.trim();
+      const count = parseInt(root.querySelector("#issue-count").value, 10);
+      const resultEl = root.querySelector("#issue-result");
+      if (!batch) { resultEl.innerHTML = '<p class="admin-issue-err">반 이름을 입력하세요</p>'; return; }
+      if (!Number.isInteger(count) || count < 1 || count > 99) {
+        resultEl.innerHTML = '<p class="admin-issue-err">인원수는 1~99 사이여야 합니다</p>'; return;
+      }
+      const btn = root.querySelector("#issue-submit");
+      btn.disabled = true; btn.textContent = "발급 중…";
+      try {
+        const res = await issueCodes(state.key, course, batch, count);
+        resultEl.innerHTML = renderIssueResult(res);
+        root.querySelector("#issue-csv-btn").addEventListener("click", () => downloadCsv(res));
+        root.querySelector("#issue-print-btn").addEventListener("click", () => printCards(res));
+        refreshIssueList();
+      } catch (err) {
+        if (err.code === 401) { clearKey(); renderGate("키가 만료되었습니다. 다시 입력해주세요."); return; }
+        resultEl.innerHTML = '<p class="admin-issue-err">' + esc(err.serverMsg || "발급 실패 — 잠시 후 재시도") + '</p>';
+      } finally {
+        btn.disabled = false; btn.textContent = "발급";
+      }
+    });
+  }
+  function openIssueLayer() {
+    root.querySelector("#admin-issue-body").innerHTML = renderIssueForm();
+    bindIssueForm();
+    openLayer("admin-issue");
+    refreshIssueList();
   }
 
   /* =====================================================================

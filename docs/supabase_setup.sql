@@ -23,3 +23,23 @@ create index if not exists events_course_idx on events (course);
 -- 쓰기는 Netlify Function(track.js)이 service_role 키로만 수행(RLS를 우회하는 키이므로 정책 불필요).
 alter table events enable row level security;
 -- 정책을 추가하지 않은 상태 = anon/authenticated 키로는 select/insert 전부 거부(기본 deny).
+
+-- =========================================================================
+-- codes — 등록된 수강 코드 (LMS 운영 기초, order/LMS_운영기초_지시서.md)
+-- -------------------------------------------------------------------------
+-- 강사가 #/admin의 코드 발급 도구로 반 단위 생성. track.js가 insert 전 이
+-- 테이블을 조회해 "등록된 코드만" events에 쌓이게 한다(유령 데이터 차단).
+-- 이름·연락처 등 개인정보는 어떤 컬럼에도 두지 않는다 — code만 저장.
+-- =========================================================================
+create table if not exists codes (
+  code text primary key,          -- 예: A반-07
+  course text not null,           -- ax / aifirst
+  batch text not null,            -- 반 이름 (예: A반)
+  created_at timestamptz default now()
+);
+
+create index if not exists codes_course_batch_idx on codes (course, batch);
+
+alter table codes enable row level security;
+-- 정책 없음 = anon/authenticated 키로는 select/insert 전부 거부(기본 deny).
+-- 쓰기(발급)는 codes.js가, 조회(검증)는 track.js가 둘 다 service_role 키로만 수행.

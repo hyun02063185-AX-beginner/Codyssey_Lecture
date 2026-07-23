@@ -65,16 +65,24 @@ exports.handler = async function (event) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY;
   if (!url || !key) return { statusCode: 500, headers: cors };   // env 미설정 = 수집 전체 중단
+  const base = url.replace(/\/$/, "") + "/rest/v1";
+  const sbHeaders = { "apikey": key, "Authorization": "Bearer " + key };
 
   try {
-    const res = await fetch(url.replace(/\/$/, "") + "/rest/v1/events", {
+    // 등록된 코드만 수집(order/LMS_운영기초_지시서.md ②) — 미등록 코드는 유령 데이터이므로
+    // 조용히 무시한다(204, 에러 아님 — 수강생 UX에 벽을 만들지 않는다).
+    const checkRes = await fetch(
+      base + "/codes?code=eq." + encodeURIComponent(code) + "&course=eq." + encodeURIComponent(course) +
+      "&select=code&limit=1",
+      { headers: sbHeaders }
+    );
+    if (!checkRes.ok) return { statusCode: 502, headers: cors };
+    const found = await checkRes.json();
+    if (!found.length) return { statusCode: 204, headers: cors };
+
+    const res = await fetch(base + "/events", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": key,
-        "Authorization": "Bearer " + key,
-        "Prefer": "return=minimal"
-      },
+      headers: { ...sbHeaders, "Content-Type": "application/json", "Prefer": "return=minimal" },
       body: JSON.stringify({ code: code, event_type: type, payload: payload, course: course })
     });
     if (!res.ok) return { statusCode: 502, headers: cors };
