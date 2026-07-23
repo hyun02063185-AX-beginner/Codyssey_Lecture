@@ -444,8 +444,8 @@ body{
 
 /* --- 수강 코드 입력(선택) — ⚙️ 설정 레이어 안, 흐름을 막지 않게 작게 --- */
 .scode{display:flex;flex-direction:column;align-items:center;gap:6px}
-.scode__row{display:flex;gap:8px;align-items:center}
-.scode__input{width:170px;padding:8px 14px;border-radius:var(--radius-pill);
+.scode__row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%}
+.scode__input{flex:1 1 110px;min-width:90px;max-width:170px;padding:8px 14px;border-radius:var(--radius-pill);
   border:1px solid var(--glass-brd);background:var(--glass);color:var(--ink);
   font-family:var(--font-body);font-size:.82rem;text-align:center;outline:none;transition:.25s}
 .scode__input:focus{border-color:var(--accent)}
@@ -1523,33 +1523,38 @@ body{
 .admin-brief-actions{display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--glass-brd)}
 .admin-brief-actions .admin-btn{flex:1}
 
-/* 🎫 코드 발급 (order/LMS_운영기초_지시서.md ①) */
+/* 🎫 코드 발급 (order/코드방식_서버설정_지시서.md A-3 — 반 코드 1개로 단순화) */
 .admin-issue-form{display:flex;flex-wrap:wrap;gap:14px;align-items:end;margin-bottom:18px}
 .admin-issue-field{display:flex;flex-direction:column;gap:5px;font-size:.82rem;color:var(--ink-dim)}
 .admin-issue-input{background:var(--glass);border:1px solid var(--glass-brd);border-radius:8px;padding:8px 10px;color:var(--ink);font-family:var(--font-body);font-size:.92rem}
-.admin-issue-input--num{width:80px}
 .admin-issue-err{color:#D98E6B;font-size:.85rem;margin:6px 0}
 .admin-issue-note{color:var(--ink-dim);font-size:.85rem;margin:6px 0}
 .admin-issue-divider{height:1px;background:var(--glass-brd);margin:18px 0}
-.admin-issue-result{margin-top:14px;padding:14px;border:1px solid var(--glass-brd);border-radius:10px;background:var(--glass)}
+.admin-issue-result{margin-top:14px;padding:14px;border:1px solid var(--glass-brd);border-radius:10px;background:var(--glass);text-align:center}
 .admin-issue-result__t{margin-bottom:8px;font-size:.95rem}
-.admin-issue-codelist{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:10px 0}
-.admin-issue-code{background:var(--card-bg);border:1px solid var(--glass-brd);border-radius:6px;padding:4px 10px;font-family:var(--font-mono);font-size:.85rem}
+.admin-issue-code{background:var(--card-bg);border:1px solid var(--glass-brd);border-radius:6px;padding:4px 10px;font-family:var(--font-mono);font-size:.85rem;display:inline-block}
+.admin-issue-code--big{font-size:1.6rem;font-weight:800;padding:12px 20px;margin:8px 0;letter-spacing:.02em}
+.admin-issue-qr{display:flex;justify-content:center;margin:10px 0}
+.admin-issue-qr svg{width:140px;height:140px}
 .admin-issue-actions{display:flex;gap:10px;margin-top:12px}
 .admin-issue-actions .admin-btn{flex:1}
 .admin-issue-list{width:100%;border-collapse:collapse;font-size:.85rem}
 .admin-issue-list th,.admin-issue-list td{padding:7px 10px;border-bottom:1px solid var(--glass-brd);text-align:left;color:var(--ink)}
 .admin-issue-list th{color:var(--ink-dim);font-weight:600}
 
-/* 인쇄용 코드 카드 — 화면에선 숨김, @media print의 admin-printing 상태에서만 노출.
+/* 인쇄용 반 안내 — 화면에선 숨김, @media print의 admin-printing 상태에서만 노출.
    인쇄물이라 스킨 변수 대신 고정 중성색을 쓴다(어느 스킨에서 인쇄하든 결과가 같아야 함). */
 #admin-print-cards{display:none}
 .print-card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:10px}
+.print-card-grid--single{grid-template-columns:1fr;max-width:420px;margin:0 auto}
 .print-card{border:1px dashed #999;border-radius:8px;padding:16px;text-align:center;page-break-inside:avoid;
   display:flex;flex-direction:column;align-items:center;gap:8px;color:#111;background:#fff}
+.print-card--sheet{padding:40px 24px}
 .print-card__course{font-size:.72rem;color:#555;letter-spacing:.04em}
 .print-card__code{font-size:1.3rem;font-weight:800;color:#111;font-family:monospace}
+.print-card--sheet .print-card__code{font-size:2.2rem}
 .print-card__qr svg{width:120px;height:120px}
+.print-card--sheet .print-card__qr svg{width:200px;height:200px}
 .print-card__hint{font-size:.6rem;color:#666;word-break:break-all}
 
 @media (max-width:900px){

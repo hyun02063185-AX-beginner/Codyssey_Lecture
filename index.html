@@ -97,18 +97,21 @@
       <div class="settings-layer__body">
         <section class="settings-sec">
           <h3 class="settings-sec__t">수강 코드</h3>
-          <!-- 선택 사항 — 입력 시에만 학습 현황이 강사에게 전송된다 (telemetry.js) -->
+          <!-- 선택 사항 — 코드+이름을 모두 입력해야 학습 현황이 강사에게 전송된다 (telemetry.js) -->
           <div class="scode" id="scode">
             <div class="scode__row" id="scode-form">
-              <input id="scode-input" class="scode__input" type="text" maxlength="20"
-                     placeholder="수강 코드 (선택)" autocomplete="off" />
+              <input id="scode-code-input" class="scode__input" type="text" maxlength="20"
+                     placeholder="수강 코드" autocomplete="off" />
+              <input id="scode-name-input" class="scode__input" type="text" maxlength="30"
+                     placeholder="이름" autocomplete="off" />
               <button id="scode-set" class="scode__btn" type="button">등록</button>
             </div>
             <div class="scode__row" id="scode-active" hidden>
               <span class="scode__badge">🎫 <b id="scode-current"></b></span>
               <button id="scode-clear" class="scode__btn scode__btn--ghost" type="button">제거</button>
             </div>
-            <p class="scode__note">코드를 입력하면 학습 진행 상황이 강사에게 전달됩니다</p>
+            <p class="scode__note">강사가 알려준 코드와 이름을 입력하면 학습 진행 상황이 강사에게
+              전달됩니다 (이름 외 정보는 수집하지 않습니다)</p>
           </div>
         </section>
       </div>

@@ -13,14 +13,17 @@
   const CODE_KEY = "ax_student_code";
   const ENDPOINT = "/.netlify/functions/track";
 
-  /* ---------- 수강 코드 ---------- */
+  /* ---------- 수강 코드 + 이름 (order/코드방식_서버설정_지시서.md A) ----------
+     저장 식별자 = `{반코드}-{이름}` — code 저장 자리는 그대로 두고 합성 문자열만 넣는다
+     (시스템 구조 변경 최소화). 반코드는 강사가 #/admin에서 발급한 값, 이름은 학생이 직접
+     입력 — 이름 외 개인정보는 어떤 필드로도 수집하지 않는다. */
   function getCode() {
     try { return localStorage.getItem(CODE_KEY) || ""; } catch (e) { return ""; }
   }
   // 전각 영숫자·기호(U+FF01~FF5E)를 반각으로, 전각 공백(U+3000)을 일반 공백으로 —
   // 오타 계열 중 자동 교정 가능한 것만(order/LMS_운영기초_지시서.md ②). 등록 여부 검증은
   // 하지 않는다(코드 목록 노출 방지 — 서버 track.js가 조용히 판정).
-  function normalize(raw) {
+  function normalizeCode(raw) {
     const c = String(raw || "")
       .replace(/[！-～]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
       .replace(/　/g, " ")
@@ -28,10 +31,20 @@
       .replace(/\s+/g, "");
     return (c.length >= 2 && c.length <= 20) ? c : null;
   }
-  function setCode(raw) {
-    const c = normalize(raw);
-    if (!c) return false;
-    try { localStorage.setItem(CODE_KEY, c); } catch (e) {}
+  // 이름은 내부 공백도 제거한다("김 철수" → "김철수", 지시서 A-1) — 반코드와 합성해 한
+  // 식별자 문자열로 만들 때 공백이 있으면 여러 토큰처럼 보여 혼란을 줄 수 있어서다.
+  function normalizeName(raw) {
+    const n = String(raw || "")
+      .replace(/[！-～]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+      .replace(/[\s　]+/g, "");
+    return (n.length >= 1 && n.length <= 30) ? n : null;
+  }
+  function setCode(rawCode, rawName) {
+    const code = normalizeCode(rawCode);
+    const name = normalizeName(rawName);
+    if (!code || !name) return false;
+    const identifier = code + "-" + name;
+    try { localStorage.setItem(CODE_KEY, identifier); } catch (e) {}
     refreshUI();
     sessionStart();          // 등록 즉시 세션 시작 1건
     // ?join= 링크로 들어와 방금 등록했다면 — 레이어 닫고 바로 강의실 입장 가능하게
@@ -128,9 +141,9 @@
     }
     renderCodeBtn(code);
   }
-  /* ---------- 강의용 입장 링크 ?join=반이름 ----------
-     🎫 내 정보 레이어를 자동으로 열고 입력란에 "반이름-"을 채워, 수강생은 번호만 입력하면 된다.
-     이미 코드가 저장돼 있으면(재방문) 조용히 무시 — 재입력을 강요하지 않는다. */
+  /* ---------- 강의용 입장 링크 ?join=반코드 ----------
+     🎫 내 정보 레이어를 자동으로 열고 코드칸에 반코드를 채운 뒤 이름칸에 포커스한다 —
+     수강생은 이름만 입력하면 된다. 이미 코드가 저장돼 있으면(재방문) 조용히 무시(동일). */
   let joinedViaLink = false;
   function applyJoinLink() {
     if (getCode()) return;
@@ -140,28 +153,31 @@
     try { prefix = decodeURIComponent(m[1]); } catch (e) { prefix = m[1]; }
     prefix = prefix.trim();
     if (!prefix) return;
-    const input = document.getElementById("scode-input");
-    if (!input) return;
-    input.value = prefix + "-";
+    const codeInput = document.getElementById("scode-code-input");
+    const nameInput = document.getElementById("scode-name-input");
+    if (!codeInput || !nameInput) return;
+    codeInput.value = prefix;
     joinedViaLink = true;
     window.CodeLayer && window.CodeLayer.open();
-    input.focus();
-    try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
+    nameInput.focus();
   }
 
   function initUI() {
-    const input = document.getElementById("scode-input");
+    const codeInput = document.getElementById("scode-code-input");
+    const nameInput = document.getElementById("scode-name-input");
     const setBtn = document.getElementById("scode-set");
     const clearBtn = document.getElementById("scode-clear");
-    if (setBtn && input) {
+    if (setBtn && codeInput && nameInput) {
       const submit = function () {
-        if (!setCode(input.value)) {
-          input.classList.add("scode__input--bad");
-          setTimeout(function () { input.classList.remove("scode__input--bad"); }, 900);
-        } else { input.value = ""; }
+        if (!setCode(codeInput.value, nameInput.value)) {
+          const badInput = normalizeCode(codeInput.value) ? nameInput : codeInput;
+          badInput.classList.add("scode__input--bad");
+          setTimeout(function () { badInput.classList.remove("scode__input--bad"); }, 900);
+        } else { codeInput.value = ""; nameInput.value = ""; }
       };
       setBtn.addEventListener("click", submit);
-      input.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      nameInput.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
     }
     if (clearBtn) clearBtn.addEventListener("click", clearCode);
     refreshUI();

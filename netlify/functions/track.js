@@ -57,7 +57,9 @@ exports.handler = async function (event) {
   const code = String(data.code || "").replace(/\s+/g, "");
   const type = String(data.event_type || "");
   const course = String(data.course || "");
-  if (code.length < 2 || code.length > 20)   return { statusCode: 400, headers: cors };
+  // 식별자 = `{반코드}-{이름}`(order/코드방식_서버설정_지시서.md A) — 반코드 최대 20자 +
+  // '-' 1자 + 이름 최대 30자 = 51자가 이론상 최댓값이라 상한을 20→51로 완화.
+  if (code.length < 2 || code.length > 51)   return { statusCode: 400, headers: cors };
   if (!EVENT_TYPES.has(type))                return { statusCode: 400, headers: cors };
   if (!/^[a-z]{2,20}$/.test(course))         return { statusCode: 400, headers: cors };
   const payload = (data.payload && typeof data.payload === "object") ? data.payload : {};
@@ -69,16 +71,20 @@ exports.handler = async function (event) {
   const sbHeaders = { "apikey": key, "Authorization": "Bearer " + key };
 
   try {
-    // 등록된 코드만 수집(order/LMS_운영기초_지시서.md ②) — 미등록 코드는 유령 데이터이므로
-    // 조용히 무시한다(204, 에러 아님 — 수강생 UX에 벽을 만들지 않는다).
-    const checkRes = await fetch(
-      base + "/codes?code=eq." + encodeURIComponent(code) + "&course=eq." + encodeURIComponent(course) +
-      "&select=code&limit=1",
+    // 등록된 반코드로 시작하는 식별자만 수집(order/코드방식_서버설정_지시서.md A-2 — 반코드+
+    // 이름 방식으로 개편되며 exact match에서 접두(prefix) match로 변경). 미등록 반코드는
+    // 유령 데이터이므로 조용히 무시한다(204, 에러 아님 — 수강생 UX에 벽을 만들지 않는다).
+    // PostgREST로 "컬럼값+구분자가 식별자의 접두인지"를 직접 필터링할 수 없어, 그 과정의
+    // 등록 반코드 전체를 가져와 여기서 판정한다(이름에 하이픈이 섞여 있어도 안전하게 —
+    // 접두 일치하는 반코드가 하나라도 있으면 통과).
+    const codesRes = await fetch(
+      base + "/codes?course=eq." + encodeURIComponent(course) + "&select=code",
       { headers: sbHeaders }
     );
-    if (!checkRes.ok) return { statusCode: 502, headers: cors };
-    const found = await checkRes.json();
-    if (!found.length) return { statusCode: 204, headers: cors };
+    if (!codesRes.ok) return { statusCode: 502, headers: cors };
+    const registered = await codesRes.json();
+    const matched = registered.some(function (r) { return code.indexOf(r.code + "-") === 0; });
+    if (!matched) return { statusCode: 204, headers: cors };
 
     const res = await fetch(base + "/events", {
       method: "POST",

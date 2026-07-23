@@ -2,3 +2,12 @@
 [build]
   publish = "."
   functions = "netlify/functions"
+
+# 로컬 개발 서버 포트 고정 — AI_First_Step과 동시에 띄워도 충돌하지 않게
+# (order/코드방식_서버설정_지시서.md B-1). `npx netlify dev`만 실행하면 옵션 없이도
+# 항상 이 자리에 뜬다. 실측 결과 이 두 값만 고정하면 충분 — 그 외 내부 포트(함수
+# 서버·IPC 등)는 실행마다 OS가 임의로 비어있는 포트를 골라 쓰므로 저장소 간 충돌
+# 가능성이 사실상 없고, netlify.toml에 고정할 방법도 없다(docs/서버_실행_가이드.md 참고).
+[dev]
+  port = 8000              # 접속 주소: http://localhost:8000
+  staticServerPort = 3999  # 내부 정적 서버(기본값과 동일하지만 명시 — 첫걸음은 3998)

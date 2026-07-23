@@ -66,11 +66,11 @@
     const body = await res.json();
     return body.batches;   // [{ course, batch, count, createdAt }]
   }
-  async function issueCodes(key, course, batch, count) {
+  async function issueCodes(key, course, batch) {
     const res = await fetch(CODES_ENDPOINT, {
       method: "POST",
       headers: { "x-admin-key": key, "Content-Type": "application/json" },
-      body: JSON.stringify({ course, batch, count })
+      body: JSON.stringify({ course, batch })
     });
     let body = null;
     try { body = await res.json(); } catch (e) {}
@@ -79,7 +79,7 @@
       e.code = res.status; e.serverMsg = body && body.error;
       throw e;
     }
-    return body;   // { course, batch, codes, created }
+    return body;   // { course, batch, code, created }
   }
 
   /* =====================================================================
@@ -520,16 +520,17 @@
   }
 
   /* =====================================================================
-     🎫 코드 발급 — 반 단위 코드 생성 + CSV/인쇄 카드(order/LMS_운영기초_지시서.md ①)
-     관리 화면·이름 매핑·코드 비활성화·수강생 계정은 만들지 않는다(가장 기본만).
+     🎫 코드 발급 — 반 코드 1개 등록 + 화면용 QR(order/코드방식_서버설정_지시서.md A-3)
+     인원수 입력·개인별 코드 다수 발급·CSV는 폐지 — 이름이 시스템에 들어오므로(telemetry.js)
+     대시보드가 곧 명부라 오프라인 명부(CSV)가 더는 필요 없다. 관리 화면·코드 비활성화·
+     수강생 계정은 만들지 않는다(가장 기본만).
      ===================================================================== */
   function renderIssueForm() {
     return '<form id="issue-form" class="admin-issue-form">' +
       '<label class="admin-issue-field">과정<select id="issue-course" class="admin-select">' +
         COURSES.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join("") +
       '</select></label>' +
-      '<label class="admin-issue-field">반 이름<input id="issue-batch" class="admin-issue-input" type="text" maxlength="20" placeholder="예: A반" autocomplete="off" /></label>' +
-      '<label class="admin-issue-field">인원수<input id="issue-count" class="admin-issue-input admin-issue-input--num" type="number" min="1" max="99" value="1" /></label>' +
+      '<label class="admin-issue-field">반 코드<input id="issue-batch" class="admin-issue-input" type="text" maxlength="20" placeholder="예: 7월AX반" autocomplete="off" /></label>' +
       '<button id="issue-submit" class="admin-btn admin-btn--accent" type="submit">발급</button>' +
       '</form>' +
       '<div id="issue-result"></div>' +
@@ -541,21 +542,6 @@
   function joinLinkFor(batch) {
     return location.origin + location.pathname + "?join=" + encodeURIComponent(batch);
   }
-  function csvField(v) {
-    const s = String(v == null ? "" : v);
-    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
-  }
-  function downloadCsv(res) {
-    const link = joinLinkFor(res.batch);
-    const lines = ["코드,입장링크"];
-    res.codes.forEach(c => lines.push([csvField(c), csvField(link)].join(",")));
-    const csv = "﻿" + lines.join("\r\n");   // BOM: 엑셀에서 한글 깨짐 방지
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
-    const a = document.createElement("a");
-    a.href = url; a.download = res.course + "_" + res.batch + "_코드.csv";
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
 
   function ensurePrintContainer() {
     // admin-root 밖(document.body 직속)에 둔다 — 대시보드가 재렌더돼도(새로고침·필터)
@@ -564,7 +550,9 @@
     if (!el) { el = document.createElement("div"); el.id = "admin-print-cards"; document.body.appendChild(el); }
     return el;
   }
-  function printCards(res) {
+  // 반 안내 1장 인쇄 — 강의 슬라이드/화면에 띄우거나 종이로 뽑아 앞에 걸어두는 용도.
+  // 개인별 카드 그리드였던 이전 버전을 "반 안내 1장"으로 단순화.
+  function printBatchSheet(res) {
     const link = joinLinkFor(res.batch);
     let qrSvg = "";
     try {
@@ -572,18 +560,18 @@
         const qr = qrcode(0, "M");
         qr.addData(link);
         qr.make();
-        qrSvg = qr.createSvgTag({ cellSize: 4, margin: 4, scalable: true });
+        qrSvg = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true });
       }
     } catch (e) { qrSvg = ""; }
-    const cards = res.codes.map(c =>
-      '<div class="print-card">' +
-        '<div class="print-card__course">' + esc(SITE_CONFIG.siteName) + ' · ' + esc(res.batch) + '</div>' +
-        '<div class="print-card__code">' + esc(c) + '</div>' +
+    const sheet =
+      '<div class="print-card print-card--sheet">' +
+        '<div class="print-card__course">' + esc(SITE_CONFIG.siteName) + '</div>' +
+        '<div class="print-card__code">' + esc(res.code) + '</div>' +
         (qrSvg ? '<div class="print-card__qr">' + qrSvg + '</div>' : '') +
         '<div class="print-card__hint">QR을 찍거나 직접 접속: ' + esc(link) + '</div>' +
-      '</div>'
-    ).join("");
-    ensurePrintContainer().innerHTML = '<div class="print-card-grid">' + cards + '</div>';
+        '<div class="print-card__hint">위 코드와 이름을 입력하면 학습 진행 상황이 전달됩니다</div>' +
+      '</div>';
+    ensurePrintContainer().innerHTML = '<div class="print-card-grid print-card-grid--single">' + sheet + '</div>';
     // practice.js의 제안서 인쇄(axp-printing)와 같은 기법 — body에 클래스를 잠깐 얹어
     // 그 사이에만 이 컨테이너가 보이게 한다.
     document.body.classList.add("admin-printing");
@@ -592,15 +580,24 @@
   }
 
   function renderIssueResult(res) {
-    const note = res.created ? '' : '<p class="admin-issue-note">이미 발급된 반입니다 — 기존 코드를 그대로 보여줍니다(재발급 안전, 중복 생성 없음).</p>';
-    const rows = res.codes.map(c => '<li class="admin-issue-code">' + esc(c) + '</li>').join("");
+    const note = res.created ? '' : '<p class="admin-issue-note">이미 발급된 반입니다 — 기존 반 코드를 그대로 보여줍니다(재발급 안전, 중복 생성 없음).</p>';
+    let qrSvg = "";
+    try {
+      if (window.qrcode) {
+        const qr = qrcode(0, "M");
+        qr.addData(joinLinkFor(res.batch));
+        qr.make();
+        qrSvg = qr.createSvgTag({ cellSize: 4, margin: 4, scalable: true });
+      }
+    } catch (e) { qrSvg = ""; }
     return '<div class="admin-issue-result">' +
-      '<h4 class="admin-issue-result__t">' + esc(res.course) + ' · ' + esc(res.batch) + ' (' + res.codes.length + '명)</h4>' +
+      '<h4 class="admin-issue-result__t">' + esc(res.course) + '</h4>' +
       note +
-      '<ul class="admin-issue-codelist">' + rows + '</ul>' +
+      '<div class="admin-issue-code admin-issue-code--big">' + esc(res.code) + '</div>' +
+      (qrSvg ? '<div class="admin-issue-qr">' + qrSvg + '</div>' : '') +
+      '<p class="admin-issue-note">' + esc(joinLinkFor(res.batch)) + '</p>' +
       '<div class="admin-issue-actions">' +
-        '<button id="issue-csv-btn" class="admin-btn" type="button">⬇ CSV 다운로드</button>' +
-        '<button id="issue-print-btn" class="admin-btn" type="button">🖨️ 카드 인쇄</button>' +
+        '<button id="issue-print-btn" class="admin-btn" type="button">🖨️ 반 안내 인쇄</button>' +
       '</div>' +
     '</div>';
   }
@@ -608,9 +605,9 @@
   function renderIssueList(batches) {
     if (!batches.length) return '<p class="admin-empty">아직 발급된 반이 없습니다.</p>';
     const rows = batches.map(b =>
-      '<tr><td>' + esc(b.course) + '</td><td>' + esc(b.batch) + '</td><td>' + b.count + '명</td><td>' + fmtTime(b.createdAt) + '</td></tr>'
+      '<tr><td>' + esc(b.course) + '</td><td>' + esc(b.code) + '</td><td>' + fmtTime(b.createdAt) + '</td></tr>'
     ).join("");
-    return '<table class="admin-issue-list"><thead><tr><th>과정</th><th>반</th><th>인원</th><th>발급일</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    return '<table class="admin-issue-list"><thead><tr><th>과정</th><th>반 코드</th><th>발급일</th></tr></thead><tbody>' + rows + '</tbody></table>';
   }
   async function refreshIssueList() {
     const listEl = root.querySelector("#issue-list");
@@ -632,19 +629,14 @@
       e.preventDefault();
       const course = courseSel.value;
       const batch = root.querySelector("#issue-batch").value.trim();
-      const count = parseInt(root.querySelector("#issue-count").value, 10);
       const resultEl = root.querySelector("#issue-result");
-      if (!batch) { resultEl.innerHTML = '<p class="admin-issue-err">반 이름을 입력하세요</p>'; return; }
-      if (!Number.isInteger(count) || count < 1 || count > 99) {
-        resultEl.innerHTML = '<p class="admin-issue-err">인원수는 1~99 사이여야 합니다</p>'; return;
-      }
+      if (!batch) { resultEl.innerHTML = '<p class="admin-issue-err">반 코드를 입력하세요</p>'; return; }
       const btn = root.querySelector("#issue-submit");
       btn.disabled = true; btn.textContent = "발급 중…";
       try {
-        const res = await issueCodes(state.key, course, batch, count);
+        const res = await issueCodes(state.key, course, batch);
         resultEl.innerHTML = renderIssueResult(res);
-        root.querySelector("#issue-csv-btn").addEventListener("click", () => downloadCsv(res));
-        root.querySelector("#issue-print-btn").addEventListener("click", () => printCards(res));
+        root.querySelector("#issue-print-btn").addEventListener("click", () => printBatchSheet(res));
         refreshIssueList();
       } catch (err) {
         if (err.code === 401) { clearKey(); renderGate("키가 만료되었습니다. 다시 입력해주세요."); return; }

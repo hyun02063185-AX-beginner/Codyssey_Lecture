@@ -100,11 +100,32 @@ test("track — course 형식 위반(대문자·숫자 포함) → 400", async (
   assert.equal(res.statusCode, 400);
 });
 
-test("track — 등록된 코드 → 204(codes 조회 후 events insert 호출 확인)", async () => {
+test("track — 식별자 51자 초과 → 400(반코드20+'-'1+이름30=51 상한)", async () => {
+  const body = JSON.stringify({ code: "A".repeat(52), event_type: "session_start", course: "aifirst" });
+  const res = await track.handler(makeEvent({ body }));
+  assert.equal(res.statusCode, 400);
+});
+
+test("track — 부분 일치(반코드 뒤에 '-' 없이 이어짐) → 204·insert 없음(오탐 방지)", async () => {
   await withEnv({ SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "test-key" }, async () => {
-    const stub = stubFetch({ codesFound: [{ code: "A반-01" }] });
+    // "A반"이 등록돼 있어도 "A반부-누구"는 "A반-"로 시작하지 않으므로 매칭돼선 안 된다.
+    const stub = stubFetch({ codesFound: [{ code: "A반" }] });
     try {
-      const body = JSON.stringify({ code: "A반-01", event_type: "session_start", course: "aifirst", payload: { skin: "office" } });
+      const body = JSON.stringify({ code: "A반부-누구", event_type: "session_start", course: "aifirst" });
+      const res = await track.handler(makeEvent({ body }));
+      assert.equal(res.statusCode, 204);
+      assert.equal(stub.calls.length, 1, "접두 불일치라 events insert가 호출되면 안 됨");
+    } finally { stub.restore(); }
+  });
+});
+
+test("track — 등록된 반코드로 시작하는 식별자 → 204(codes 조회 후 events insert 호출 확인)", async () => {
+  await withEnv({ SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "test-key" }, async () => {
+    // 반코드+이름 방식(order/코드방식_서버설정_지시서.md A) — codes 테이블엔 반코드("A반")만
+    // 등록돼 있고, 식별자("A반-김철수")는 접두 일치로 판정된다(exact match 아님).
+    const stub = stubFetch({ codesFound: [{ code: "A반" }] });
+    try {
+      const body = JSON.stringify({ code: "A반-김철수", event_type: "session_start", course: "aifirst", payload: { skin: "office" } });
       const res = await track.handler(makeEvent({ body }));
       assert.equal(res.statusCode, 204);
       assert.equal(stub.calls.length, 2, "codes 조회 1회 + events insert 1회");
@@ -216,7 +237,7 @@ test("codes — POST 키 불일치 → 401", async () => {
 
 test("codes — POST 잘못된 course → 400", async () => {
   await withEnv({ ADMIN_KEY: "secret-key" }, async () => {
-    const body = JSON.stringify({ course: "AX1", batch: "A반", count: 5 });
+    const body = JSON.stringify({ course: "AX1", batch: "A반" });
     const res = await codesFn.handler(makeEvent({ method: "POST", headers: { "x-admin-key": "secret-key" }, body }));
     assert.equal(res.statusCode, 400);
   });
@@ -224,66 +245,58 @@ test("codes — POST 잘못된 course → 400", async () => {
 
 test("codes — POST 빈 batch → 400", async () => {
   await withEnv({ ADMIN_KEY: "secret-key" }, async () => {
-    const body = JSON.stringify({ course: "ax", batch: "  ", count: 5 });
+    const body = JSON.stringify({ course: "ax", batch: "  " });
     const res = await codesFn.handler(makeEvent({ method: "POST", headers: { "x-admin-key": "secret-key" }, body }));
     assert.equal(res.statusCode, 400);
   });
 });
 
-test("codes — POST count 범위 초과(0, 100) → 400", async () => {
-  await withEnv({ ADMIN_KEY: "secret-key" }, async () => {
-    const body0 = JSON.stringify({ course: "ax", batch: "A반", count: 0 });
-    const res0 = await codesFn.handler(makeEvent({ method: "POST", headers: { "x-admin-key": "secret-key" }, body: body0 }));
-    assert.equal(res0.statusCode, 400);
-    const body100 = JSON.stringify({ course: "ax", batch: "A반", count: 100 });
-    const res100 = await codesFn.handler(makeEvent({ method: "POST", headers: { "x-admin-key": "secret-key" }, body: body100 }));
-    assert.equal(res100.statusCode, 400);
-  });
-});
-
-test("codes — POST 신규 발급 → count개 생성·insert 호출·created:true", async () => {
+test("codes — POST 신규 발급 → 반 코드 1행 생성·insert 호출·created:true", async () => {
   await withEnv({ ADMIN_KEY: "secret-key", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "test-key" }, async () => {
     const stub = stubFetch({ codesFound: [] });   // 기존 발급 없음
     try {
-      const body = JSON.stringify({ course: "ax", batch: "A반", count: 5 });
+      const body = JSON.stringify({ course: "ax", batch: "A반" });
       const res = await codesFn.handler(makeEvent({ method: "POST", headers: { "x-admin-key": "secret-key" }, body }));
       assert.equal(res.statusCode, 200);
       const data = JSON.parse(res.body);
       assert.equal(data.created, true);
-      assert.deepEqual(data.codes, ["A반-01", "A반-02", "A반-03", "A반-04", "A반-05"]);
+      assert.equal(data.code, "A반");
       assert.equal(stub.calls.length, 2, "기존 조회 1회 + insert 1회");
       assert.equal(stub.calls[1].method, "POST");
     } finally { stub.restore(); }
   });
 });
 
-test("codes — POST 이미 발급된 반 재요청 → insert 없이 기존 코드 그대로 반환(재발급 안전)", async () => {
+test("codes — POST 이미 발급된 반 재요청 → insert 없이 기존 반 코드 그대로 반환(재발급 안전)", async () => {
   await withEnv({ ADMIN_KEY: "secret-key", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "test-key" }, async () => {
-    const stub = stubFetch({ codesFound: [{ code: "A반-01" }, { code: "A반-02" }] });
+    const stub = stubFetch({ codesFound: [{ code: "A반" }] });
     try {
-      const body = JSON.stringify({ course: "ax", batch: "A반", count: 5 });   // count는 무시되고 기존 것만 반환
+      const body = JSON.stringify({ course: "ax", batch: "A반" });
       const res = await codesFn.handler(makeEvent({ method: "POST", headers: { "x-admin-key": "secret-key" }, body }));
       assert.equal(res.statusCode, 200);
       const data = JSON.parse(res.body);
       assert.equal(data.created, false);
-      assert.deepEqual(data.codes, ["A반-01", "A반-02"]);
+      assert.equal(data.code, "A반");
       assert.equal(stub.calls.length, 1, "기존 조회만 하고 insert는 호출되지 않아야 함(중복 방지)");
     } finally { stub.restore(); }
   });
 });
 
-test("codes — GET 목록 조회 → 반별로 묶은 요약 반환", async () => {
+test("codes — GET 목록 조회 → 반 코드별로 나열", async () => {
   await withEnv({ ADMIN_KEY: "secret-key", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "test-key" }, async () => {
     const rows = [
-      { course: "aifirst", batch: "A반", code: "A반-01", created_at: "2026-07-20T00:00:00Z" },
-      { course: "aifirst", batch: "A반", code: "A반-02", created_at: "2026-07-20T00:05:00Z" }
+      { course: "aifirst", batch: "A반", code: "A반", created_at: "2026-07-20T00:00:00Z" },
+      { course: "aifirst", batch: "B반", code: "B반", created_at: "2026-07-20T00:05:00Z" }
     ];
     const stub = stubFetch({ codesFound: rows });
     try {
       const res = await codesFn.handler(makeEvent({ method: "GET", headers: { "x-admin-key": "secret-key" }, query: { course: "aifirst" } }));
       assert.equal(res.statusCode, 200);
       const data = JSON.parse(res.body);
-      assert.deepEqual(data.batches, [{ course: "aifirst", batch: "A반", count: 2, createdAt: "2026-07-20T00:00:00Z" }]);
+      assert.deepEqual(data.batches, [
+        { course: "aifirst", batch: "A반", code: "A반", createdAt: "2026-07-20T00:00:00Z" },
+        { course: "aifirst", batch: "B반", code: "B반", createdAt: "2026-07-20T00:05:00Z" }
+      ]);
     } finally { stub.restore(); }
   });
 });
