@@ -307,7 +307,7 @@
     fullEl.style.transform = "translate(0,0) scale(1,1)";
     fullEl.style.opacity = "1";
     gridEl.classList.add("is-hiding");
-    if (backBtn) backBtn.hidden = IS_MOBILE;          // 모바일=테마 선택 없음
+    if (backBtn) backBtn.hidden = true;                // 강사 전용(무대뒤.테마 히든코드로만 호출, 버튼 노출 안 함)
     enterHint.classList.remove("show");
     clearTimeout(hintTimer);
     hintTimer = setTimeout(() => enterHint.classList.add("show"), 2200);
@@ -387,8 +387,8 @@
   // 전체화면: 아무 곳 클릭 → 입장 / Esc → 4분할
   fullEl.addEventListener("click", enter);
   fullEl.addEventListener("keydown", (e) => {
+    // Esc→테마 고르기 단축키는 제거(히든코드_지시서.md ② — 테마 선택 화면은 무대뒤.테마로만 진입).
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enter(); }
-    else if (e.key === "Escape") { e.preventDefault(); collapse(); }
   });
   backBtn.addEventListener("click", (e) => { e.stopPropagation(); collapse(); });
 
@@ -408,6 +408,10 @@
       clearTimeout(hintTimer); enterHint.classList.remove("show");
     }
   }
+  // 히든코드 무대뒤.테마(order/히든코드_지시서.md ②) 전용 — 4분할 선택 화면을 강제로 연다.
+  // 인트로 라우트에 이미 있고 전체화면이 떠 있는 상태에서만 안전하게 동작(telemetry.js가
+  // 먼저 인트로로 이동시킨 뒤 살짝 지연을 두고 이 함수를 부른다).
+  window.IntroTheme = { openPicker: () => { if (isIntro()) collapse(); } };
   window.addEventListener("hashchange", syncRoute);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stop();

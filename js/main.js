@@ -18,18 +18,26 @@
   })();
   window.__isMobile = IS_MOBILE;   // intro.js 등에서 공유
 
+  /* ---------- 히든코드 치트 플래그 (order/히든코드_지시서.md) ----------
+     무대뒤.* 명령이 여기 적힌 키를 localStorage에 켜고 끈다 — 실제 판정 로직은
+     기존 변수(VARIANT_PERSONAL·isSkinUnlocked 등)에 "치트도 확인" 한 줄만 얹는다.
+     #/reset이 전부 함께 정리한다(아래 Router.handle의 reset 케이스). */
+  const CHEAT_SKIN_KEY = "ax_cheat_skin_unlock";
+  const CHEAT_VARIANT_KEY = "ax_cheat_variant_personal";
+  function cheatFlag(key) { try { return localStorage.getItem(key) === "1"; } catch (e) { return false; } }
+
   /* ---------- 콘텐츠 variant — 경험판 스위치 ----------
      ?variant=personal → 7·8강처럼 slidesPersonal이 있는 강의는 경험판으로 렌더(slides.js가 분기).
-     해시 라우팅은 search를 건드리지 않으므로 세션 동안 자연 유지.
-     localStorage에 저장하지 않는다 — 링크로만 제어(평소 배포 링크는 항상 범용판). */
-  const VARIANT_PERSONAL = /[?&]variant=personal(?:&|$)/.test(location.search);
+     해시 라우팅은 search를 건드리지 않으므로 세션 동안 자연 유지. URL 또는 무대뒤.경험판 치트
+     플래그(재입력 시 해제, 페이지 새로고침으로 반영)로 켜진다. */
+  const VARIANT_PERSONAL = /[?&]variant=personal(?:&|$)/.test(location.search) || cheatFlag(CHEAT_VARIANT_KEY);
   window.__variantPersonal = VARIANT_PERSONAL;   // slides.js 로드 분기에서 참조
 
   /* ---------- 스킨 해금 Lv (site-config 주도) ----------
      스킨별 필요 Lv은 SITE_CONFIG.skinUnlockLevel에서 읽는다(한 Lv에 여러 스킨이 동시 해금될 수
      있음 — 엔진은 하드코딩하지 않는다). 명시 안 된 스킨은 availableSkins 배열 순서(1-based)로
      폴백한다. 모바일은 전부 해금, SITE_CONFIG.skinGating===false인 사이트(예: 입문 과정)도
-     Lv 무관 전부 해금. */
+     Lv 무관 전부 해금, 무대뒤.스킨 치트 플래그도 전부 해금(즉시 반영 — 새로고침 불요). */
   const SKIN_ORDER = SITE_CONFIG.availableSkins;
   function skinUnlockLevel(name) {
     const map = SITE_CONFIG.skinUnlockLevel;
@@ -39,6 +47,7 @@
   function isSkinUnlocked(name) {
     if (SITE_CONFIG.skinGating === false) return true;
     if (IS_MOBILE) return true;                                     // 모바일=전부
+    if (cheatFlag(CHEAT_SKIN_KEY)) return true;                      // 무대뒤.스킨
     return Level.n >= skinUnlockLevel(name);
   }
 
@@ -214,7 +223,10 @@
       if (r.name !== "box") window.closeFanDOM && window.closeFanDOM();  // 상자 라우트 외에는 부채꼴 닫기
       switch (r.name) {
         case "reset": {                       // #/reset → Lv·진행도 초기화 후 인트로로
-          try { localStorage.removeItem(LEVEL_KEY); localStorage.removeItem(STORE_KEY); localStorage.removeItem(RESUME_KEY); localStorage.removeItem("ax_server_session"); } catch (e) {}
+          try {
+            localStorage.removeItem(LEVEL_KEY); localStorage.removeItem(STORE_KEY); localStorage.removeItem(RESUME_KEY); localStorage.removeItem("ax_server_session");
+            localStorage.removeItem(CHEAT_SKIN_KEY); localStorage.removeItem(CHEAT_VARIANT_KEY); localStorage.removeItem("ax_cheat_practice_unlock");
+          } catch (e) {}
           if (window.Telemetry) Telemetry.clearCode();   // 수강 코드도 함께 초기화
           Level.n = 1; Level.save();          // Lv1부터 다시 시작
           Progress.seen.clear(); Progress.save();
@@ -381,7 +393,18 @@
     Progress, Skin, goScene, updateHUD, TOTAL, Router, findLecture,
     Level,                       // 실습실(practice.js)이 Lv를 읽기만 (수정 안 함)
     Resume,                      // 이어보기 — slides.js가 저장, room.js가 카드 표시
-    accent: "#22d3ee"
+    accent: "#22d3ee",
+    maxLevel: MAX_LEVEL,          // 히든코드 무대뒤.레벨.N 범위 검증용(telemetry.js)
+    // 히든코드 전용 — 코드 입력칸 파서(telemetry.js)가 호출, 즉시 반영(새로고침 불요)
+    cheatSkinUnlock(on) {
+      try { if (on) localStorage.setItem(CHEAT_SKIN_KEY, "1"); else localStorage.removeItem(CHEAT_SKIN_KEY); } catch (e) {}
+      refreshSkinLocks();
+    },
+    cheatSetLevel(n) {
+      n = Math.max(1, Math.min(MAX_LEVEL, n | 0));
+      Level.n = n; Level.save();
+      updateHUD(); refreshSkinLocks();
+    }
   };
   window.Progress = Progress;
 

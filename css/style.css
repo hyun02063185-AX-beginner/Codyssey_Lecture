@@ -1221,6 +1221,13 @@ body{
   padding:13px 20px;font-size:.9rem;box-shadow:0 12px 34px rgba(0,0,0,.45);opacity:0;transition:.4s}
 .pr-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .pr-toast b{color:var(--accent)}
+/* 히든코드 피드백 토스트(order/히든코드_지시서.md) — 어느 스킨에서도 읽히게 CSS 변수만 사용 */
+.hidden-toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(14px);z-index:99;
+  background:var(--card-bg,var(--glass));border:1px solid var(--accent);color:var(--ink);border-radius:14px;
+  padding:13px 20px;font-size:.88rem;box-shadow:var(--shadow-hover,0 12px 34px rgba(0,0,0,.45));
+  opacity:0;transition:.35s;text-align:center;max-width:88vw}
+.hidden-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden-toast--panel{display:flex;flex-direction:column;gap:4px;text-align:left;font-family:var(--font-mono)}
 /* 수료 */
 .pr-grad{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;
   background:#0a0705;opacity:0;transition:opacity .35s;text-align:center;padding:5vh 6vw}

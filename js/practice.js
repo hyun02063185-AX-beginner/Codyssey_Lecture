@@ -11,7 +11,9 @@
 
   const PKEY = "axp_progress";   // 완료 스테이션 id 배열
   const OKEY = "axp_out";        // 산출물 { id: value }
-  const UNLOCK_ALL = /[?&]unlock=1/.test(location.search);
+  // URL ?unlock=1 또는 무대뒤.진단실 히든코드(order/히든코드_지시서.md) — 둘 다 새로고침 시 반영.
+  const UNLOCK_ALL = /[?&]unlock=1/.test(location.search) ||
+    (function () { try { return localStorage.getItem("ax_cheat_practice_unlock") === "1"; } catch (e) { return false; } })();
 
   function loadDone() { try { const a = JSON.parse(localStorage.getItem(PKEY)); return new Set(Array.isArray(a) ? a : []); } catch (e) { return new Set(); } }
   function loadOut() { try { return JSON.parse(localStorage.getItem(OKEY)) || {}; } catch (e) { return {}; } }
