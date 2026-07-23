@@ -13,8 +13,12 @@ tools: Bash, Read, Grep, Glob, mcp__Claude_Browser__*
 
 ## 실행 절차
 
-1. **(하네스 등록 후에는 이 항목이 0단계로 추가된다 — 아직이면 건너뛴다)** `npm test` 실행, 실패 항목을
-   결과표에 포함.
+1. **하네스(결정론적 검사) 먼저**: 저장소 루트에서 `npm test` 실행(Node 내장 test runner, 설치
+   불필요). `tests/content-lint.test.js`(콘텐츠 구조 무결성) · `tests/aggregate.test.js`(집계
+   로직) · `tests/functions-contract.test.js`(네트워크 함수 계약)를 자동 실행한다. 실패 항목을
+   결과표에 그대로 포함하고, **하네스가 이미 판정한 것을 다시 판단하지 않는다**(중복 방지 — 결정론은
+   하네스, 상황 판단만 이 에이전트가 한다. `docs/에이전트_운영.md` "하네스와의 관계" 참고).
+   `package.json`이 없는 저장소라면(하네스 미구축) "해당없음(하네스 미구축)"으로 표시.
 2. `mcp__Claude_Browser__preview_start`로 로컬 서버를 띄운다(`.claude/launch.json` 설정 참고 —
    포트 기동에 10~20초 걸릴 수 있음, `preview_list`로 status가 "running"이 될 때까지 확인 후 진행).
    이미 떠 있으면 재사용.

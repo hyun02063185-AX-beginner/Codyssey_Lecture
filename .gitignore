@@ -16,3 +16,6 @@ err*.txt
 
 # Local Netlify folder
 .netlify
+
+# netlify dev 엣지 함수(Deno) 자동 생성 락파일
+deno.lock
