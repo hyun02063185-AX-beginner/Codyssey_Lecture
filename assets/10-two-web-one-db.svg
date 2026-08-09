@@ -1,0 +1,31 @@
+<svg width="100%" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+<rect x="0" y="0" width="680" height="420" fill="#FFFFFF"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect x="40" y="30" width="600" height="52" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="65" y="50" font-size="14" font-weight="500" fill="#444441">호스트</text>
+<text x="65" y="70" font-size="12" fill="#5F5E5A">localhost:8080 · localhost:8081</text>
+<line x1="150" y1="86" x2="150" y2="176" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="340" y1="86" x2="340" y2="176" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="162" y="124" font-size="12" fill="#5F5E5A">8080</text>
+<text x="352" y="124" font-size="12" fill="#5F5E5A">8081</text>
+<rect x="40" y="150" width="600" height="215" rx="14" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<rect x="65" y="180" width="170" height="84" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="85" y="206" font-size="14" font-weight="500" fill="#3C3489">web1</text>
+<text x="85" y="228" font-size="12" fill="#534AB7">172.18.0.2 : 80</text>
+<text x="85" y="250" font-size="12" fill="#534AB7">-p 8080:80</text>
+<rect x="255" y="180" width="170" height="84" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="275" y="206" font-size="14" font-weight="500" fill="#3C3489">web2</text>
+<text x="275" y="228" font-size="12" fill="#534AB7">172.18.0.3 : 80</text>
+<text x="275" y="250" font-size="12" fill="#534AB7">-p 8081:80</text>
+<rect x="445" y="180" width="170" height="84" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="465" y="206" font-size="14" font-weight="500" fill="#633806">db</text>
+<text x="465" y="228" font-size="12" fill="#854F0B">172.18.0.4 : 5432</text>
+<text x="465" y="250" font-size="12" fill="#854F0B">포트 매핑 없음</text>
+<line x1="150" y1="264" x2="150" y2="292" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="340" y1="264" x2="340" y2="292" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="150" y1="292" x2="530" y2="292" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="530" y1="292" x2="530" y2="268" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="200" y="316" font-size="12" fill="#5F5E5A">내부 통신 — db:5432 로 직접 연결, 매핑 불필요</text>
+<text x="65" y="348" font-size="12" fill="#0F6E56">브리지 네트워크 mynet — 172.18.0.0/16</text>
+<text x="340" y="398" text-anchor="middle" font-size="12" fill="#5F5E5A">web1과 web2는 둘 다 80번을 쓰지만 IP가 달라 충돌하지 않는다</text>
+</svg>

@@ -1,8 +1,8 @@
 {
-  "name": "ax-lecture",
+  "name": "codyssey-lecture",
   "private": true,
   "version": "1.0.0",
-  "description": "AX 실무 입문 20강 — 사유의 방 (정적 사이트, 빌드 없음). 테스트만 Node 내장 test runner 사용.",
+  "description": "비전공자를 위한 기초공사 — 미션 1, 대체 뭘 한 거지 (정적 사이트, 빌드 없음). 테스트만 Node 내장 test runner 사용.",
   "scripts": {
     "test": "node --test"
   }

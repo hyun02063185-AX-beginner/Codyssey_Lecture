@@ -1,0 +1,22 @@
+<svg width="100%" viewBox="0 0 680 350" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+<rect x="0" y="0" width="680" height="350" fill="#FFFFFF"/>
+<rect x="40" y="40" width="600" height="250" rx="20" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="70" y="68" font-size="14" font-weight="500" fill="#0C447C">프로세스 — 자원을 소유하는 단위</text>
+<rect x="65" y="90" width="270" height="175" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="90" y="116" font-size="14" font-weight="500" fill="#085041">속성 (커널이 관리)</text>
+<text x="90" y="146" font-size="12" fill="#0F6E56">PID · PPID</text>
+<text x="90" y="172" font-size="12" fill="#0F6E56">메모리 공간 — 코드, 힙, 스택</text>
+<text x="90" y="198" font-size="12" fill="#0F6E56">파일 디스크립터 0, 1, 2</text>
+<text x="90" y="224" font-size="12" fill="#0F6E56">환경변수 · 작업 디렉토리</text>
+<text x="90" y="250" font-size="12" fill="#0F6E56">소유자 · 권한 · namespace</text>
+<rect x="355" y="90" width="260" height="175" rx="12" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="380" y="116" font-size="14" font-weight="500" fill="#633806">스레드 — 실행 단위</text>
+<rect x="380" y="132" width="210" height="34" rx="6" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="485" y="149" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#712B13">메인 스레드 — 항상 존재</text>
+<rect x="380" y="174" width="210" height="34" rx="6" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="485" y="191" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#712B13">추가 스레드</text>
+<rect x="380" y="216" width="210" height="34" rx="6" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="485" y="233" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#712B13">추가 스레드</text>
+<text x="200" y="312" text-anchor="middle" font-size="12" fill="#5F5E5A">프로세스끼리는 서로 못 봄</text>
+<text x="485" y="312" text-anchor="middle" font-size="12" fill="#5F5E5A">스레드끼리는 메모리를 공유</text>
+</svg>

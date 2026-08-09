@@ -4,10 +4,10 @@
 (function () {
   "use strict";
 
-  // ★[테스트/시연] true면 "마지막 강(20강)"을 끝까지 봤을 때 전체 완주로 처리.
-  //   → 20강만 반복해 들으면 완주→업그레이드(Lv1→Lv2→…)를 빠르게 테스트할 수 있다.
+  // ★[테스트/시연] true면 "마지막 강"을 끝까지 봤을 때 전체 완주로 처리.
+  //   → 마지막 강만 반복해 들으면 완주→업그레이드(Lv1→Lv2→…)를 빠르게 테스트할 수 있다.
   //   다른 강의는 평소처럼 한 강씩만 발견된다. 실제 배포 전에는 false 로 되돌릴 것.
-  const TEST_FILL_ALL = false;   // ★배포용: 20강 전부 봐야 완주
+  const TEST_FILL_ALL = false;   // ★배포용: 전체 강의를 다 봐야 완주
 
   /* ---------- 기기 모드: 모바일(수강자) vs PC(시연) ----------
      ?view=mobile / ?view=pc 로 강제 지정 가능(한 기기에서 두 모드 확인용). */
@@ -68,7 +68,7 @@
     mark(id) {
       const was = this.seen.size;
       this.seen.add(id);
-      // 테스트 모드: 마지막 강(20강)을 끝까지 보면 전체 완주 처리
+      // 테스트 모드: 마지막 강을 끝까지 보면 전체 완주 처리
       if (TEST_FILL_ALL && id === LAST_LECTURE_ID) {
         CURRICULUM.boxes.forEach(b => b.lectures.forEach(l => this.seen.add(l.id)));
       }
@@ -164,8 +164,7 @@
     intro: document.getElementById("scene-intro"),
     start: document.getElementById("scene-start"),
     room: document.getElementById("scene-room"),
-    slides: document.getElementById("scene-slides"),
-    practice: document.getElementById("scene-practice")
+    slides: document.getElementById("scene-slides")
   };
   function goScene(name) {
     Object.values(scenes).forEach(s => s.classList.remove("is-active"));
@@ -206,7 +205,6 @@
       switch (parts[0]) {
         case "start":    return { name: "start" };
         case "reset":    return { name: "reset" };
-        case "practice": return { name: "practice" };
         case "room":    return { name: "room" };
         case "box":     return { name: "box", box: Number(parts[1]) || 0 };
         case "lecture": return { name: "lecture", id: Number(parts[1]),
@@ -225,7 +223,7 @@
         case "reset": {                       // #/reset → Lv·진행도 초기화 후 인트로로
           try {
             localStorage.removeItem(LEVEL_KEY); localStorage.removeItem(STORE_KEY); localStorage.removeItem(RESUME_KEY); localStorage.removeItem("ax_server_session");
-            localStorage.removeItem(CHEAT_SKIN_KEY); localStorage.removeItem(CHEAT_VARIANT_KEY); localStorage.removeItem("ax_cheat_practice_unlock");
+            localStorage.removeItem(CHEAT_SKIN_KEY); localStorage.removeItem(CHEAT_VARIANT_KEY);
           } catch (e) {}
           if (window.Telemetry) Telemetry.clearCode();   // 수강 코드도 함께 초기화
           Level.n = 1; Level.save();          // Lv1부터 다시 시작
@@ -239,10 +237,7 @@
         case "intro":
           bgIntro(); goScene("intro"); break;
         case "start":
-          bgSkin(); goScene("start"); if (window.refreshPracticeDoor) window.refreshPracticeDoor(); break;
-        case "practice":
-          if (SITE_CONFIG.practiceRoom === false) { Router.go("room"); return; }  // 이 사이트엔 없는 기능
-          bgSkin(); goScene("practice"); if (window.openPractice) window.openPractice(); break;
+          bgSkin(); goScene("start"); break;
         case "room":
           bgSkin(); goScene("room"); showBoxes(); break;
         case "box":
@@ -262,7 +257,7 @@
 
   /* ---------- HUD 갱신 ---------- */
   const TOTAL = CURRICULUM.boxes.reduce((n, b) => n + b.lectures.length, 0);
-  const LAST_LECTURE_ID = (() => {                 // 마지막 강의 id (= 20강)
+  const LAST_LECTURE_ID = (() => {                 // 마지막 강의 id
     const b = CURRICULUM.boxes[CURRICULUM.boxes.length - 1];
     return b.lectures[b.lectures.length - 1].id;
   })();
@@ -270,9 +265,11 @@
     const c = Progress.count();
     const pct = Math.round((c / TOTAL) * 100);
     const found = document.getElementById("found-count");
+    const foundTotal = document.getElementById("found-total");
     const fill = document.getElementById("xp-fill");
     const pctEl = document.getElementById("xp-pct");
     if (found) found.textContent = c;
+    if (foundTotal) foundTotal.textContent = TOTAL;
     if (fill) fill.style.width = pct + "%";
     if (pctEl) pctEl.textContent = pct;
     // 랭크 뱃지 (Lv2 · 탐험가) — 1회 이상 완주해야 표시
@@ -337,7 +334,7 @@
   }
   function doUpgrade() {
     if (!Level.up()) return;
-    window.Telemetry && Telemetry.runComplete(Level.n);  // 수집 훅: 20강 완주(업그레이드)
+    window.Telemetry && Telemetry.runComplete(Level.n);  // 수집 훅: 전체 강의 완주(업그레이드)
     Progress.reset();                                   // 새 회독 시작(발견도 0) + updateHUD
     if (window.refreshCardsSeen) window.refreshCardsSeen();
     refreshSkinLocks();                                 // PC: 새 Lv에서 스킨 해금 반영
@@ -496,7 +493,7 @@
   }
 
   /* ---------- 전체 목차 · 핵심 훑기 ----------
-     HUD ☰ → 20강 한 화면(완료✓·이어보기▶·DEMO), 강의 클릭 = 바로 이동(이어보기 반영).
+     HUD ☰ → 전체 강의 한 화면(완료✓·이어보기▶·DEMO), 강의 클릭 = 바로 이동(이어보기 반영).
      ⚡핵심 훑기 = 각 강의 big·quote·closing 문장만 펼침, 문장 클릭 = 그 슬라이드로 점프. */
   let tocCore = false;
   const tocEsc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

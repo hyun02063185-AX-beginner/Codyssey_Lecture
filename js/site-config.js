@@ -7,16 +7,16 @@
    const 선언 — 다른 스크립트에서 SITE_CONFIG로 바로 참조한다.
    ========================================================================= */
 const SITE_CONFIG = {
-  course: "ax",                      // LMS 과정 식별자 — Supabase events.course, stats/brief ?course= 필터
+  course: "codyssey-m1",             // LMS 과정 식별자 — Supabase events.course, stats/brief ?course= 필터
 
-  siteName: "사유의 방",              // 브랜드명. <title>·HUD 로고·슬라이드 나가기 버튼 등에 쓰인다
-  siteSubtitle: "AX 실무 입문",       // <title> 조합: `${siteSubtitle} · ${siteName}`
-  courseLabel: "AX",                 // 완주 축하 오버레이 등 짧은 배지에 쓰는 과정 약칭
+  siteName: "비전공자를 위한 기초공사",   // 브랜드명. <title>·HUD 로고·슬라이드 나가기 버튼 등에 쓰인다
+  siteSubtitle: "미션 1, 대체 뭘 한 거지", // <title> 조합: `${siteSubtitle} · ${siteName}`
+  courseLabel: "미션 1",              // 완주 축하 오버레이 등 짧은 배지에 쓰는 과정 약칭
 
   // {N}은 런타임에 실제 강의 총수(TOTAL, data.js에서 계산)로 치환된다.
-  kicker: "AI TRANSFORMATION · {N}강",     // 입장 화면 상단 킥커
-  tagline: "생각의 순서를 바꾸는 {N}강의 여정", // 입장 화면 부제
-  enterHint: "클릭하여 사유의 방으로 입장합니다", // 입장 버튼 아래 안내
+  kicker: "SYSTEM PROGRAMMING · {N}강",        // 입장 화면 상단 킥커
+  tagline: "터미널부터 GitHub까지, {N}강의 기록", // 입장 화면 부제
+  enterHint: "클릭하여 비전공자를 위한 기초공사로 입장합니다", // 입장 버튼 아래 안내
 
   defaultSkin: "sayu",               // 저장된 스킨이 없을 때 기본값 + Lv1에서 해금된 스킨 중 하나
   availableSkins: ["sayu", "pixel", "neon", "blueprint"],
@@ -30,8 +30,5 @@ const SITE_CONFIG = {
   //   주의: index.html의 #intro-grid 4분할 버튼은 아직 정적 마크업이라, 테마 개수를
   //   바꾸려면(예: 3개로 축소) index.html도 함께 수정해야 한다 — docs/엔진_경계.md 참고.
 
-  fxLevel: "full",                   // 'full' | 'calm' — calm은 폭죽·워프·상자 등장연출을 페이드로 대체
-  practiceRoom: true,                // 진단실(3층 스테이션) 노출 여부. false면 입장 화면에서 완전히 숨김
-
-  finalMessage: "사람이 방향, AI가 초안"   // 진단실 제안서 완성 화면 등에 반복 노출되는 핵심 문구
+  fxLevel: "full"                    // 'full' | 'calm' — calm은 폭죽·워프·상자 등장연출을 페이드로 대체
 };

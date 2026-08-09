@@ -1,0 +1,42 @@
+<svg width="100%" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+<rect x="0" y="0" width="680" height="420" fill="#FFFFFF"/>
+<text x="340" y="36" text-anchor="middle" font-size="15" font-weight="500" fill="#2C2C2A">10개의 실습이 모이는 여섯 가지 관심사</text>
+
+<rect x="25" y="62" width="196" height="130" rx="12" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="45" y="92" font-size="14" font-weight="500" fill="#3C3489">재현성</text>
+<text x="45" y="118" font-size="12" fill="#534AB7">어디서 실행해도 같은가</text>
+<text x="45" y="144" font-size="12" fill="#534AB7">실습 06 · 10</text>
+<text x="45" y="168" font-size="12" fill="#534AB7">이미지와 레이어</text>
+
+<rect x="243" y="62" width="196" height="130" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="263" y="92" font-size="14" font-weight="500" fill="#085041">격리</text>
+<text x="263" y="118" font-size="12" fill="#0F6E56">서로 간섭하지 않는가</text>
+<text x="263" y="144" font-size="12" fill="#0F6E56">실습 06 · 08</text>
+<text x="263" y="168" font-size="12" fill="#0F6E56">namespace</text>
+
+<rect x="461" y="62" width="196" height="130" rx="12" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="481" y="92" font-size="14" font-weight="500" fill="#633806">관측</text>
+<text x="481" y="118" font-size="12" fill="#854F0B">지금 상태를 알 수 있는가</text>
+<text x="481" y="144" font-size="12" fill="#854F0B">실습 04 · 06</text>
+<text x="481" y="168" font-size="12" fill="#854F0B">로그와 cgroup</text>
+
+<rect x="25" y="212" width="196" height="130" rx="12" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="45" y="242" font-size="14" font-weight="500" fill="#712B13">수명 관리</text>
+<text x="45" y="268" font-size="12" fill="#993C1D">언제 살고 언제 죽는가</text>
+<text x="45" y="294" font-size="12" fill="#993C1D">실습 04 · 05 · 08</text>
+<text x="45" y="318" font-size="12" fill="#993C1D">PID 1과 볼륨</text>
+
+<rect x="243" y="212" width="196" height="130" rx="12" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="263" y="242" font-size="14" font-weight="500" fill="#0C447C">최소 권한</text>
+<text x="263" y="268" font-size="12" fill="#185FA5">필요한 만큼만 주는가</text>
+<text x="263" y="294" font-size="12" fill="#185FA5">실습 02 · 09</text>
+<text x="263" y="318" font-size="12" fill="#185FA5">권한 비트와 UID</text>
+
+<rect x="461" y="212" width="196" height="130" rx="12" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="481" y="242" font-size="14" font-weight="500" fill="#444441">설정 분리</text>
+<text x="481" y="268" font-size="12" fill="#5F5E5A">환경마다 바뀌는 값은</text>
+<text x="481" y="294" font-size="12" fill="#5F5E5A">실습 10</text>
+<text x="481" y="318" font-size="12" fill="#5F5E5A">환경변수</text>
+
+<text x="340" y="378" text-anchor="middle" font-size="12" fill="#5F5E5A">여섯 가지 모두 Docker 용어가 아니다 — 어떤 시스템을 운영하든 마주치는 질문들이다</text>
+</svg>

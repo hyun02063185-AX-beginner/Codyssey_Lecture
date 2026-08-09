@@ -33,7 +33,7 @@
       case "cover":
         return `<div class="slide">
           ${lecture ? `<span class="s-cover-wm">${String(lecture.id).padStart(2, "0")}</span>` : ""}
-          <div class="s-kicker">${s.kicker || ""}</div>
+          ${s.kicker ? `<div class="s-kicker">${esc(s.kicker)}</div>` : ""}
           <h2 class="s-cover-title">${esc(s.title)}</h2>
           ${s.subtitle ? `<p class="s-cover-sub">${esc(s.subtitle)}</p>` : ""}
         </div>`;
@@ -59,9 +59,9 @@
           <h3 class="s-title">${esc(s.title)}</h3>
           <div class="s-split">
             <div class="s-col"><h4>${esc((s.left || [])[0] || "")}</h4>
-              <ul>${(s.left || []).slice(1).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+              <ul>${(s.left || []).slice(1).filter(x => x).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
             <div class="s-col"><h4>${esc((s.right || [])[0] || "")}</h4>
-              <ul>${(s.right || []).slice(1).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+              <ul>${(s.right || []).slice(1).filter(x => x).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
           </div>
         </div>`;
       case "image":
@@ -180,7 +180,7 @@
     progressFill.style.width = ((i + 1) / slides.length * 100) + "%";
     dotsEl.querySelectorAll("i").forEach((d, idx) => d.classList.toggle("active", idx === i));
     prevBtn.disabled = i === 0;
-    // 마지막 슬라이드: 다음 강의가 있으면 "다음 강의 ▶"로 이어보기, 없으면(20강) 비활성
+    // 마지막 슬라이드: 다음 강의가 있으면 "다음 강의 ▶"로 이어보기, 없으면(마지막 강) 비활성
     if (i === slides.length - 1) {
       const nl = nextLecture();
       nextBtn.disabled = !nl;

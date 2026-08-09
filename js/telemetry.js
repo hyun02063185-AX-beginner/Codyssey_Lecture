@@ -214,14 +214,6 @@
       })
     },
     {
-      label: "진단실", available: () => SITE_CONFIG.practiceRoom !== false, match: v => v === "진단실",
-      run: () => closeCodeLayerThen(() => {
-        try { localStorage.setItem("ax_cheat_practice_unlock", "1"); } catch (e) {}
-        hiddenToast("🎬 무대 뒤: 진단실 해금");
-        reloadSoon();
-      })
-    },
-    {
       label: "초기화", available: () => true, match: v => v === "초기화",
       run: () => {
         window.CodeLayer && window.CodeLayer.close();

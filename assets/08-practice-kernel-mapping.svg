@@ -1,0 +1,43 @@
+<svg width="100%" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+<rect x="0" y="0" width="680" height="400" fill="#FFFFFF"/>
+<text x="165" y="30" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">미션에서 실습한 것</text>
+<text x="515" y="30" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">실제로 사용한 커널 기능</text>
+
+<rect x="40" y="46" width="250" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="165" y="67" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3C3489">chmod 755 / 644</text>
+<line x1="292" y1="67" x2="388" y2="67" stroke="#888780" stroke-width="1"/>
+<rect x="390" y="46" width="250" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="515" y="67" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">UID와 권한 비트 검사</text>
+
+<rect x="40" y="96" width="250" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="165" y="117" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3C3489">docker run -it / attach / exec</text>
+<line x1="292" y1="117" x2="388" y2="117" stroke="#888780" stroke-width="1"/>
+<rect x="390" y="96" width="250" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="515" y="117" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">프로세스 · PID 1 · 시그널</text>
+
+<rect x="40" y="146" width="250" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="165" y="167" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3C3489">Dockerfile 빌드 · 커스텀 이미지</text>
+<line x1="292" y1="167" x2="388" y2="167" stroke="#888780" stroke-width="1"/>
+<rect x="390" y="146" width="250" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="515" y="167" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">MNT namespace — 파일시스템</text>
+
+<rect x="40" y="196" width="250" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="165" y="217" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3C3489">-p 8080:80 포트 매핑</text>
+<line x1="292" y1="217" x2="388" y2="217" stroke="#888780" stroke-width="1"/>
+<rect x="390" y="196" width="250" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="515" y="217" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">NET namespace — 포트·IP</text>
+
+<rect x="40" y="246" width="250" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="165" y="267" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3C3489">볼륨 · 바인드 마운트</text>
+<line x1="292" y1="267" x2="388" y2="267" stroke="#888780" stroke-width="1"/>
+<rect x="390" y="246" width="250" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="515" y="267" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">MNT namespace에 낸 구멍</text>
+
+<rect x="40" y="296" width="250" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="165" y="317" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3C3489">docker stats</text>
+<line x1="292" y1="317" x2="388" y2="317" stroke="#888780" stroke-width="1"/>
+<rect x="390" y="296" width="250" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="515" y="317" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">cgroup — 자원 집계와 제한</text>
+
+<text x="340" y="372" text-anchor="middle" font-size="12" fill="#5F5E5A">우리가 배운 것은 Docker 명령어가 아니라, 커널 기능을 쓰는 방법이었다</text>
+</svg>

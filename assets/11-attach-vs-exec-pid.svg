@@ -1,0 +1,30 @@
+<svg width="100%" viewBox="0 0 680 380" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+<rect x="0" y="0" width="680" height="380" fill="#FFFFFF"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text x="180" y="28" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">docker attach</text>
+<text x="500" y="28" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">docker exec</text>
+<rect x="55" y="44" width="250" height="40" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="180" y="64" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#5F5E5A">내 터미널</text>
+<rect x="375" y="44" width="250" height="40" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="500" y="64" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#5F5E5A">내 터미널</text>
+<line x1="180" y1="88" x2="180" y2="176" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="500" y1="88" x2="500" y2="220" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="192" y="116" font-size="12" fill="#5F5E5A">fd 0·1·2 에 연결</text>
+<text x="512" y="116" font-size="12" fill="#5F5E5A">새 프로세스 생성</text>
+<rect x="55" y="134" width="250" height="150" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="75" y="156" font-size="12" fill="#0F6E56">컨테이너 PID namespace</text>
+<rect x="375" y="134" width="250" height="150" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="395" y="156" font-size="12" fill="#0F6E56">컨테이너 PID namespace</text>
+<rect x="75" y="180" width="210" height="48" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="180" y="196" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#3C3489">PID 1 = bash</text>
+<text x="180" y="214" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#534AB7">유일한 프로세스</text>
+<rect x="395" y="166" width="210" height="44" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="500" y="188" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#3C3489">PID 1 = bash</text>
+<rect x="395" y="220" width="210" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="500" y="236" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">PID 7 = bash</text>
+<text x="500" y="254" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">PPID 0 — 부모가 밖에 있음</text>
+<text x="180" y="312" text-anchor="middle" font-size="12" fill="#5F5E5A">Ctrl+C → PID 1 로 전달</text>
+<text x="180" y="334" text-anchor="middle" font-size="12" fill="#5F5E5A">컨테이너 종료</text>
+<text x="500" y="312" text-anchor="middle" font-size="12" fill="#5F5E5A">exit → PID 7 만 종료</text>
+<text x="500" y="334" text-anchor="middle" font-size="12" fill="#5F5E5A">컨테이너 유지</text>
+</svg>

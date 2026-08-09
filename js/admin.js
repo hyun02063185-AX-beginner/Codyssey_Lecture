@@ -162,7 +162,7 @@
   }
   const FALLBACK_ACCENTS = ["#3E8E8E", "#7A6BB0", "#CE6D7C", "#79996A"];
   function totalLectures() {
-    try { return CURRICULUM.boxes.reduce((n, b) => n + b.lectures.length, 0) || 20; } catch (e) { return 20; }
+    try { return CURRICULUM.boxes.reduce((n, b) => n + b.lectures.length, 0) || 16; } catch (e) { return 16; }
   }
 
   async function renderDashboard(fullData, key) {
