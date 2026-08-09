@@ -1,35 +1,34 @@
-<svg width="100%" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
-<rect x="0" y="0" width="680" height="400" fill="#FFFFFF"/>
-<text x="340" y="34" text-anchor="middle" font-size="15" font-weight="500" fill="#2C2C2A">정보를 다루려면 네 가지가 필요하다</text>
-<rect x="30" y="58" width="150" height="120" rx="12" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
-<text x="105" y="88" text-anchor="middle" font-size="15" font-weight="500" fill="#3C3489">담기</text>
-<text x="105" y="114" text-anchor="middle" font-size="12" fill="#534AB7">파일</text>
-<text x="105" y="140" text-anchor="middle" font-size="12" fill="#534AB7">어디에 무엇을</text>
-<text x="105" y="160" text-anchor="middle" font-size="12" fill="#534AB7">두는가</text>
-<rect x="197" y="58" width="150" height="120" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="272" y="88" text-anchor="middle" font-size="15" font-weight="500" fill="#085041">실행</text>
-<text x="272" y="114" text-anchor="middle" font-size="12" fill="#0F6E56">프로세스</text>
-<text x="272" y="140" text-anchor="middle" font-size="12" fill="#0F6E56">언제 시작하고</text>
-<text x="272" y="160" text-anchor="middle" font-size="12" fill="#0F6E56">언제 멈추는가</text>
-<rect x="364" y="58" width="150" height="120" rx="12" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
-<text x="439" y="88" text-anchor="middle" font-size="15" font-weight="500" fill="#633806">주고받기</text>
-<text x="439" y="114" text-anchor="middle" font-size="12" fill="#854F0B">네트워크</text>
-<text x="439" y="140" text-anchor="middle" font-size="12" fill="#854F0B">어디로 어떻게</text>
-<text x="439" y="160" text-anchor="middle" font-size="12" fill="#854F0B">보내는가</text>
-<rect x="531" y="58" width="150" height="120" rx="12" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
-<text x="606" y="88" text-anchor="middle" font-size="15" font-weight="500" fill="#712B13">통제</text>
-<text x="606" y="114" text-anchor="middle" font-size="12" fill="#993C1D">권한 · 격리</text>
-<text x="606" y="140" text-anchor="middle" font-size="12" fill="#993C1D">누가 무엇까지</text>
-<text x="606" y="160" text-anchor="middle" font-size="12" fill="#993C1D">할 수 있는가</text>
-<line x1="105" y1="182" x2="105" y2="218" stroke="#5F5E5A" stroke-width="1.5"/>
-<line x1="272" y1="182" x2="272" y2="218" stroke="#5F5E5A" stroke-width="1.5"/>
-<line x1="439" y1="182" x2="439" y2="218" stroke="#5F5E5A" stroke-width="1.5"/>
-<line x1="606" y1="182" x2="606" y2="218" stroke="#5F5E5A" stroke-width="1.5"/>
-<line x1="105" y1="218" x2="606" y2="218" stroke="#5F5E5A" stroke-width="1.5"/>
-<line x1="355" y1="218" x2="355" y2="244" stroke="#5F5E5A" stroke-width="1.5"/>
-<rect x="30" y="248" width="620" height="60" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="340" y="272" text-anchor="middle" font-size="16" font-weight="500" fill="#085041">이 네 가지를 담당하는 것이 커널이다</text>
-<text x="340" y="294" text-anchor="middle" font-size="12" fill="#0F6E56">하드웨어를 직접 다루는 유일한 소프트웨어</text>
-<rect x="30" y="322" width="620" height="48" rx="12" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-<text x="340" y="346" text-anchor="middle" font-size="14" font-weight="500" fill="#444441">커널 + 사용자 도구(셸, 명령어, 라이브러리) = 운영체제(OS)</text>
+<svg width="100%" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+<rect x="0" y="0" width="680" height="320" fill="#FFFFFF"/>
+<rect x="30" y="18" width="150" height="118" rx="12" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="105" y="48" text-anchor="middle" font-size="15" font-weight="500" fill="#3C3489">담기</text>
+<text x="105" y="74" text-anchor="middle" font-size="12" fill="#534AB7">파일</text>
+<text x="105" y="100" text-anchor="middle" font-size="12" fill="#534AB7">어디에 무엇을</text>
+<text x="105" y="120" text-anchor="middle" font-size="12" fill="#534AB7">두는가</text>
+<rect x="197" y="18" width="150" height="118" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="272" y="48" text-anchor="middle" font-size="15" font-weight="500" fill="#085041">실행</text>
+<text x="272" y="74" text-anchor="middle" font-size="12" fill="#0F6E56">프로세스</text>
+<text x="272" y="100" text-anchor="middle" font-size="12" fill="#0F6E56">언제 시작하고</text>
+<text x="272" y="120" text-anchor="middle" font-size="12" fill="#0F6E56">언제 멈추는가</text>
+<rect x="364" y="18" width="150" height="118" rx="12" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="439" y="48" text-anchor="middle" font-size="15" font-weight="500" fill="#633806">주고받기</text>
+<text x="439" y="74" text-anchor="middle" font-size="12" fill="#854F0B">네트워크</text>
+<text x="439" y="100" text-anchor="middle" font-size="12" fill="#854F0B">어디로 어떻게</text>
+<text x="439" y="120" text-anchor="middle" font-size="12" fill="#854F0B">보내는가</text>
+<rect x="531" y="18" width="150" height="118" rx="12" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="606" y="48" text-anchor="middle" font-size="15" font-weight="500" fill="#712B13">통제</text>
+<text x="606" y="74" text-anchor="middle" font-size="12" fill="#993C1D">권한 · 격리</text>
+<text x="606" y="100" text-anchor="middle" font-size="12" fill="#993C1D">누가 무엇까지</text>
+<text x="606" y="120" text-anchor="middle" font-size="12" fill="#993C1D">할 수 있는가</text>
+<line x1="105" y1="140" x2="105" y2="162" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="272" y1="140" x2="272" y2="162" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="439" y1="140" x2="439" y2="162" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="606" y1="140" x2="606" y2="162" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="105" y1="162" x2="606" y2="162" stroke="#5F5E5A" stroke-width="1.5"/>
+<line x1="355" y1="162" x2="355" y2="186" stroke="#5F5E5A" stroke-width="1.5"/>
+<rect x="30" y="190" width="620" height="58" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="340" y="214" text-anchor="middle" font-size="16" font-weight="500" fill="#085041">이 네 가지를 담당하는 것이 커널이다</text>
+<text x="340" y="236" text-anchor="middle" font-size="12" fill="#0F6E56">하드웨어를 직접 다루는 유일한 소프트웨어</text>
+<rect x="30" y="260" width="620" height="46" rx="12" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="340" y="286" text-anchor="middle" font-size="14" font-weight="500" fill="#444441">커널 + 사용자 도구(셸, 명령어, 라이브러리) = 운영체제(OS)</text>
 </svg>
