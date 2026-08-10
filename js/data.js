@@ -1545,7 +1545,8 @@ const CURRICULUM = {
           caption: '아래에서 위로 — 무엇 위에 무엇이 얹혀 있는가. 크게 보려면 concept-map.pdf 를 받으세요' },
 
         { type: 'closing', title: '전체 개념 지도',
-          teaser: '지금까지 나온 개념을 한 장에 정리한 PDF가 있습니다 — assets/concept-map.pdf' },
+          teaser: '지금까지 나온 개념을 한 장에 정리했습니다. 확대해서 보거나 저장해 두세요.',
+          link: { url: 'assets/concept-map.pdf', label: 'PDF로 열기' } },
       ]},
 
     ]},

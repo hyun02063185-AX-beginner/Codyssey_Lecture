@@ -36,11 +36,13 @@
           ${s.kicker ? `<div class="s-kicker">${esc(s.kicker)}</div>` : ""}
           <h2 class="s-cover-title">${esc(s.title)}</h2>
           ${s.subtitle ? `<p class="s-cover-sub">${esc(s.subtitle)}</p>` : ""}
+          ${renderLink(s)}
         </div>`;
       case "big":
         return `<div class="slide" style="align-items:flex-start">
           <h2 class="s-big">${esc(s.word)}</h2>
           ${s.sub ? `<p class="s-big-sub">${esc(s.sub)}</p>` : ""}
+          ${renderLink(s)}
         </div>`;
       case "bullets":
         return `<div class="slide">
@@ -48,11 +50,13 @@
           ${s.subtitle ? `<p class="s-sub">${esc(s.subtitle)}</p>` : ""}
           <ul class="s-list">${(s.items || []).map((it, i) =>
             `<li style="animation-delay:${0.15 + i * 0.13}s">${esc(it)}</li>`).join("")}</ul>
+          ${renderLink(s)}
         </div>`;
       case "quote":
         return `<div class="slide">
           <p class="s-quote">${esc(s.text)}</p>
           ${s.by ? `<p class="s-quote-by">${esc(s.by)}</p>` : ""}
+          ${renderLink(s)}
         </div>`;
       case "split":
         return `<div class="slide">
@@ -63,6 +67,7 @@
             <div class="s-col"><h4>${esc((s.right || [])[0] || "")}</h4>
               <ul>${(s.right || []).slice(1).filter(x => x).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
           </div>
+          ${renderLink(s)}
         </div>`;
       case "image":
         return `<div class="slide" style="align-items:center;text-align:center">
@@ -72,15 +77,23 @@
           <div class="s-img-fallback" style="display:none">이미지를 <code>assets/</code>에 넣고 경로를 지정하세요<br>(${esc(s.src || "")})</div>
           ${s.caption ? `<p class="s-img-cap">${esc(s.caption)}</p>` : ""}
           <span class="s-img-hint">＋ 크게 · － 원래대로</span>
+          ${renderLink(s)}
         </div>`;
       case "closing":
         return `<div class="slide">
           <h2 class="s-closing-title">${esc(s.title)}</h2>
           ${s.teaser ? `<div class="s-teaser">${esc(s.teaser)}</div>` : ""}
+          ${renderLink(s)}
         </div>`;
       default:
         return `<div class="slide"><p class="s-cover-sub">알 수 없는 슬라이드 타입: ${esc(s.type)}</p></div>`;
     }
+  }
+
+  // 선택 필드 link: { url, label } — 있으면 새 탭 버튼 링크, 없으면 아무것도 그리지 않음
+  function renderLink(s) {
+    if (!s.link || !s.link.url) return "";
+    return `<a class="s-link" href="${esc(s.link.url)}" target="_blank" rel="noopener">${esc(s.link.label || s.link.url)}</a>`;
   }
 
   function esc(t) {
