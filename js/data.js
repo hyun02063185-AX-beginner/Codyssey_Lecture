@@ -1540,8 +1540,12 @@ const CURRICULUM = {
           text: '정답지가 아닙니다.\n배우는 과정에서 정리한 것이라\n틀린 부분이 있을 수 있습니다.',
           by: '발견하면 알려주시면 좋겠습니다' },
 
-        { type: 'closing', title: '기초공사는 여기까지입니다',
-          teaser: '다음 미션에서 이 위에 무언가를 올리게 됩니다' },
+        { type: 'image', title: '한 장으로 보는 전체 구조',
+          src: 'assets/14-concept-map.svg', diagram: true,
+          caption: '아래에서 위로 — 무엇 위에 무엇이 얹혀 있는가. 크게 보려면 concept-map.pdf 를 받으세요' },
+
+        { type: 'closing', title: '전체 개념 지도',
+          teaser: '지금까지 나온 개념을 한 장에 정리한 PDF가 있습니다 — assets/concept-map.pdf' },
       ]},
 
     ]},
